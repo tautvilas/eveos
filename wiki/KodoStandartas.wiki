@@ -1,14 +1,12 @@
 #summary Kodo standartas
 
-=block statements=
+==block statements==
 
-<i>Bad:</i>
-
+_Bad:
 void function(void) {
 }
 
-<i>Good:</i>
-
+_Good:
 void function(void)
 {
 }
