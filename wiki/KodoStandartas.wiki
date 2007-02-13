@@ -5,10 +5,13 @@
 _Bad:_
 
 void function(void) {
+
 }
 
 _Good:_
 
 void function(void)
+
 {
+
 }
