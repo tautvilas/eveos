@@ -1,2 +1,14 @@
 #summary Kodo standartas
 
+=block statements=
+
+Bad:
+
+void function(void) {
+}
+
+Good:
+
+void function(void)
+{
+}
