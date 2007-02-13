@@ -2,12 +2,12 @@
 
 =block statements=
 
-Bad:
+<i>Bad:</i>
 
 void function(void) {
 }
 
-Good:
+<i>Good:</i>
 
 void function(void)
 {
