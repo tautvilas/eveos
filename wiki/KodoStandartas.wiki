@@ -2,11 +2,11 @@
 
 ==block statements==
 
-_Bad:
+_Bad:_
 void function(void) {
 }
 
-_Good:
+_Good:_
 void function(void)
 {
 }
