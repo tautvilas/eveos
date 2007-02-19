@@ -7,13 +7,15 @@
 ; Init                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "include/aliases.asm"
+%include "aliases.asm"
 ; Time for P-mode!
 [bits 32]
 ; Entry symbol for linker
 global start
 ; C main fuction
-extern main
+extern _main
+extern _gp
+global _gdt_flush
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Main                                                  ;
@@ -30,9 +32,15 @@ mboot:
 	; multiboot headers for GRUB goes here (if needed)
 
 continue:
-	;mov ax, 0B000h
-	;mov es, ax
-	;mov word [es:8000h], 0x094B
+
+	mov ax, 0x00
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+	jmp 0x00:fflush2
+fflush2:
 
 	;;;;;;;;;;;;;;;; DEBUG
 	mov al, '!'
@@ -42,12 +50,37 @@ continue:
 	int VIDEO_S
 	;;;;;;;;;;;;;;;; EO DEBUG
 
-	call main
+	;mov ax, 0
+	;mov fs, ax
+	;mov word [fs:0B8000h], 0x094B
+
+	call _main
+
 	jmp $ ; forever loop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Proc                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+_gdt_flush:
+	;;;;;;;;;;;;;;;; DEBUG
+	mov al, 'G'
+	mov ah, TELETYPE_F
+	mov bh, 0
+	mov bl, GRAY_CL
+	int VIDEO_S
+	;;;;;;;;;;;;;;;; EO DEBUG
+
+	lgdt [_gp]
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+	jmp 0x08:flush2
+flush2:
+	ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data                                                  ;
