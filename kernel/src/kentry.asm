@@ -22,65 +22,65 @@ global _gdt_flush
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; this jmp is needed for integrity test
-	jmp start
+    jmp start
 start:
 ; initialize the system stack
-	mov esp, _sys_stack
-	jmp continue
+    mov esp, _sys_stack
+    jmp continue
 
 mboot:
-	; multiboot headers for GRUB goes here (if needed)
+    ; multiboot headers for GRUB goes here (if needed)
 
 continue:
 
-	mov ax, 0x00
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
-	jmp 0x00:fflush2
+    mov ax, 0x00
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    jmp 0x00:fflush2
 fflush2:
 
-	;;;;;;;;;;;;;;;; DEBUG
-	mov al, '!'
-	mov ah, TELETYPE_F
-	mov bh, 0
-	mov bl, GRAY_CL
-	int VIDEO_S
-	;;;;;;;;;;;;;;;; EO DEBUG
+    ;;;;;;;;;;;;;;;; DEBUG
+    mov al, '!'
+    mov ah, TELETYPE_F
+    mov bh, 0
+    mov bl, GRAY_CL
+    int VIDEO_S
+    ;;;;;;;;;;;;;;;; EO DEBUG
 
-	;mov ax, 0
-	;mov fs, ax
-	;mov word [fs:0B8000h], 0x094B
+    ;mov ax, 0
+    ;mov fs, ax
+    ;mov word [fs:0B8000h], 0x094B
 
-	call _main
+    call _main
 
-	jmp $ ; forever loop
+    jmp $ ; forever loop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Proc                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 _gdt_flush:
-	;;;;;;;;;;;;;;;; DEBUG
-	mov al, 'G'
-	mov ah, TELETYPE_F
-	mov bh, 0
-	mov bl, GRAY_CL
-	int VIDEO_S
-	;;;;;;;;;;;;;;;; EO DEBUG
+    ;;;;;;;;;;;;;;;; DEBUG
+    mov al, 'G'
+    mov ah, TELETYPE_F
+    mov bh, 0
+    mov bl, GRAY_CL
+    int VIDEO_S
+    ;;;;;;;;;;;;;;;; EO DEBUG
 
-	lgdt [_gp]
-	mov ax, 0x10
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
-	jmp 0x08:flush2
+    lgdt [_gp]
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    jmp 0x08:flush2
 flush2:
-	ret
+    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data                                                  ;
@@ -92,7 +92,7 @@ flush2:
 
 ; 8kb stack
 SECTION .bss
-	resb STACK_SIZE
+    resb STACK_SIZE
 _sys_stack:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
