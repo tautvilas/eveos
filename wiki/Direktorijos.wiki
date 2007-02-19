@@ -6,4 +6,5 @@ Paziurejau keleta open source programeliu ir jose .o .c ir .h failai laikomi toj
 
 gd:
 Manau .c, .asm, .h failus galim toj pačioj direktorijoj laikyt, bet .o iškelt į kitą.
+
 tm: as manau kad header failus galim palik kitoj direktorijoj, ir tai nesudarys papildomu problemu. del obj pritariu. asm jau sukeliau i "src" direktorija visus.
