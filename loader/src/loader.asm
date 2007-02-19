@@ -7,7 +7,7 @@
 ; Init                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "include/aliases.asm"
+%include "aliases.asm"
 ;PC starts booting in real mode
 [bits 16]
 ;Location in mem where bootsector is about to be stored
