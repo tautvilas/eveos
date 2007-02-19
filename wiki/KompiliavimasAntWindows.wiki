@@ -1,0 +1,12 @@
+#summary Kompiliavimas ant Windows
+
+Išbandžiau MinGW, Cygwin ir DJGPP. Viskas kompiliuojasi su visais, bet DJGPP `ld` suvalgo aout formatą.
+
+Matyt ant Windows teks dirbt su DJGPP...
+
+Beje, kad galėčiau pradėt naudot `make` ir kompiliuot su Cygwin teko nusiponpuot 137MB =-/, kai DJGPP užima tik ~20MB =-)
+
+Pagrindinis DJGPP minusas, kad kiekvieną kartą reikia iškviest tą `setdjgpp.bat` ir make faile nurodyt pilną kelią kur yra jo include'ai.
+
+Gal bandyt susikonstruot mišrūną iš MinGW `gcc` ir `make`, ir DJGPP `ld`? Būtų geekiška, ką manai? :-)
+
