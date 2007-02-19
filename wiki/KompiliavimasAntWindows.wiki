@@ -10,3 +10,12 @@ Pagrindinis DJGPP minusas, kad kiekvieną kartą reikia iškviest tą `setdjgpp.
 
 Gal bandyt susikonstruot mišrūną iš MinGW `gcc` ir `make`, ir DJGPP `ld`? Būtų geekiška, ką manai? :-)
 
+=======================================
+
+Pirma manau kad sita tema reikejo pakurti kaip issue o ne kaip wiki:)
+
+Siaip manau kad mum reikia pabandyti islaikyti principa kad Makefailas butu tas pats ir mano linuxui ir tavo windowsam. Nes kaip paskaitinejau, tai nelabai yra kokiu butu platformai makefaile nustatyti. Todel DJGPP bat'o includinimas butu nelabai geras dalykas:) As manau, kad reiktu pabandyt misruno varianta.
+
+Taip pat idomu ar jau isbandei floppy image ant emuliatoriaus? Ar veikia? Dar butu gerai viskai isbandyt ant seno tamosiaus PC:)
+
+Beje neblogas google.code fyceris yra padaryti kad i emeila siustu notificationus apie pasikeitimus "issues" skyrelyje. Cia prie "Administer" nustatymu rasi kaip tai padaryti. Taip pat galima padaryti kad informuotu ir apie svn repositoriaus atnaujinimus.
