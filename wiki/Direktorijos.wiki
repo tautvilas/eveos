@@ -3,3 +3,6 @@
 ===Mano pastebejimas del direktorijų medžio:===
 
 Paziurejau keleta open source programeliu ir jose .o .c ir .h failai laikomi toje pacioje direktrijoje. Manau del to, kad taip palengveja kompiliavimas. Ka manai?
+
+gd:
+Manau .c, .asm, .h failus galim toj pačioj direktorijoj laikyt, bet .o iškelt į kitą.
