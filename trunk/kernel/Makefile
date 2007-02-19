@@ -19,5 +19,5 @@ gdt.o: gdt.c system.h
 
 .PHONY: clean
 clean:
-	rm -f $(OBJ_DIR)*
-	rm -f $(BIN_DIR)*
+	rm -f $(OBJ_DIR)*.o
+	rm -f $(BIN_DIR)*.bin

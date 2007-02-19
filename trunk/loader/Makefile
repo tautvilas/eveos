@@ -12,4 +12,4 @@ loader.bin: loader.asm aliases.asm
 
 .PHONY: clean
 clean:
-	rm -f $(BIN_DIR)*
+	rm -f $(BIN_DIR)*.bin

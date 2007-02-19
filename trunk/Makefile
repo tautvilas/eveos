@@ -18,7 +18,7 @@ all:
 
 .PHONY: clean archive chekout
 clean:
-	rm -f $(IMAGE_DIR)*
+	rm -f $(IMAGE_DIR)*.img
 	(cd $(KERNEL_DIR) && make clean)
 	(cd $(LOADER_DIR) && make clean)
 
