@@ -16,3 +16,6 @@ void function(void)
 
 }
 }}}
+
+
+gd: labai tingiu portint viską į wiki sintaxę, tai pradžiai linkas bendram vaizdui susidaryt: http://bhb.linija.net/gonix/coding_standards/cpp_standartas.html
