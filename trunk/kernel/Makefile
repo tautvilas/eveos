@@ -4,12 +4,11 @@ BIN_DIR = bin/
 
 VPATH = src:src/headers:bin/:obj/
 CARGS = -Wall -O -fstrength-reduce -fomit-frame-pointer -fleading-underscore -finline-functions \
-		-nostdinc -fno-builtin -I$(SRC_DIR)/headers -c
+		-ffreestanding -nostdinc -fno-builtin -I$(SRC_DIR)/headers -c
 ASMARGS = -f aout -I$(SRC_DIR)
 
 kernel.bin: kentry.o main.o gdt.o
 	@echo ~~~~~ Linking kernel ~~~~~
-	@echo $(SYSTEM)
 	ld -T link.ld -o $(BIN_DIR)kernel.bin $(OBJ_DIR)kentry.o $(OBJ_DIR)main.o $(OBJ_DIR)gdt.o
 kentry.o: kentry.asm aliases.asm
 	nasm $(ASMARGS) $(SRC_DIR)kentry.asm -o $(OBJ_DIR)kentry.o
