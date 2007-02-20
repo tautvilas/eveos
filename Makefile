@@ -8,7 +8,6 @@ LOADER_BIN = loader/bin/loader.bin
 IMAGE_BIN = image/floppy.img
 
 VPATH = image:kernel/bin:loader/bin:kernel/:loader
-
 all:
 	(cd $(KERNEL_DIR) && ${MAKE})
 	(cd $(LOADER_DIR) && ${MAKE})
