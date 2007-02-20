@@ -1,5 +1,3 @@
 #summary Kodo standartas
 
-gd: labai tingiu portint viską į wiki sintaxę, tai pradžiai linkas bendram vaizdui susidaryt: http://bhb.linija.net/gonix/coding_standards/cpp_standartas.html
-
-tm: okey, kol kas manau gali neportint. idejau tavo nuoroda i projekto linku skirsni.
+http://bhb.linija.net/gonix/coding_standards/cpp_standartas.html
