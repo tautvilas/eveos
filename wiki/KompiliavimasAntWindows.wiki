@@ -19,3 +19,22 @@ Siaip manau kad mum reikia pabandyti islaikyti principa kad Makefailas butu tas 
 Taip pat idomu ar jau isbandei floppy image ant emuliatoriaus? Ar veikia? Dar butu gerai viskai isbandyt ant seno tamosiaus PC:)
 
 Beje neblogas google.code fyceris yra padaryti kad i emeila siustu notificationus apie pasikeitimus "issues" skyrelyje. Cia prie "Administer" nustatymu rasi kaip tai padaryti. Taip pat galima padaryti kad informuotu ir apie svn repositoriaus atnaujinimus.
+
+===
+
+giedrius: 
+
+Manau vėliau bus galima šitą diskusiją ištrint ir palikt tiesiog instrukcijas kaip sukompiliuot mūsų eveos ant windows.
+
+Aš kiek ieškojau info, tai radau šiokį tokį OS tikrinimą `Makefaile`. Gerai neatsimenu bet kažkaip panašiai:
+{{{
+ifeq OS, Windows_NT
+OS = win
+else
+OS = nix
+endif
+}}}
+Bent jau ant mano WinXP yra toks env kintamasis OS, kuris lygus Windows_NT. Tikėtina, kad ant visų NT šeimos windowsų yra toks, bet dėl Win9x, tai abejoju.
+
+Dar ant emuliatoriaus neišbandžiau nes iki nakties knisausi prie sukompiliavimo :-/
+
