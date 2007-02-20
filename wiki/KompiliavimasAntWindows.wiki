@@ -22,7 +22,7 @@ Beje neblogas google.code fyceris yra padaryti kad i emeila siustu notificationu
 
 ===
 
-giedrius: 
+gd: 
 
 Manau vėliau bus galima šitą diskusiją ištrint ir palikt tiesiog instrukcijas kaip sukompiliuot mūsų eveos ant windows.
 
@@ -37,4 +37,3 @@ endif
 Bent jau ant mano WinXP yra toks env kintamasis OS, kuris lygus Windows_NT. Tikėtina, kad ant visų NT šeimos windowsų yra toks, bet dėl Win9x, tai abejoju.
 
 Dar ant emuliatoriaus neišbandžiau nes iki nakties knisausi prie sukompiliavimo :-/
-
