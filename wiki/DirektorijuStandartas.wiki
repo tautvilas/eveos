@@ -2,7 +2,7 @@
 
 =Direktorijų pavadinimų reikšmės=
 
-_src/_ - direktorija, skirta išeities tekstams (.asm ir .c)<br>
+_src/_ - direktorija, skirta išeities tekstams (.asm ir .c)<br />
 _headers/_ - direktorija, kuri privalo būti direktorijoje _src/_ ir yra skirta C header (.h) failams<br>
 _obj/_ - direktorija, skirta objektiniams (.o) failams<br>
 _doc/_ - direktorija, skirta dokumentacijai<br>
