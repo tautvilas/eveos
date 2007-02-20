@@ -14,19 +14,19 @@
 
 ==Direktorijų hierarchija==
 
-  /
-  /image
-  /kernel
-  /kernel/src
-  /kernel/src/headers
-  /kernel/doc
-  /kernel/obj
-  /kernel/bin
-  /loader
-  /loader/src
-  /loader/doc
-  /loader/bin
+  * /
+  * /image
+  * /kernel
+  * /kernel/doc
+  * /kernel/obj
+  * /kernel/bin
+  * /kernel/src
+  * /kernel/src/headers
+  * /loader
+  * /loader/src
+  * /loader/doc
+  * /loader/bin
 
 ==Papildomos pastabos==
 
-Visi su buildinimu susiije skriptai turi buti direktorijose _/_, _/kernel_ ir _/loader_
+Visi su buildinimu susiję skriptai turi buti direktorijose _/_, _/kernel_ ir _/loader_
