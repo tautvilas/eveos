@@ -1,7 +1,49 @@
 #summary EveOS direktorijų medžio standartas
 
-===Direktorijų pavadinimų reikšmės===
+=Direktorijų pavadinimų reikšmės=
 
-src/ - direktorija, skirta išeities tekstams
-obj/ - direktorija, skirta objektiniams (.o) failams
-doc/ - direktorija, skirta dokumentacijai
+_src/_ - direktorija, skirta išeities tekstams (.asm ir .c)
+
+_headers/_ - direktorija, kuri privalo būti direktorijoje _src/_ ir yra skirta C header (.h) failams
+
+_obj/_ - direktorija, skirta objektiniams (.o) failams
+
+_doc/_ - direktorija, skirta dokumentacijai
+
+_bin/_ - direktorija, skirta dvejetainiams (.bin) failams
+
+_image/_ - čia talpinamas sukompiliuotas ir paruoštas įrašymui į diskelį EveOS image'as
+
+_kernel/_ - direktorija skirta EveOS branduoliui
+
+_loader/_ - direktorija skirta EveOS loaderiui
+
+=Direktorijų hierarchija=
+
+/
+
+/image
+
+/kernel
+
+/kernel/src
+
+/kernel/src/headers
+
+/kernel/doc
+
+/kernel/obj
+
+/kernel/bin
+
+/loader
+
+/loader/src
+
+/loader/doc
+
+/loader/bin
+
+=Papildomos pastabos=
+
+Visi su buildinimu susiije skriptai turi buti direktorijose _/_, _/kernel_ ir _/loader_
