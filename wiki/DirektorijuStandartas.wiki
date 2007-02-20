@@ -2,14 +2,14 @@
 
 =Direktorijų pavadinimų reikšmės=
 
-_src/_ - direktorija, skirta išeities tekstams (.asm ir .c)<br />
-_headers/_ - direktorija, kuri privalo būti direktorijoje _src/_ ir yra skirta C header (.h) failams<br>
-_obj/_ - direktorija, skirta objektiniams (.o) failams<br>
-_doc/_ - direktorija, skirta dokumentacijai<br>
-_bin/_ - direktorija, skirta dvejetainiams (.bin) failams<br>
-_image/_ - čia talpinamas sukompiliuotas ir paruoštas įrašymui į diskelį EveOS image'as<br>
-_kernel/_ - direktorija skirta EveOS branduoliui<br>
-_loader/_ - direktorija skirta EveOS loaderiui<br>
+||_src/_ || direktorija, skirta išeities tekstams (.asm ir .c)||
+||_headers/_ ||- direktorija, kuri privalo būti direktorijoje _src/_ ir yra skirta C header (.h) failams||
+||_obj/_||direktorija, skirta objektiniams (.o) failams||
+||_doc/_||direktorija, skirta dokumentacijai||
+||_bin/_||direktorija, skirta dvejetainiams (.bin) failams||
+||_image/_||čia talpinamas sukompiliuotas ir paruoštas įrašymui į diskelį EveOS image'as||
+||_kernel/_||direktorija skirta EveOS branduoliui||
+||_loader/_||direktorija skirta EveOS loaderiui||
 
 =Direktorijų hierarchija=
 
