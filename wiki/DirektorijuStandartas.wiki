@@ -14,18 +14,18 @@
 
 ==Direktorijų hierarchija==
 
-  * /
-  * /image
-  * /kernel
-  * /kernel/src
-  * /kernel/src/headers
-  * /kernel/doc
-  * /kernel/obj
-  * /kernel/bin
-  * /loader
-  * /loader/src
-  * /loader/doc
-  * /loader/bin
+  /
+  /image
+  /kernel
+  /kernel/src
+  /kernel/src/headers
+  /kernel/doc
+  /kernel/obj
+  /kernel/bin
+  /loader
+  /loader/src
+  /loader/doc
+  /loader/bin
 
 ==Papildomos pastabos==
 
