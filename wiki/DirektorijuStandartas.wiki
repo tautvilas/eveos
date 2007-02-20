@@ -1,0 +1,7 @@
+#summary EveOS direktorijų medžio standartas
+
+===Direktorijų pavadinimų reikšmės===
+
+src/ - direktorija, skirta išeities tekstams
+obj/ - direktorija, skirta objektiniams (.o) failams
+doc/ - direktorija, skirta dokumentacijai
