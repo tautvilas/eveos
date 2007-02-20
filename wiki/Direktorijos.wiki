@@ -1,4 +1,4 @@
-#summary Direktorijų medžio standartas
+#summary EveOs direktorijų medžio standartas
 
 ===Mano pastebejimas del direktorijų medžio:===
 
