@@ -10,7 +10,6 @@ IMAGE_BIN = image/floppy.img
 VPATH = image:kernel/bin:loader/bin:kernel/:loader
 
 all:
-	@echo Preparing kernel for $(OS) OS
 	(cd $(KERNEL_DIR) && ${MAKE})
 	(cd $(LOADER_DIR) && ${MAKE})
 	@echo ~~~~~ Preparing floppy image ~~~~~
