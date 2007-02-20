@@ -3,7 +3,7 @@
 ==Direktorijų pavadinimų reikšmės==
 
 ||_src/_ || direktorija, skirta išeities tekstams (.asm ir .c)||
-||_headers/_ ||- direktorija, kuri privalo būti direktorijoje _src/_ ir yra skirta C header (.h) failams||
+||_headers/_ ||direktorija, kuri privalo būti direktorijoje _src/_ ir yra skirta C header (.h) failams||
 ||_obj/_||direktorija, skirta objektiniams (.o) failams||
 ||_doc/_||direktorija, skirta dokumentacijai||
 ||_bin/_||direktorija, skirta dvejetainiams (.bin) failams||
@@ -29,4 +29,4 @@
 
 ==Papildomos pastabos==
 
-Visi su buildinimu susiję skriptai turi buti direktorijose _/_, _/kernel_ ir _/loader_
+Visi su buildinimu susiję skriptai turi būti direktorijose _/_, _/kernel_ ir _/loader_
