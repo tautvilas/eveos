@@ -50,6 +50,6 @@ void outportb (unsigned short _port, unsigned char _data)
 void os_main()
 {
     gdt_install();
-    //for (;;);
+    for (;;);
     return;
 }
