@@ -13,7 +13,7 @@
 ; Entry symbol for linker
 global start
 ; C main fuction
-extern _main
+extern _os_main
 extern _gp
 global _gdt_flush
 
@@ -54,7 +54,7 @@ fflush2:
     ;mov fs, ax
     ;mov word [fs:0B8000h], 0x094B
 
-    call _main
+    call _os_main
 
     jmp $ ; forever loop
 
