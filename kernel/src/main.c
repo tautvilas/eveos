@@ -30,7 +30,9 @@ unsigned short *memsetw(unsigned short *dest, unsigned short val, int count)
 
 int strlen(const char *str)
 {
-    return 0;
+    const char* p = str;
+    while (*p) ++p;
+	return p - str;
 }
 
 unsigned char inportb (unsigned short _port)
@@ -45,7 +47,7 @@ void outportb (unsigned short _port, unsigned char _data)
     __asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
-void main()
+void os_main()
 {
     gdt_install();
     //for (;;);
