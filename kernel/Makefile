@@ -1,8 +1,7 @@
-
 # setting variables depending on OS
 # OS    - OS identifier (win/nix)
-# DS    - directory seperator
-# PS    - path seperator
+# DS    - directory separator
+# PS    - path separator
 # RM    - command for deleting files
 ifeq ($(OS),Windows_NT)
 	OS := win
@@ -13,7 +12,7 @@ else
 	OS := nix
 	DS := /
 	PS := :
-	RM := rm
+	RM := rm -f
 endif
 
 # this hides commands
@@ -27,7 +26,7 @@ INC_DIR := $(SRC_DIR)$(DS)headers
 OBJ_DIR := obj
 BIN_DIR := bin
 
-# directories with trailing directory seperator
+# directories with trailing directory separator
 SRC := $(SRC_DIR)$(DS)
 OBJ := $(OBJ_DIR)$(DS)
 BIN := $(BIN_DIR)$(DS)
