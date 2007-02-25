@@ -39,7 +39,7 @@ VPATH   := $(IMAGE_DIR)$(PS)$(LOADER_DIR)$(DS)bin$(PS)$(KERNEL_DIR)$(DS)bin
 
 all:
 	$E(cd $(LOADER_DIR) && $(MAKE))
-	$E(cd $(KERNEL_DIR) && $E$(MAKE))
+	$E(cd $(KERNEL_DIR) && $(MAKE))
 	@echo ~~~ Building EveOS image
 ifeq ($(SYS),win)
 	$Ecopy /Y $(LOADER) /B + $(KERNEL) /B $(IMAGE) /B > $(NUL)
