@@ -51,7 +51,7 @@ define C_COMPILE
 endef
 
 #kernel.bin: kentry.o main.o gdt.o
-kernel.bin: kentry.o
+kernel.bin: kentry.o main.o
 	@echo ~~~ Linking $(^F)
 	$Eld -T link.ld -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
