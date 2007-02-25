@@ -11,6 +11,8 @@
 ; Entry symbol for linker
 [global _start]
 
+extern _os_main
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Main                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -59,6 +61,8 @@ go_pm:
     ; Let's put this symbol in flat mode
     mov word [ds:0x0B8212], '!'
     mov word [ds:0x0B8213], 0x07
+
+    call    _os_main
 
     spin : jmp spin       ; Loop
 
