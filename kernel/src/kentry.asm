@@ -125,6 +125,6 @@ gdt_end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
 
-section .bss
+;section .bss
     resb 8192               ; This reserves 8KBytes of memory here
 _sys_stack:
