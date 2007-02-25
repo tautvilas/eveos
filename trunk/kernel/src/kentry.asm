@@ -20,6 +20,7 @@ extern _os_main
 ; this jmp is needed for integrity test
     jmp _start
 _start:
+
     cli		        ; Clear or disable interrupts
     lgdt[gdtr]	    ; Load GDT
     mov eax,cr0	    ; The lsb of cr0 is the protected mode bit
@@ -29,12 +30,18 @@ _start:
     jmp codesel:go_pm
 
 [bits 32]
+
 go_pm:
-    mov ax,datasel
-    mov ds,ax	         ; Initialise ds & es to data segment
-    mov es,ax
-    mov ax,videosel	     ; Initialise gs to video memory
-    mov gs,ax
+    mov ax, datasel
+    mov ds, ax	         ; Initialise ds & es to data segment
+    mov fs, ax
+    mov ss, ax
+
+    mov es, ax
+    mov ax, videosel     ; Initialise gs to video memory
+    mov gs, ax
+
+    mov esp, _sys_stack
 
     ; ROCK IT MAN!!!!
 
@@ -80,7 +87,7 @@ bits 16
 gdtr :
     dw gdt_end-gdt-1   ; Length of the gdt
     dd gdt		       ; physical address of gdt
-; the mighty gdt
+; the mighty gdt itself
 gdt
 nullsel equ $-gdt      ; $->current location,so nullsel = 0h
 gdt0 		           ; Null descriptor,as per convention gdt0 is 0
@@ -117,3 +124,7 @@ videosel equ $-gdt     ; ie 18h,next gdt entry
 gdt_end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
+
+section .bss
+    resb 8192               ; This reserves 8KBytes of memory here
+_sys_stack:
