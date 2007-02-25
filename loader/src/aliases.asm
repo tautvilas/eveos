@@ -28,7 +28,7 @@
     FIRST_KERNEL_BYTE equ 0xE9
     COLD_BOOT equ 0000h
     WARM_BOOT equ 1234h
-    BOOTSECT_MAGIC_VALUE equ 55AAh
+    BOOTSECT_MAGIC_VALUE equ 0AA55h ; 55AAh
     VIDEO_MODE_80x25 equ 0x03
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
