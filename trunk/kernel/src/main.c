@@ -1,15 +1,18 @@
 #include <system.h>
 
 /* copy 'count' bytes of data from 'src' to 'dest' */
-unsigned char *memcpy(unsigned char *dest, const unsigned char *src, int count)
+byte_t* KERNEL_CALL
+memcpy(register byte_t* apDest, const byte_t* apSrc, int aCount)
 {
-    char * dp = (char *) dest;
-    char * sp = (char *) src;
-    for( ; count; count--)
+    //byte_t* dp = (char *) dest;
+    //char * sp = (char *) src;
+    for( ; aCount; aCount--)
     {
-        *dp++ = *sp++;
+        *apDest = *apSrc;
+        apDest++;
+        apSrc++;
     }
-    return 0;
+    return apDest;
 }
 
 /* set 'count' bytes in 'dest' to 'val' */
@@ -47,9 +50,14 @@ void outportb (unsigned short _port, unsigned char _data)
     __asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
-void os_main()
+void KERNEL_CALL
+os_main()
 {
-    gdt_install();
-    for (;;);
+    //gdt_install();
+    //byte_t* pVga    = (byte_t*)0xB8000;
+    //memcpy(pVga, "h e l l o", 10);
+    //pVga[0]         = 'X';
+
+    //for (;;);
     return;
 }
