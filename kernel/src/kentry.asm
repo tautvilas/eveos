@@ -7,14 +7,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 %include "aliases.asm"
-; Time for P-mode!
-[bits 32]
+[bits 16]
 ; Entry symbol for linker
-global _start
-; C main fuction
-extern _os_main
-extern _gp
-global _gdt_flush
+[global _start]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Main                                                  ;
@@ -23,67 +18,59 @@ global _gdt_flush
 ; this jmp is needed for integrity test
     jmp _start
 _start:
-; initialize the system stack
-    mov esp, _sys_stack
-    jmp continue
-
-mboot:
-    ; multiboot headers for GRUB goes here (if needed)
-
-continue:
-
-    mov ax, 0x00
+    xor eax, eax
+    mov ax, ds
+    shl eax, 4
+    add eax, gdt
+    mov [gdt_ptr + 2], eax
+    lgdt [gdt_ptr]
+    mov ax, 0x08
     mov ds, ax
     mov es, ax
+    mov ss, ax
     mov fs, ax
     mov gs, ax
-    mov ss, ax
-    jmp 0x00:fflush2
-fflush2:
+    jmp 0x10:jump
+jump:
 
-    ;;;;;;;;;;;;;;;; DEBUG
-    mov al, '!'
-    mov ah, F_TELETYPE
-    mov bh, 0
-    mov bl, CL_GRAY
-    int S_VIDEO
-    ;;;;;;;;;;;;;;;; EO DEBUG
-
-    ;mov ax, 0
-    ;mov fs, ax
-    ;mov word [fs:0B8000h], 0x094B
-
-    call _os_main
-
-    jmp $ ; forever loop
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Proc                                                  ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-_gdt_flush:
-    lgdt [_gp]
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    jmp 0x08:flush2
-flush2:
-    ret
+[bits 32]
+    mov word [0B8000h], 0x094B
+    jmp $
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Bss                                                   ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+SECTION .data
 
-; 8kb stack
-SECTION .bss
-    resb STACK_SIZE
-_sys_stack:
+gdt:
+; NULL descriptor
+	dw 0		; limit 15:0
+	dw 0		; base 15:0
+	db 0		; base 23:16
+	db 0		; type
+	db 0		; limit 19:16, flags
+	db 0		; base 31:24
+
+LINEAR_DATA_SEL	equ	$-gdt
+	dw 0FFFFh
+	dw 0
+	db 0
+	db 92h		; present, ring 0, data, expand-up, writable
+	db 0CFh		; page-granular (4 gig limit), 32-bit
+	db 0
+
+LINEAR_CODE_SEL	equ	$-gdt
+	dw 0FFFFh
+	dw 0
+	db 0
+	db 9Ah		; present,ring 0,code,non-conforming,readable
+	db 0CFh		; page-granular (4 gig limit), 32-bit
+	db 0
+gdt_end:
+
+gdt_ptr:
+	dw gdt_end - gdt - 1
+	dd gdt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF

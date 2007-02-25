@@ -50,7 +50,8 @@ define C_COMPILE
 		$Egcc $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
-kernel.bin: kentry.o main.o gdt.o
+#kernel.bin: kentry.o main.o gdt.o
+kernel.bin: kentry.o
 	@echo ~~~ Linking $(^F)
 	$Eld -T link.ld -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
