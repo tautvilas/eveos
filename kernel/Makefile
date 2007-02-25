@@ -1,18 +1,20 @@
 # setting variables depending on OS
-# OS    - OS identifier (win/nix)
+# SYS   - OS identifier (win/nix)
 # DS    - directory separator
 # PS    - path separator
 # RM    - command for deleting files
 ifeq ($(OS),Windows_NT)
-	OS := win
-	DS := \\# this is hack to set DS to `\`
-	PS := ;
-	RM := del /Q
+	SYS     := win
+	DS      := \\# this is hack to set DS to `\`
+	PS      := ;
+	RM      := del /Q
+	NUL     := NUL
 else
-	OS := nix
-	DS := /
-	PS := :
-	RM := rm -f
+	SYS     := nix
+	DS      := /
+	PS      := :
+	RM      := rm -f
+	NUL     := /dev/null
 endif
 
 # this hides commands
@@ -66,9 +68,6 @@ kentry.o: kentry.asm aliases.asm
 .PHONY: clean vars
 clean:
 	@echo ~~~ Cleaning kernel
-	-$E$(RM) $(OBJ)*.o
-	-$E$(RM) $(BIN)*.bin
+	-$E$(RM) $(OBJ)*.o > $(NUL)
+	-$E$(RM) $(BIN)*.bin > $(NUL)
 	@echo ~~~ Done
-
-vars:
-	@echo OS=$(OS) DS=$(DS) PS=$(PS) RM=$(RM) E=$E
