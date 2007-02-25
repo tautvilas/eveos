@@ -2,28 +2,24 @@
 
 /* copy 'count' bytes of data from 'src' to 'dest' */
 byte_t* KERNEL_CALL
-memcpy(register byte_t* apDest, const byte_t* apSrc, int aCount)
+        memcpy(byte_t* apDest, const byte_t* apSrc, int aCount)
 {
-    //byte_t* dp = (char *) dest;
-    //char * sp = (char *) src;
-    for( ; aCount; aCount--)
+    for(; aCount; aCount--)
     {
-        *apDest = *apSrc;
-        apDest++;
-        apSrc++;
+        *apDest++ = *apSrc++;
     }
     return apDest;
 }
 
 /* set 'count' bytes in 'dest' to 'val' */
-unsigned char *memset(unsigned char *dest, unsigned char val, int count)
+extern byte_t* KERNEL_CALL
+memset(byte_t* apDest, byte_t aVal, int aCount)
 {
-    char *temp = (char *) dest;
-    for( ; count; count--)
+    for( ; aCount; aCount--)
     {
-        *temp++ = val;
+        *apDest++ = aVal;
     }
-    return dest;
+    return apDest;
 }
 
 unsigned short *memsetw(unsigned short *dest, unsigned short val, int count)
@@ -54,9 +50,12 @@ void KERNEL_CALL
 os_main()
 {
     //gdt_install();
-    //byte_t* pVga    = (byte_t*)0xB8000;
-    //memcpy(pVga, "h e l l o", 10);
-    //pVga[0]         = 'X';
+
+    byte_t* pVga    = (byte_t*)0xB8000;
+    pVga[0]         = 'X';
+
+    byte_t b = 'A';
+    memcpy(pVga , &b, 1);
 
     //for (;;);
     return;
