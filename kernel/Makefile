@@ -1,5 +1,9 @@
 
-# nustatom intamuosius pagal sistema
+# setting variables depending on OS
+# OS    - OS identifier (win/nix)
+# DS    - directory seperator
+# PS    - path seperator
+# RM    - command for deleting files
 ifeq ($(OS),Windows_NT)
 	OS := win
 	DS := \\# this is hack to set DS to `\`
@@ -12,24 +16,33 @@ else
 	RM := rm
 endif
 
+# this hides commands
+# set E to empty string if you want to see commands used
+# it may by done from command line: make E=
 E := @
 
-# nustatom direktorijas
+# directories
 SRC_DIR := src
 INC_DIR := $(SRC_DIR)$(DS)headers
 OBJ_DIR := obj
 BIN_DIR := bin
 
+# directories with trailing directory seperator
 SRC := $(SRC_DIR)$(DS)
 OBJ := $(OBJ_DIR)$(DS)
 BIN := $(BIN_DIR)$(DS)
 
-VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)
+VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 
+# C compiler flags
 CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
 		-I$(INC_DIR) -c -x c
-ASFLAGS := -f aout -I$(SRC_DIR)
+
+# nasm flags
+# on nix nasm requires include directory with trailing slash
+# on win nasm ignores trailing slash but can not work with trailing backslash!
+ASFLAGS := -f aout -I$(SRC_DIR)/
 
 define C_COMPILE
 		@echo ~~~ Compiling $(@F) from $(filter %.c, $(^F))
@@ -39,22 +52,24 @@ endef
 kernel.bin: kentry.o main.o gdt.o
 	@echo ~~~ Linking $(^F)
 	$Eld -T link.ld -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
+	@echo ~~~ Done
 
 kentry.o: kentry.asm aliases.asm
 	@echo ~~~ Compiling entry
 	$Enasm $(ASFLAGS) $(SRC)kentry.asm -o $(OBJ)kentry.o
 
-main.o: main.c system.h
+# default rule for compiling C source files
+# used only if no rule is defined explictly
+%.o: %.c system.h
 	$(C_COMPILE)
 
-gdt.o: gdt.c system.h
-	$(C_COMPILE)
 
-.PHONY: clean test
+.PHONY: clean vars
 clean:
-	@echo ~~~ Cleaning
+	@echo ~~~ Cleaning kernel
 	-$E$(RM) $(OBJ)*.o
 	-$E$(RM) $(BIN)*.bin
+	@echo ~~~ Done
 
-test:
-	@echo OS=$(OS) DS=$(DS) PS=$(PS) $(PF) VPATH=$(VPATH) .SUFFIXES=$(.SUFFIXES) RM=$(RM)
+vars:
+	@echo OS=$(OS) DS=$(DS) PS=$(PS) RM=$(RM) E=$E

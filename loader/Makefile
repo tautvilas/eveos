@@ -1,15 +1,50 @@
-OBJ_DIR = obj/
-BIN_DIR = bin/
-SRC_DIR = src/
 
-ASMARGS = -f bin -I$(SRC_DIR)
+# setting variables depending on OS
+# OS    - OS identifier (win/nix)
+# DS    - directory seperator
+# PS    - path seperator
+# RM    - command for deleting files
+ifeq ($(OS),Windows_NT)
+	OS := win
+	DS := \\# this is hack to set DS to `\`
+	PS := ;
+	RM := del /Q
+else
+	OS := nix
+	DS := /
+	PS := :
+	RM := rm
+endif
 
-VPATH = src:bin
+# this hides commands
+# set E to empty string if you want to see commands used
+# it may by done from command line: make E=
+E := @
+
+# directories
+SRC_DIR := src
+BIN_DIR := bin
+
+# directories with trailing directory seperator
+SRC := $(SRC_DIR)$(DS)
+OBJ := $(OBJ_DIR)$(DS)
+BIN := $(BIN_DIR)$(DS)
+
+VPATH := $(SRC_DIR)$(PS)$(BIN_DIR)
+
+# nasm flags
+# on nix nasm requires include directory with trailing slash
+# on win nasm ignores trailing slash but can not work with trailing backslash!
+ASFLAGS := -f bin -I$(SRC_DIR)/
+
 
 loader.bin: loader.asm aliases.asm
-	@echo ~~~~~ Building bootloader ~~~~~
-	nasm $(ASMARGS) $(SRC_DIR)loader.asm -o $(BIN_DIR)loader.bin
+	@echo ~~~ Compiling loader
+	$Enasm $(ASFLAGS) $(SRC)loader.asm -o $(BIN)loader.bin
+	@echo ~~~ Done
 
 .PHONY: clean
 clean:
-	rm -f $(BIN_DIR)*.bin
+	@echo ~~~ Cleaning loader
+	-$E$(RM) $(BIN)*.bin
+	@echo ~~~ Done

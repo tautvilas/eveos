@@ -11,7 +11,7 @@
 ;PC starts booting in real mode
 [bits 16]
 ;Location in mem where bootsector is about to be stored
-[org BOOT_OFF]
+[org 7C00h]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Main                                                  ;
