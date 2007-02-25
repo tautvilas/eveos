@@ -1,7 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; Xos Kernel 1.0     ;
-; Author: zvitruolis ;
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; EveOS Kernel 1.0 ;
+;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Init                                                  ;
@@ -11,7 +10,7 @@
 ; Time for P-mode!
 [bits 32]
 ; Entry symbol for linker
-global start
+global _start
 ; C main fuction
 extern _os_main
 extern _gp
@@ -22,8 +21,8 @@ global _gdt_flush
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; this jmp is needed for integrity test
-    jmp start
-start:
+    jmp _start
+_start:
 ; initialize the system stack
     mov esp, _sys_stack
     jmp continue
@@ -44,10 +43,10 @@ fflush2:
 
     ;;;;;;;;;;;;;;;; DEBUG
     mov al, '!'
-    mov ah, TELETYPE_F
+    mov ah, F_TELETYPE
     mov bh, 0
-    mov bl, GRAY_CL
-    int VIDEO_S
+    mov bl, CL_GRAY
+    int S_VIDEO
     ;;;;;;;;;;;;;;;; EO DEBUG
 
     ;mov ax, 0
@@ -63,14 +62,6 @@ fflush2:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 _gdt_flush:
-    ;;;;;;;;;;;;;;;; DEBUG
-    mov al, 'G'
-    mov ah, TELETYPE_F
-    mov bh, 0
-    mov bl, GRAY_CL
-    int VIDEO_S
-    ;;;;;;;;;;;;;;;; EO DEBUG
-
     lgdt [_gp]
     mov ax, 0x10
     mov ds, ax
