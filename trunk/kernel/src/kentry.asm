@@ -36,10 +36,9 @@ go_pm:
     mov ds, ax	         ; Initialise ds & es to data segment
     mov fs, ax
     mov es, ax
+    mov ss, ax
 
-    mov eax, stacksel
-    mov ss, eax
-    mov esp, sys_stack_end - sys_stack - 1
+    mov esp, _sys_stack
 
     mov ax, videosel     ; Initialise gs to video memory
     mov gs, ax
@@ -124,18 +123,10 @@ videosel equ $-gdt     ; ie 18h,next gdt entry
    db 0x92	           ; present,ring 0,data,expand-up,writable
    db 0x00	           ; byte granularity 16 bit
    db 0x00
-stacksel equ $-gdt     ; ie 18h,next gdt entry
-   dw 8191	           ; Limit 80*25*2-1
-   dw sys_stack                 ; Base
-   db 0x00
-   db 0x92	           ; present,ring 0,data,expand-up,writable
-   db 0x00	           ; byte granularity 16 bit
-   db 0x00
 gdt_end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
 
 section .bss
-sys_stack:
     resb 8192               ; This reserves 8KBytes of memory here
-sys_stack_end:
+_sys_stack:

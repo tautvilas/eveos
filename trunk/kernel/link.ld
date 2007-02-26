@@ -12,6 +12,7 @@ SECTIONS
     .data : AT(phys + (data - code))
     {
         data = .;
+        *(.rodata)
         *(.data)
             . = ALIGN(4096);
     }

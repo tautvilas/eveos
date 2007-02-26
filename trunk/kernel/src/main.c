@@ -52,14 +52,10 @@ os_main()
     //gdt_install();
 
     byte_t* pVga    = (byte_t*)0xB8000;
-    pVga[0]         = 'X';
 
-    byte_t  s1[] = { 'A', 0, 'B', 0, 'C', 0 };
-    byte_t  s2[] = "B\0B\0C";
-    memset(pVga, '-', 6);
-    memcpy(pVga, s1, 1);
-    memcpy(pVga + 80*2, s2, 6);
-
+    byte_t  s1[] = { 'E', '-', 'v', '-', 'e', '-'};
+    //memset(pVga, '-', 6);
+    memcpy(pVga + 80*2*3, s1, 8);
 
     //for (;;);
     return;
