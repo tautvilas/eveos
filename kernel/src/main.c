@@ -54,9 +54,9 @@ os_main()
     byte_t* pVga    = (byte_t*)0xB8000;
     pVga[0]         = 'X';
 
-    byte_t b = 'A';
+    byte_t b = 'Z';
     memcpy(pVga , &b, 1);
 
-    //for (;;);
+    for (;;);
     return;
 }
