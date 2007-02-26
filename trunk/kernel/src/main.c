@@ -53,9 +53,9 @@ os_main()
 
     byte_t* pVga    = (byte_t*)0xB8000;
 
-    byte_t  s1[] = { 'E', '-', 'v', '-', 'e', '-'};
+    byte_t  s1[] = { 'E', '-', 'v', '-', 'e', '-', '0', '-', 'S', '-'};
     //memset(pVga, '-', 6);
-    memcpy(pVga + 80*2*3, s1, 8);
+    memcpy(pVga + 80*2*3, s1, 12);
 
     //for (;;);
     return;

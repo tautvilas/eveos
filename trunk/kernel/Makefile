@@ -38,6 +38,7 @@ VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 # C compiler flags
 CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
+		-fno-stack-protector \
 		-I$(INC_DIR) -c -x c
 
 # nasm flags
