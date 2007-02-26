@@ -44,16 +44,18 @@ CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 # on nix nasm requires include directory with trailing slash
 # on win nasm ignores trailing slash but can not work with trailing backslash!
 ASFLAGS := -f aout -I$(SRC_DIR)/
+LDFLAGS := -T link.ld -s -x -M
 
 define C_COMPILE
 		@echo ~~~ Compiling $(@F) from $(filter %.c, $(^F))
 		$Egcc $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
+#kernel.bin: kentry.o
 #kernel.bin: kentry.o main.o gdt.o
 kernel.bin: kentry.o main.o
 	@echo ~~~ Linking $(^F)
-	$Eld -T link.ld -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
+	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
 
 kentry.o: kentry.asm aliases.asm

@@ -74,7 +74,8 @@ go_pm:
     push eax
     call    _os_main
 
-    spin : jmp spin       ; Loop
+    cli
+    hlt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data                                                  ;
@@ -83,8 +84,7 @@ go_pm:
 ; i think there is no diference if bits 32 or bits 16 written here
 bits 16
 
-; defining this as .data causes tripple fault (somehow related to LD putting it to separate page)
-; section .data
+section .data
 
 ; main pointer to gdt
 gdtr :
