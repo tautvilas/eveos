@@ -24,7 +24,7 @@ _start:
     cli		        ; Clear or disable interrupts
     lgdt[gdtr]	    ; Load GDT
     mov eax,cr0	    ; The lsb of cr0 is the protected mode bit
-    or al,0x01	    ; Set protected mode bit
+    or al,1	        ; Set protected mode bit
     mov cr0,eax	    ; Mov modified word to the control register
 
     jmp codesel:go_pm
@@ -35,13 +35,15 @@ go_pm:
     mov ax, datasel
     mov ds, ax	         ; Initialise ds & es to data segment
     mov fs, ax
-    mov ss, ax
-
     mov es, ax
+
+    mov eax, stacksel
+    mov ss, eax
+    mov esp, sys_stack_end - sys_stack - 1
+
     mov ax, videosel     ; Initialise gs to video memory
     mov gs, ax
 
-    mov esp, _sys_stack
 
     ; ROCK IT MAN!!!!
 
@@ -69,7 +71,8 @@ go_pm:
     mov word [ds:0x0B8212], '!'
     mov word [ds:0x0B8213], 0x07
 
-    call _os_main
+    push eax
+    call    _os_main
 
     spin : jmp spin       ; Loop
 
@@ -121,10 +124,18 @@ videosel equ $-gdt     ; ie 18h,next gdt entry
    db 0x92	           ; present,ring 0,data,expand-up,writable
    db 0x00	           ; byte granularity 16 bit
    db 0x00
+stacksel equ $-gdt     ; ie 18h,next gdt entry
+   dw 8191	           ; Limit 80*25*2-1
+   dw sys_stack                 ; Base
+   db 0x00
+   db 0x92	           ; present,ring 0,data,expand-up,writable
+   db 0x00	           ; byte granularity 16 bit
+   db 0x00
 gdt_end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
 
 section .bss
+sys_stack:
     resb 8192               ; This reserves 8KBytes of memory here
-_sys_stack:
+sys_stack_end:
