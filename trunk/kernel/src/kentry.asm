@@ -69,7 +69,7 @@ go_pm:
     mov word [ds:0x0B8212], '!'
     mov word [ds:0x0B8213], 0x07
 
-    call    _os_main
+    call _os_main
 
     spin : jmp spin       ; Loop
 
@@ -125,6 +125,6 @@ gdt_end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
 
-;section .bss
+section .bss
     resb 8192               ; This reserves 8KBytes of memory here
 _sys_stack:
