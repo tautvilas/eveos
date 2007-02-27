@@ -15,6 +15,7 @@ else
 	PS      := :
 	RM      := rm -f
 	NUL     := /dev/null
+    NIXGCCF := -fno-stack-protector
 endif
 
 # this hides commands
@@ -38,14 +39,14 @@ VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 # C compiler flags
 CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
-		-fno-stack-protector \
+        $(NIXGCCF) \
 		-I$(INC_DIR) -c -x c
 
 # nasm flags
 # on nix nasm requires include directory with trailing slash
 # on win nasm ignores trailing slash but can not work with trailing backslash!
 ASFLAGS := -f aout -I$(SRC_DIR)/
-LDFLAGS := -T link.ld -s -x -M
+LDFLAGS := -T link.ld -s -x $(MAP)
 
 define C_COMPILE
 		@echo ~~~ Compiling $(@F) from $(filter %.c, $(^F))
