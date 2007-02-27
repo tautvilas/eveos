@@ -6,7 +6,6 @@
 ; Init                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "aliases.asm"
 bits 16
 ; Entry symbol for linker
 global _start
