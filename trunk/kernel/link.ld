@@ -20,6 +20,7 @@ SECTIONS
            and maybe other, that is why i wrote .rodata*
          */
         *(.rodata*)
+        *(.rdata)
         *(.data)
             . = ALIGN(4096);
     }

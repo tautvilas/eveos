@@ -15,7 +15,7 @@ else
 	PS      := :
 	RM      := rm -f
 	NUL     := /dev/null
-    NIXGCCF := -fno-stack-protector
+    SYS_CFLAGS  := -fno-stack-protector
 endif
 
 # this hides commands
@@ -39,7 +39,7 @@ VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 # C compiler flags
 CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
-        $(NIXGCCF) \
+        $(SYS_CFLAGS) \
 		-I$(INC_DIR) -c -x c
 
 # nasm flags
