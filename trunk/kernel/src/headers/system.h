@@ -1,8 +1,7 @@
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
 
-#define KERNEL_CALL
-//__attribute__((cdecl))
+#define KERNEL_CALL __attribute__((cdecl))
 
 typedef unsigned char   byte_t;
 typedef unsigned short  word_t;

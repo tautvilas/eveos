@@ -60,7 +60,7 @@ kernel.bin: kentry.o main.o
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
 
-kentry.o: kentry.asm aliases.asm
+kentry.o: kentry.asm
 	@echo ~~~ Compiling entry
 	$Enasm $(ASFLAGS) $(SRC)kentry.asm -o $(OBJ)kentry.o
 
