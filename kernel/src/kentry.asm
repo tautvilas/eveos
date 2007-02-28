@@ -9,10 +9,12 @@
 %include "aliases.asm"
 
 bits 16
-; Entry symbol for linker
-global _start
-; OS main C function
-extern _os_main
+
+global _start     ; Entry symbol for linker
+global _idt_load
+
+extern _os_main   ; OS main C function
+extern _gIdtp     ; Pointer to IDT
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -81,6 +83,11 @@ print_str:
     pop bx
     pop ax
 ret
+
+; Load the interrupt descriptor table
+_idt_load:
+    lidt [_gIdtp]
+    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data                                                  ;

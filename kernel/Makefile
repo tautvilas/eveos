@@ -55,7 +55,7 @@ endef
 
 #kernel.bin: kentry.o
 #kernel.bin: kentry.o main.o gdt.o
-kernel.bin: kentry.o main.o vga.o
+kernel.bin: kentry.o main.o vga.o idt.o
 	@echo ~~~ Linking $(^F)
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
