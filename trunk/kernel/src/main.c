@@ -23,6 +23,17 @@ memset(byte_t* apDest, byte_t aVal, size_t aCount)
 }
 
 
+extern word_t* KERNEL_CALL
+memsetw(word_t* apDest, word_t aVal, size_t aCount)
+{
+    for(; aCount; aCount--)
+    {
+        *apDest++ = aVal;
+    }
+    return apDest;
+}
+
+
 size_t KERNEL_CALL
 strlen(const char *apStr)
 {
@@ -53,14 +64,17 @@ os_main()
 {
     //gdt_install();
 
-    byte_t* pVga    = (byte_t*)0xB8000;
-
-    byte_t s1[] = { 'E', 2, 'v', 2, 'e', 2, '0', 2, 'S', 2, 0 };
-    byte_t * s2 = (byte_t *) "A\07n\07d\07 \07a\07 \07n\07e\07w\07"
-        " \07w\07o\07r\07l\07d\07 \07a\07w\07a\07i\07t\07s\07 \07y\07o\07u\07.\06.\05.\04";
-    //memset(pVga, '-', 6);
-    memcpy(pVga + 80*2*3, s1, strlen(s1));
-    memcpy(pVga + 80*2*4, s2, strlen(s2));
+    //vga_clear();
+    vga_set_cursor_pos(0, 4);
+    vga_cl_print("Eve successfully switched to P-mode\n", VGA_CL_WHITE, vga_get_bg_color());
+    vga_show_cursor(FALSE);
+    vga_set_cursor_pos(0, 10);
+    vga_set_bg_color(VGA_CL_BLACK);
+    vga_set_fg_color(VGA_CL_RED);
+    vga_print("\t\t\twelcome\n");
+    vga_cl_print("\t\t\t\tto the\n", VGA_CL_BROWN, vga_get_bg_color());
+    vga_cl_print("\t\t\t\t\tvga.c world", VGA_CL_YELLOW, vga_get_bg_color());
+    vga_print("!\n");
 
     //for (;;);
     return;

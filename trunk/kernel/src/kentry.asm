@@ -1,10 +1,12 @@
-;;;;;;;;;;;;;;;;;;;;
-; EveOS Kernel 1.0 ;
-;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;
+; EveOS Kernel 0.0.1 ;
+;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Init                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+%include "aliases.asm"
 
 bits 16
 ; Entry symbol for linker
@@ -13,7 +15,7 @@ global _start
 extern _os_main
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; text                                                  ;
+; Code                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SECTION .text
@@ -21,6 +23,9 @@ SECTION .text
     ; this jmp is needed for integrity test
     jmp _start
 _start:
+
+    mov si, title
+    call print_str
 
     cli             ; Clear or disable interrupts
     lgdt[gdtr]      ; Load GDT
@@ -50,10 +55,40 @@ go_pm:
     hlt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; data                                                  ;
+; Proc                                                  ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+bits 16
+
+; Function to print out a string, which address is located in [SI]
+print_str:
+    push ax
+    push bx
+    push si
+
+    mov ah, F_TELETYPE ; Function to display a chacter (teletype)
+    mov bh, 0          ; Page number
+    mov bl, CL_GRAY    ; Gray text color
+.nextchar
+    lodsb         ; Loads [SI] into AL and increases SI by one
+    cmp al, 0     ; Check for end of string '0'
+    jz .return
+    int S_VIDEO
+    jmp .nextchar ; Go to check next char
+.return
+
+    pop si
+    pop bx
+    pop ax
+ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Data                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SECTION .data
+
+title          db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
 
 ; main pointer to gdt
 gdtr :
@@ -94,7 +129,7 @@ gdt_end
 
 ; system stack
 SECTION .bss
-    resb 8192          ; This reserves 8KBytes of memory
+    resb STACK_SIZE    ; This reserves 8KBytes of memory
 _sys_stack:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
