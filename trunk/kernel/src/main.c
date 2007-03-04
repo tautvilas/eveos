@@ -1,6 +1,5 @@
 #include <system.h>
 
-
 byte_t* KERNEL_CALL
 memcpy(byte_t* apDest, const byte_t* apSrc, size_t aCount)
 {
@@ -75,6 +74,8 @@ os_main()
     vga_cl_print("\t\t\t\tto the\n", VGA_CL_BROWN, vga_get_bg_color());
     vga_cl_print("\t\t\t\t\tvga.c world", VGA_CL_YELLOW, vga_get_bg_color());
     vga_print("!\n");
+
+    idt_install();
 
     //for (;;);
     return;

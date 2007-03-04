@@ -1,5 +1,10 @@
 #include <system.h>
 
+/* assembler fuction */
+
+extern void
+idt_load();
+
 /* the structure of IDT entry */
 
 typedef struct
@@ -16,26 +21,35 @@ typedef struct
 typedef struct
 {
     word_t limit;
+    /* TODO what about r & m prefixes? */
     dword_t rBase;
 } __attribute__ ((packed)) idt_ptr_t;
 
 
-extern void idt_load();
+idt_ptr_t gIdtp;    /* non static for asm */
+static idt_entry_t gIdt[256];
 
-idt_entry_t gIdt[256];
-idt_ptr_t gIdtp;
-
-void idt_set_gate(byte_t num, dword_t base, byte_t sel, byte_t flags)
+static void
+idt_set_gate(byte_t num, dword_t base, byte_t sel, byte_t flags)
 {
+    gIdt[num].base_lo = base & 0xFFFF;
+    gIdt[num].base_hi = (base >> 16) & 0xFFFF;
+    gIdt[num].sel = sel;
+    gIdt[num].flags = flags;
+    gIdt[num].always0 = 0x00;
     return;
 }
 
-void idt_install()
+void KERNEL_CALL
+idt_install()
 {
     gIdtp.limit = sizeof(idt_entry_t) * 256 - 1;
     gIdtp.rBase = (dword_t) &gIdt;
 
     memset((byte_t *) &gIdt, 0x00, sizeof(idt_entry_t) * 256);
+
+    idt_set_gate(0, 0, 0, 0);
+
     idt_load();
     return;
 }

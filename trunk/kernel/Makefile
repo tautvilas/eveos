@@ -66,7 +66,7 @@ kentry.o: kentry.asm
 
 # default rule for compiling C source files
 # used only if no rule is defined explictly
-%.o: %.c system.h
+%.o: %.c system.h idt.h
 	$(C_COMPILE)
 
 
