@@ -2,7 +2,10 @@
 // :TODO: gd 2007-02-28: documentation
 // :TODO: gd 2007-02-28: vga_put_char() to put char on screen w/o moving cursor
 
-#include <system.h>
+#include "vga.h"
+#include "ports.h"
+#include "mem.h"
+
 
 #define VGA_MEM                             ((byte_t*)0xB8000)
 
@@ -19,23 +22,16 @@
 #define VGA_CURSOR_DISABLE_MASK             0x20    // 00100000b
 
 
-/*typedef struct
-{
-    byte_t  mX;
-    byte_t  mY;
-} vga_pos_t;*/
-
-
 // we should use some kind of vga_init() to initialize cursor with real
 // values and VGA ports with 0x3d4/0x3d5 or 0x3b4/0x3b5 values depending
 // on misc output register 1st bit (0 - monochrome compatibility, 1 - color)
 
-static struct
-{
-    vga_pos_t   mPos;
-    bool_t      mVisible;
-    byte_t*     mpMemPos;
+static struct {
+        vga_pos_t   mPos;
+        bool_t      mVisible;
+        byte_t*     mpMemPos;
 } gsCursor = { {0, 0}, TRUE, 0 };
+
 
 static color_t      gsBgColor   = VGA_CL_BLACK;
 static color_t      gsFgColor   = VGA_CL_LIGHT_GRAY;
@@ -72,7 +68,7 @@ vga_set_fg_color(color_t aColor)
 void KERNEL_CALL
 vga_set_bg_color(color_t aColor)
 {
-    gsBgColor   = aColor & 0xF0;    // clearing unused bits
+    gsBgColor   = aColor ;//& 0xF0;    // clearing unused bits
 }
 
 
@@ -93,6 +89,12 @@ vga_get_bg_color()
 void KERNEL_CALL
 vga_set_cursor_pos(byte_t aX, byte_t aY)
 {
+    // should we wrap cursor coordinates?
+    if (aX >= VGA_LINE_WIDTH)
+        aX  = VGA_LINE_WIDTH - 1;
+    if (aY >= VGA_LINE_COUNT)
+        aX  = VGA_LINE_COUNT - 1;
+
     word_t  pos = aY * VGA_LINE_WIDTH + aX;
 
     vga_set_reg(VGA_CURSOR_POS_HI, pos >> 8);
@@ -144,7 +146,7 @@ vga_clear()
     memsetw(
             (word_t*)VGA_MEM,
             blank,
-            VGA_LINE_WIDTH * VGA_LINE_COUNT * VGA_CHAR_SIZE
+            VGA_LINE_WIDTH * VGA_LINE_COUNT
         );
 
     vga_set_cursor_pos(0, 0);
@@ -187,15 +189,22 @@ vga_print_char(char aChar)
     {
         pos.mX = pos.mX - VGA_LINE_WIDTH;
         pos.mY++;
-        if (pos.mY >= VGA_LINE_COUNT)
-        {
-            pos.mY = VGA_LINE_COUNT - 1;
-            memcpy(
-                    VGA_MEM,
-                    VGA_MEM + VGA_LINE_WIDTH * VGA_CHAR_SIZE,
-                    VGA_LINE_WIDTH * (VGA_LINE_COUNT - 1) * VGA_CHAR_SIZE
-                );
-        }
+    }
+    if (pos.mY >= VGA_LINE_COUNT)
+    {
+        pos.mY = VGA_LINE_COUNT - 1;
+        // copying all VGA memory one line up
+        memcpy(
+                VGA_MEM,
+                VGA_MEM + VGA_LINE_WIDTH * VGA_CHAR_SIZE,
+                VGA_LINE_WIDTH * (VGA_LINE_COUNT - 1) * VGA_CHAR_SIZE
+            );
+        // clearing bottom line
+        memsetw(
+                (word_t*)VGA_MEM + (VGA_LINE_COUNT - 1) * VGA_LINE_WIDTH,
+                VGA_BLANK_CHAR | gsFgColor << 8 | gsBgColor << 12,
+                VGA_LINE_WIDTH
+            );
     }
     vga_set_cursor_pos(pos.mX, pos.mY);
 }
