@@ -21,8 +21,7 @@ typedef struct
 typedef struct
 {
     word_t limit;
-    /* TODO what about r & m prefixes? */
-    dword_t rBase;
+    dword_t base;
 } __attribute__ ((packed)) idt_ptr_t;
 
 
@@ -44,7 +43,7 @@ void KERNEL_CALL
 idt_install()
 {
     gIdtp.limit = sizeof(idt_entry_t) * 256 - 1;
-    gIdtp.rBase = (dword_t) &gIdt;
+    gIdtp.base = (dword_t) &gIdt;
 
     memset((byte_t *) &gIdt, 0x00, sizeof(idt_entry_t) * 256);
 
