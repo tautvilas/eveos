@@ -1,4 +1,5 @@
-#include <system.h>
+
+#include "idt.h"
 
 /* assembler fuction */
 
@@ -52,3 +53,4 @@ idt_install()
     idt_load();
     return;
 }
+
