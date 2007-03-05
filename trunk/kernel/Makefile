@@ -53,9 +53,8 @@ define C_COMPILE
 		$Egcc $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
-#kernel.bin: kentry.o
-#kernel.bin: kentry.o main.o gdt.o
-kernel.bin: kentry.o main.o vga.o idt.o logo.o
+
+kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o logo.o
 	@echo ~~~ Linking $(^F)
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
@@ -66,8 +65,9 @@ kentry.o: kentry.asm
 
 # default rule for compiling C source files
 # used only if no rule is defined explictly
-%.o: %.c system.h idt.h
+%.o: %.c %.h global.h
 	$(C_COMPILE)
+
 
 
 .PHONY: clean vars
