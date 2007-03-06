@@ -1,4 +1,4 @@
-
+#include "mem.h"
 #include "idt.h"
 
 /* assembler fuction */
