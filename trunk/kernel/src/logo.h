@@ -7,6 +7,9 @@
 //#define LOGO_HEIGHT 9
 
 //extern word_t gLogoImage[LOGO_HEIGHT][LOGO_WIDTH];
+
+/* ASCII EveOS logo */
+
 extern char* gpLogoBig;
 
 #endif

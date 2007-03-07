@@ -3,6 +3,10 @@
 
 #include "global.h"
 
+/**
+ *  Installs interrupt descriptor table and ISRs
+ */
+
 extern void KERNEL_CALL
 idt_install();
 

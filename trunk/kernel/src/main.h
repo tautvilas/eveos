@@ -4,6 +4,6 @@
 #include "global.h"
 #include "vga.h"
 #include "logo.h"
-
+#include "idt.h"
 
 #endif // _MAIN_H_
