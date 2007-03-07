@@ -1,6 +1,4 @@
-
 #include "main.h"
-
 
 void KERNEL_CALL
 os_main()
@@ -30,7 +28,9 @@ os_main()
     //vga_print("\n");
     vga_print("...at your service.\n");
 
-    //idt_install();
+    idt_install();
+    int x = 4;
+    vga_print_char(x/0);
 
     //for (;;);
     return;

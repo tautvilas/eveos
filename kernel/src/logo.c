@@ -1,5 +1,4 @@
 #include "logo.h"
-#include "vga.h"
 
 //#define _ VGA_CL_YELLOW
 //#define X VGA_CL_RED
