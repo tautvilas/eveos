@@ -39,8 +39,7 @@ VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 # C compiler flags
 CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
-        $(SYS_CFLAGS) \
-		-I$(INC_DIR) -c -x c
+        $(SYS_CFLAGS) -c -x c
 
 # nasm flags
 # on nix nasm requires include directory with trailing slash
@@ -54,7 +53,7 @@ define C_COMPILE
 endef
 
 
-kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o logo.o
+kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o stdio.o logo.o
 	@echo ~~~ Linking $(^F)
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done

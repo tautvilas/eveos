@@ -1,6 +1,6 @@
 #include "mem.h"
 #include "idt.h"
-#include "vga.h"
+#include "stdio.h"
 
 #define NUM_ISRS 32
 #define KERNEL_CODE_SEGMENT 0x08
@@ -186,9 +186,18 @@ exception_handler(regs_t * apRegs)
 {
     if(apRegs->int_no < 32)
     {
-        vga_print(gpExceptionMessages[apRegs->int_no]);
-        vga_print(" Exception caught\n");
-        vga_print("Kernel panic!");
+        //int sp;
+        /*asm ("movl %%esp, %0\n" :"=r"(sp));
+        print_int_dec(sp);
+        printf("\n");*/
+        printf("pr%dntf %ds l%dt\n", 1, 1, 33, 45, 23, 54, 12, 123, 32);
+        //printf("hex value of x = %x\n", 255);
+        /*asm ("movl %%esp, %0\n" :"=r"(sp));
+        print_int_dec(sp);
+        printf("\n"); */
+        printf(gpExceptionMessages[apRegs->int_no]);
+        printf(" Exception caught\n");
+        printf("Kernel panic!");
         for(;;);
     }
 }
