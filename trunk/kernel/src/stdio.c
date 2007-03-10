@@ -5,6 +5,7 @@
 #define PRINT_CHAR vga_print_char
 
 char gHexTable[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+char number[256];
 
 void KERNEL_CALL
 print_int_dec(const int aInt)
@@ -35,21 +36,18 @@ print_int_dec(const int aInt)
 void KERNEL_CALL
 print_int_hex(const int aInt)
 {
-    int hex_size = 10;
     int x = aInt;
     int i;
-    char number[hex_size];
-    for(i = 0; i < hex_size; i++) number[i] = '0';
-    number[1] = 'x';
-    i = 2;
     int count = 0;
-    while(i < hex_size && x)
+    while(x)
     {
-        number[i] = gHexTable[x % 16];
+        number[count] = gHexTable[x % 16];
         x /= 16;
         count++;
     }
-    for(i = 0; i < count+2; i++)
+    PRINT("0x");
+    if(count == 0) PRINT_CHAR('0');
+    for(i = count-1; i >= 0; i--)
     {
         PRINT_CHAR(number[i]);
     }
