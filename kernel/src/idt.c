@@ -190,8 +190,7 @@ exception_handler(regs_t * apRegs)
         /*asm ("movl %%esp, %0\n" :"=r"(sp));
         print_int_dec(sp);
         printf("\n");*/
-        printf("pr%dntf %ds l%dt\n", 1, 1, 33, 45, 23, 54, 12, 123, 32);
-        //printf("hex value of x = %x\n", 255);
+        printf("hex value of %d = %x\n", 123456, 123456);
         /*asm ("movl %%esp, %0\n" :"=r"(sp));
         print_int_dec(sp);
         printf("\n"); */
