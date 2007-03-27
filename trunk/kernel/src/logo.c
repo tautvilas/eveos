@@ -1,31 +1,20 @@
 #include "logo.h"
 
-//#define _ VGA_CL_YELLOW
-//#define X VGA_CL_RED
+#define _ VGA_CL_BLACK
+#define X VGA_CL_WHITE
+#define Y VGA_CL_RED
 
-// :BUG: gd 2007-03-05: got compiler errors:
-// ~~~ Compiling logo.o from logo.c
-// C:\DOCUME~1\GoniX\LOCALS~1\Temp/cc86aaaa.s: Assembler messages:
-// C:\DOCUME~1\GoniX\LOCALS~1\Temp/cc86aaaa.s:4: Warning: alignment too large: 31 a
-// ssumed
-// C:\DOCUME~1\GoniX\LOCALS~1\Temp/cc86aaaa.s:140: Fatal error: cannot write to out
-// put file
-// make[1]: *** [logo.o] Error 1
-/*
 int gLogoImage[LOGO_HEIGHT][LOGO_WIDTH] = {
     {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
-    {_, X, X, X, _, X, _, _, _, X, _, X, X, X, _},
-    {_, X, _, _, _, X, _, _, _, X, _, X, _, _, _},
-    {_, X, _, _, _, _, X, _, X, _, _, X, _, _, _},
-    {_, X, X, X, _, _, X, _, X, _, _, X, X, X, _},
-    {_, X, _, _, _, _, X, X, X, _, _, X, _, _, _},
-    {_, X, _, _, _, _, _, X, _, _, _, X, _, _, _},
-    {_, X, X, X, _, _, _, X, _, _, _, X, X, X, _},
+    {_, X, X, X, _, Y, _, _, _, Y, _, X, X, X, _},
+    {_, X, _, _, _, Y, Y, _, Y, Y, _, X, _, _, _},
+    {_, X, X, X, _, _, Y, _, Y, _, _, X, X, X, _},
+    {_, X, _, _, _, _, Y, Y, Y, _, _, X, _, _, _},
+    {_, X, X, X, _, _, _, Y, _, _, _, X, X, X, _},
     {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
 };
-*/
 
-
+/*
 char* gpLogoBig =
         "ллпмллллпппплллллллллллллллллппппппллм лл\n"
         "лл п ммллллллммлплллллллпмммллллллмм п пл\n"
@@ -41,4 +30,4 @@ char* gpLogoBig =
         "лллллллм плллллллллл ллллллллллп ААллВллл\n"
         "ллллллллБ лллллллллл лллллллллл БлВлллллл\n"
         "лллллллп млллллллллллллллллллллм пллллллл\n";
-
+*/
