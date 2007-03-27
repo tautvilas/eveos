@@ -176,6 +176,34 @@ idt_install()
     return;
 }
 
+/* Kernel panic function, dumps system registers and halts */
+
+void KERNEL_CALL
+panic()
+{
+        regs_t regs;
+        __asm__ __volatile__ ("movl %%eax, %0\n" :"=r" (regs.eax));
+        __asm__ __volatile__ ("movl %%ebx, %0\n" :"=r" (regs.ebx));
+        __asm__ __volatile__ ("movl %%ecx, %0\n" :"=r" (regs.ecx));
+        __asm__ __volatile__ ("movl %%edx, %0\n" :"=r" (regs.edx));
+        __asm__ __volatile__ ("movl %%esp, %0\n" :"=r" (regs.esp));
+        __asm__ __volatile__ ("movl %%ebp, %0\n" :"=r" (regs.ebp));
+        __asm__ __volatile__ ("movl %%edi, %0\n" :"=r" (regs.edi));
+        __asm__ __volatile__ ("movl %%esi, %0\n" :"=r" (regs.esi));
+        __asm__ __volatile__ ("movl %%ds, %0\n" :"=r" (regs.ds));
+        __asm__ __volatile__ ("movl %%es, %0\n" :"=r" (regs.es));
+        __asm__ __volatile__ ("movl %%fs, %0\n" :"=r" (regs.fs));
+        __asm__ __volatile__ ("movl %%gs, %0\n" :"=r" (regs.gs));
+        __asm__ __volatile__ ("movl %%ss, %0\n" :"=r" (regs.ss));
+        __asm__ __volatile__ ("movl %%cs, %0\n" :"=r" (regs.cs));
+        printf("eax = %x\t ebx = %x\t ecx = %x\t edx = %x\t\n", regs.eax, regs.ebx, regs.ecx, regs.edx);
+        printf("esp = %x\t ebp = %x\t edi = %x\t esi = %x\t\n", regs.esp, regs.ebp, regs.edi, regs.esi);
+        printf("ds = %x\t es = %x\t fs = %x\t gs = %x\t\n", regs.ds, regs.es, regs.fs, regs.gs);
+        printf("cs = %x\t ss = %x\t\n", regs.cs, regs.ss);
+        printf("Kernel panic!");
+        for(;;);
+}
+
 /**
  *  Manages the exception after ISRs have been called
  *
@@ -186,17 +214,8 @@ exception_handler(regs_t * apRegs)
 {
     if(apRegs->int_no < 32)
     {
-        //int sp;
-        /*asm ("movl %%esp, %0\n" :"=r"(sp));
-        print_int_dec(sp);
-        printf("\n");*/
-        printf("hex value of %d = %x\n", 123456, 123456);
-        /*asm ("movl %%esp, %0\n" :"=r"(sp));
-        print_int_dec(sp);
-        printf("\n"); */
         printf(gpExceptionMessages[apRegs->int_no]);
         printf(" Exception caught\n");
-        printf("Kernel panic!");
-        for(;;);
+        panic();
     }
 }

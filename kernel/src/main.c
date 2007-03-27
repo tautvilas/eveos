@@ -4,29 +4,27 @@ void KERNEL_CALL
 os_main()
 {
     //vga_clear();
-    vga_show_cursor(FALSE);
+    vga_show_cursor(TRUE);
     vga_set_cursor_pos(0, 4);
-    vga_cl_print("Eve successfully switched to P-mode\n", VGA_CL_WHITE, vga_get_bg_color());
-    /* TODO vga_set_bg_color() not workint */
-    /*
+    printf("Eve successfully switched to P-mode\n");
     int i, j;
     for(i = 0; i < LOGO_HEIGHT; i++) {
         for(j = 0; j < LOGO_WIDTH; j++) {
-            vga_set_fg_color(gLogoImage[i][j]);
-            vga_print_char('X');
+            vga_set_bg_color(gLogoImage[i][j]);
+            vga_print_char(' ');
         }
         vga_print_char('\n');
     }
+    /* explicit content :> */
+    /*
+        vga_set_bg_color(VGA_CL_BLACK);
+        vga_set_fg_color(VGA_CL_LIGHT_GRAY);
+        vga_print(gpLogoBig);
+        vga_print("\n");
+        vga_print("...at your service.\n");
     */
-    vga_set_fg_color(VGA_CL_LIGHT_GRAY);
-    //vga_clear();
     vga_set_bg_color(VGA_CL_BLACK);
     vga_set_fg_color(VGA_CL_LIGHT_GRAY);
-    vga_print(gpLogoBig);
-    vga_set_fg_color(VGA_CL_LIGHT_GRAY);
-    vga_set_bg_color(VGA_CL_BLACK);
-    //vga_print("\n");
-    vga_print("...at your service.\n");
 
     idt_install();
     int x = 4;

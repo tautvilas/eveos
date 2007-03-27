@@ -2,6 +2,7 @@
 #define _MAIN_H_
 
 #include "global.h"
+#include "stdio.h"
 #include "vga.h"
 #include "logo.h"
 #include "idt.h"
