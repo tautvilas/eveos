@@ -1,5 +1,5 @@
-#ifndef _STDIO_H
-#define _STDIO_H
+#ifndef _STDIO_H_
+#define _STDIO_H_
 
 /**
  *  Classic C printf, but not fully functional.
@@ -11,27 +11,19 @@
 /**
  *  Currently support formatting options:
  *  %d - int
+ *  %x - int in hex format
  */
 
 extern void __attribute__ ((stdcall))
 printf(const char* apFormatStr, ...);
 
 /**
- *  Prints out an integer number
+ *  print out a character
  *
- *  @param  number  number to be printed
+ *  @param  aC  character to be printed
  */
 
 extern void KERNEL_CALL
-print_int_dec(int number);
+putc(char aC);
 
-/**
- *  Prints out an integer number in hex format
- *
- *  @param  number  number to be printed
- */
-
-extern void KERNEL_CALL
-print_int_hex(int number);
-
-#endif
+#endif // _STDIO_H_

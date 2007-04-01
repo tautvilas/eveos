@@ -7,7 +7,7 @@
 char gHexTable[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 char number[256];
 
-void KERNEL_CALL
+static void KERNEL_CALL
 print_int_dec(const int aInt)
 {
     int x = aInt;
@@ -33,7 +33,7 @@ print_int_dec(const int aInt)
     return;
 }
 
-void KERNEL_CALL
+static void KERNEL_CALL
 print_int_hex(const int aInt)
 {
     int x = aInt;
@@ -87,4 +87,11 @@ printf(char * apFormatStr, ...)
     }
     /* TODO stack cleanup? */
     return;
+}
+
+void KERNEL_CALL
+putc(char aChar)
+{
+	PRINT_CHAR(aChar);
+	return;
 }

@@ -53,7 +53,8 @@ define C_COMPILE
 endef
 
 
-kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o stdio.o logo.o
+kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o stdio.o logo.o timer.o \
+	keyboard.o
 	@echo ~~~ Linking $(^F)
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
