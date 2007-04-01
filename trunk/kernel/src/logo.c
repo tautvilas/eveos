@@ -4,7 +4,7 @@
 #define X VGA_CL_WHITE
 #define Y VGA_CL_RED
 
-int gLogoImage[LOGO_HEIGHT][LOGO_WIDTH] = {
+int gLogoImage[_LOGO_HEIGHT][_LOGO_WIDTH] = {
     {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
     {_, X, X, X, _, Y, _, _, _, Y, _, X, X, X, _},
     {_, X, _, _, _, Y, Y, _, Y, Y, _, X, _, _, _},

@@ -1,10 +1,22 @@
 #include "mem.h"
 #include "idt.h"
 #include "stdio.h"
+#include "ports.h"
 
-#define NUM_ISRS 32
+#define NUM_ISRS            32
 #define KERNEL_CODE_SEGMENT 0x08
-#define IDT_FLAGS 0x8E /* entry is present, ring 0 */
+#define IDT_FLAGS           0x8E /* entry is present, ring 0 */
+
+#define PIC1                0x20
+#define PIC2                0xA0
+/* PIC command ports */
+#define PIC1_COMMAND        PIC1
+#define PIC2_COMMAND        PIC2
+/* PIC data ports */
+#define PIC1_DATA           (PIC1 + 1)
+#define PIC2_DATA           (PIC2 + 1)
+/* End of interrupt signal */
+#define PIC_EOI             0x20
 
 extern void idt_load(); /* assembler fuction with 'lidt' instruction */
 
@@ -43,6 +55,25 @@ extern void isr29();
 extern void isr30();
 extern void isr31();
 
+/* IRQ entries, see kentry.asm for more info */
+
+extern void irq0();
+extern void irq1();
+extern void irq2();
+extern void irq3();
+extern void irq4();
+extern void irq5();
+extern void irq6();
+extern void irq7();
+extern void irq8();
+extern void irq9();
+extern void irq10();
+extern void irq11();
+extern void irq12();
+extern void irq13();
+extern void irq14();
+extern void irq15();
+
 /* the structure of IDT entry */
 
 typedef struct
@@ -62,16 +93,15 @@ typedef struct
     dword_t base;
 } __attribute__ ((packed)) idt_ptr_t;
 
-/* This defines what the stack looks like after an ISR was running */
-typedef struct
-{
-    dword_t gs, es, fs, ds;                          /* pushed the segs last */
-    dword_t edi, esi, ebp, esp, ebx, edx, ecx, eax;  /* pushed by 'pusha' */
-    dword_t int_no, err_code;                        /* push byteX and push ecode */
-    dword_t eip, cs, eflags, useresp, ss;            /* pushed by the processor automatically */
-} regs_t;
-
 idt_ptr_t gIdtp;    /* non static for asm to reach */
+
+/* pointers to IRQ handling functions */
+static void *gpIrqRoutines[16] =
+{
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
+};
+
 static idt_entry_t gIdt[256];
 /* ISR debug messages */
 static  char* gpExceptionMessages[] =
@@ -117,7 +147,6 @@ static  char* gpExceptionMessages[] =
  *  @param  aBase  ISR base address
  *  @param  aSel   kernel segment
  *  @param  aFlags IDT gate flags
- *  @return
  */
 
 static void KERNEL_CALL
@@ -132,6 +161,40 @@ idt_set_gate(byte_t aNum, dword_t aBase, byte_t aSel, byte_t aFlags)
 }
 
 void KERNEL_CALL
+irq_install_handler(int aIrq, void (*handler)(regs_t *apR))
+{
+    gpIrqRoutines[aIrq] = handler;
+}
+
+void KERNEL_CALL
+irq_uninstall_handler(int aIrq)
+{
+    gpIrqRoutines[aIrq] = 0;
+}
+
+/* IRQs 0-7 are by default mapped to entries 8-15
+   This conflicts with ISRs so we should remap all IRQs to 32-47 */
+static void KERNEL_CALL
+irq_remap(void)
+{
+    /* start sequence */
+    outportb(PIC1_COMMAND, 0x11);
+    outportb(PIC2_COMMAND, 0x11);
+    /* vectors */
+    outportb(PIC1_DATA, 0x20);
+    outportb(PIC2_DATA, 0x28);
+    /* continue initialization */
+    outportb(PIC1_DATA, 0x04);
+    outportb(PIC2_DATA, 0x02);
+    /* processing mode */
+    outportb(PIC1_DATA, 0x01);
+    outportb(PIC2_DATA, 0x01);
+    /* end */
+    outportb(PIC1_DATA, 0x0);
+    outportb(PIC2_DATA, 0x0);
+}
+
+void KERNEL_CALL
 idt_install()
 {
     gIdtp.limit = sizeof(idt_entry_t) * 256 - 1;
@@ -139,6 +202,7 @@ idt_install()
 
     memset((byte_t *) &gIdt, 0x00, sizeof(idt_entry_t) * 256);
 
+    /* ISRs */
     idt_set_gate(0, (dword_t)isr0, KERNEL_CODE_SEGMENT, IDT_FLAGS);
     idt_set_gate(1, (dword_t)isr1, KERNEL_CODE_SEGMENT, IDT_FLAGS);
     idt_set_gate(2, (dword_t)isr2, KERNEL_CODE_SEGMENT, IDT_FLAGS);
@@ -172,6 +236,27 @@ idt_install()
     idt_set_gate(30, (dword_t)isr30, KERNEL_CODE_SEGMENT, IDT_FLAGS);
     idt_set_gate(31, (dword_t)isr31, KERNEL_CODE_SEGMENT, IDT_FLAGS);
 
+    /* IRQs */
+
+    irq_remap();
+
+    idt_set_gate(32, (dword_t)irq0, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(33, (dword_t)irq1, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(34, (dword_t)irq2, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(35, (dword_t)irq3, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(36, (dword_t)irq4, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(37, (dword_t)irq5, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(38, (dword_t)irq6, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(39, (dword_t)irq7, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(40, (dword_t)irq8, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(41, (dword_t)irq9, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(42, (dword_t)irq10, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(43, (dword_t)irq11, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(44, (dword_t)irq12, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(45, (dword_t)irq13, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(46, (dword_t)irq14, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+    idt_set_gate(47, (dword_t)irq15, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+
     idt_load();
     return;
 }
@@ -179,7 +264,7 @@ idt_install()
 /* Kernel panic function, dumps system registers and halts */
 
 void KERNEL_CALL
-panic()
+kernel_panic()
 {
         regs_t regs;
         __asm__ __volatile__ ("movl %%eax, %0\n" :"=r" (regs.eax));
@@ -207,7 +292,7 @@ panic()
 /**
  *  Manages the exception after ISRs have been called
  *
- *  @param  apRegs pointer to a struct tontaining all register info
+ *  @param  apRegs pointer to a struct containing all register info
  */
 void KERNEL_CALL
 exception_handler(regs_t * apRegs)
@@ -216,6 +301,41 @@ exception_handler(regs_t * apRegs)
     {
         printf(gpExceptionMessages[apRegs->int_no]);
         printf(" Exception caught\n");
-        panic();
+        kernel_panic();
     }
+}
+
+/**
+ *  Manages the IRQs
+ *
+ *  @param  apRegs pointer to a struct containing all register info
+ */
+void KERNEL_CALL
+irq_handler(regs_t * apRegs)
+{
+    /* This is a blank function pointer */
+    void (*handler)(regs_t *r);
+
+    /* Find out if we have a custom handler to run for this
+    *  IRQ, and then finally, run it */
+    handler = gpIrqRoutines[apRegs->int_no - 32];
+    if (handler)
+    {
+        handler(apRegs);
+    }
+
+    //if(apRegs->int_no != 32)
+        //printf("We've got contact - %d\n", apRegs->int_no);
+
+    /* If the IDT entry that was invoked was greater than 40
+    *  (meaning IRQ8 - 15), then we need to send an EOI to
+    *  the slave controller */
+    if (apRegs->int_no >= 40)
+    {
+        outportb(PIC2_COMMAND, PIC_EOI);
+    }
+
+    /* In either case, we need to send an EOI to the master
+    *  interrupt controller too */
+    outportb(PIC1_COMMAND, PIC_EOI);
 }

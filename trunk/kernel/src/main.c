@@ -1,15 +1,12 @@
 #include "main.h"
 
-void KERNEL_CALL
-os_main()
+static void KERNEL_CALL
+put_logo()
 {
-    //vga_clear();
-    vga_show_cursor(TRUE);
-    vga_set_cursor_pos(0, 4);
-    printf("Eve successfully switched to P-mode\n");
     int i, j;
-    for(i = 0; i < LOGO_HEIGHT; i++) {
-        for(j = 0; j < LOGO_WIDTH; j++) {
+    //vga_clear();
+    for(i = 0; i < _LOGO_HEIGHT; i++) {
+        for(j = 0; j < _LOGO_WIDTH; j++) {
             vga_set_bg_color(gLogoImage[i][j]);
             vga_print_char(' ');
         }
@@ -21,15 +18,33 @@ os_main()
         vga_set_fg_color(VGA_CL_LIGHT_GRAY);
         vga_print(gpLogoBig);
         vga_print("\n");
-        vga_print("...at your service.\n");
     */
     vga_set_bg_color(VGA_CL_BLACK);
     vga_set_fg_color(VGA_CL_LIGHT_GRAY);
+}
+
+void KERNEL_CALL
+os_main()
+{
+    vga_show_cursor(TRUE);
+    vga_set_cursor_pos(0, 4); // for not overwriting loader messages
+    printf("Eve successfully switched to P-mode\n");
+    put_logo();
 
     idt_install();
-    int x = 4;
-    vga_print_char(x/0);
+    __asm__ __volatile__ ("sti");
+    printf("ISRs & IRQs are on-line\n");
+    timer_install();
+    printf("PIT firing rate is %d Hz\n", _TIMER_RATE);
+	keyboard_install();
+    printf("Keyboard is on-line (US layout)\n");
+    printf("\n");
+	printf("> ");
 
-    //for (;;);
+    //IDT test
+    //int x = 4;
+    //vga_print_char(x/0);
+
+    for (;;);
     return;
 }

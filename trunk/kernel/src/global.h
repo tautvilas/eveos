@@ -11,8 +11,8 @@ typedef unsigned int    dword_t;
 typedef unsigned int    size_t;
 
 typedef enum {
-        TRUE,
-        FALSE
+        FALSE,
+        TRUE
     }   bool_t;
 
 //
