@@ -103,13 +103,29 @@ static unsigned char gKbdLayoutUs[2][128] =
     }
 };
 
+/* wait till keyboard is ready; */
+
+static void KERNEL_CALL
+keyboard_wait()
+{
+    while(1)
+        if ((inportb(KEYBOARD_COMMAND) & 2) == 0) break;
+    return;
+}
+
+/**
+  * manage keyboard lights
+  *
+  * @param aState  light on or off
+  * @param aLight  caps, scroll or num lock
+  */
+
 static void KERNEL_CALL
 keyboard_manage_lights(bool_t aState, byte_t aLight)
 {
-    while(1)
-    {
-        if ((inportb(KEYBOARD_COMMAND) & 2) == 0) break;
-    }
+    keyboard_wait();
+
+    /* tell the keyboard that we want to manage lights */
     outportb(KEYBOARD_DATA, 0xED);
     if(aState == LIGHT_ON)
     {
@@ -120,6 +136,7 @@ keyboard_manage_lights(bool_t aState, byte_t aLight)
         lights &= ~aLight;
     }
     outportb(KEYBOARD_DATA, lights);
+    return;
 }
 
 /* handler keyboard IRQ1 */
@@ -233,8 +250,37 @@ keyboard_handler(regs_t * apRegs)
 }
 
 void KERNEL_CALL
-keyboard_install()
+keyboard_install(void)
 {
 	irq_install_handler(1, keyboard_handler);
+	return;
+}
+
+void KERNEL_CALL
+a20_enable(void)
+{
+    /* TODO test A20 gate, maybe remove cli and sti by enabling A20 before ISR's */
+    byte_t a;
+    __asm__ __volatile__ ("cli");
+
+    keyboard_wait();
+    outportb(KEYBOARD_COMMAND, 0xAD); // disable keyboard
+
+    keyboard_wait();
+    outportb(KEYBOARD_COMMAND, 0xD0); // Read from input
+
+    keyboard_wait();
+    a = inportb(KEYBOARD_DATA);
+
+    keyboard_wait();
+    outportb(KEYBOARD_COMMAND, 0xD1); // Write to output
+
+    keyboard_wait();
+    outportb(KEYBOARD_DATA, a|2);     // set A20 gate enabled
+
+    keyboard_wait();
+    outportb(KEYBOARD_COMMAND, 0xAE); // enable keyboard
+
+    __asm__ __volatile__ ("sti");
 	return;
 }

@@ -15,7 +15,7 @@
   * @param apRegs register information
   */
 
-unsigned int gTimerTicks = 0U;
+unsigned static int gTimerTicks = 0U;
 
 static void KERNEL_CALL
 timer_handler(regs_t * apRegs)
@@ -45,4 +45,10 @@ timer_install()
 {
     timer_set_rate(_TIMER_RATE);
     irq_install_handler(0, timer_handler);
+}
+
+unsigned int KERNEL_CALL
+timer_get_num_ticks()
+{
+    return gTimerTicks;
 }
