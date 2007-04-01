@@ -6,12 +6,21 @@
 #define KEYBOARD_COMMAND 0x64
 #define KEYBOARD_DATA    0x60
 
+#define LIGHT_ON         1
+#define LIGHT_OFF        0
+
+#define LIGHT_SCROLL     0x1
+#define LIGHT_NUM        0x2
+#define LIGHT_CAPS       0x4
+
 static bool_t gShiftPressed = FALSE;
 static bool_t gCtrlPressed = FALSE;
 static bool_t gAltPressed = FALSE;
 static bool_t gCapsPressed = FALSE;
 static bool_t gNumPressed = FALSE;
 static bool_t gScrollPressed = FALSE;
+
+static byte_t lights = 0;
 
 /* KBDUS means US Keyboard Layout. This is a scancode table
 *  used to layout a standard US keyboard. */
@@ -94,6 +103,25 @@ static unsigned char gKbdLayoutUs[2][128] =
     }
 };
 
+static void KERNEL_CALL
+keyboard_manage_lights(bool_t aState, byte_t aLight)
+{
+    while(1)
+    {
+        if ((inportb(KEYBOARD_COMMAND) & 2) == 0) break;
+    }
+    outportb(KEYBOARD_DATA, 0xED);
+    if(aState == LIGHT_ON)
+    {
+        lights |= aLight;
+    }
+    else
+    {
+        lights &= ~aLight;
+    }
+    outportb(KEYBOARD_DATA, lights);
+}
+
 /* handler keyboard IRQ1 */
 
 static void KERNEL_CALL
@@ -124,18 +152,6 @@ keyboard_handler(regs_t * apRegs)
                 gAltPressed = FALSE;
             break;
 
-            case 58:
-                gCapsPressed = FALSE;
-            break;
-
-            case 69:
-                gNumPressed = FALSE;
-            break;
-
-            case 70:
-                gScrollPressed = FALSE;
-            break;
-
             default:
             break;
         }
@@ -161,15 +177,42 @@ keyboard_handler(regs_t * apRegs)
             break;
 
             case 58:
-                gCapsPressed = TRUE;
+                if(!gCapsPressed)
+                {
+                    gCapsPressed = TRUE;
+                    keyboard_manage_lights(LIGHT_ON, LIGHT_CAPS);
+                }
+                else
+                {
+                    gCapsPressed = FALSE;
+                    keyboard_manage_lights(LIGHT_OFF, LIGHT_CAPS);
+                }
             break;
 
             case 69:
-                gNumPressed = TRUE;
+                if(!gNumPressed)
+                {
+                    gNumPressed = TRUE;
+                    keyboard_manage_lights(LIGHT_ON, LIGHT_NUM);
+                }
+                else
+                {
+                    gNumPressed = FALSE;
+                    keyboard_manage_lights(LIGHT_OFF, LIGHT_NUM);
+                }
             break;
 
             case 70:
-                gScrollPressed = TRUE;
+                if(!gScrollPressed)
+                {
+                    gScrollPressed = TRUE;
+                    keyboard_manage_lights(LIGHT_ON, LIGHT_SCROLL);
+                }
+                else
+                {
+                    gScrollPressed = FALSE;
+                    keyboard_manage_lights(LIGHT_OFF, LIGHT_SCROLL);
+                }
             break;
 
             case 83:    /* ctrl + alt + del */
