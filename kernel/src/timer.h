@@ -3,13 +3,16 @@
 
 #include "global.h"
 
-#define _TIMER_RATE   1000 /* IRQ0 will be firing 1000 timer per second */
-
-extern unsigned int gTimerTicks;
+#define _TIMER_RATE   1000 /* IRQ0 will be ticking 1000 times per second */
 
 /* install PIR IRQ0 handler and set PIT firing rate */
 
 extern void KERNEL_CALL
 timer_install(void);
+
+/* Return, how many ticks passed since PIT initialization */
+
+extern unsigned int KERNEL_CALL
+timer_get_num_ticks(void);
 
 #endif // _TIMER_H_

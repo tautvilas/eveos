@@ -36,6 +36,8 @@ os_main()
     printf("ISRs & IRQs are on-line\n");
     timer_install();
     printf("PIT firing rate is %d Hz\n", _TIMER_RATE);
+    a20_enable();
+    printf("A20 gate enabled\n");
 	keyboard_install();
     printf("Keyboard is on-line (US layout)\n");
     printf("\n");
