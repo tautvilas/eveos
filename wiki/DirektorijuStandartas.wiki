@@ -1,9 +1,9 @@
 #summary EveOS direktorijų medžio standartas
+#labels Phase-Implementation
 
 ==Direktorijų pavadinimų reikšmės==
 
-||_src/_ || direktorija, skirta išeities tekstams (.asm ir .c)||
-||_headers/_ ||direktorija, kuri privalo būti direktorijoje _src/_ ir yra skirta C header (.h) failams||
+||_src/_ || direktorija, skirta išeities tekstams (.asm, .c ir .h failams)||
 ||_obj/_||direktorija, skirta objektiniams (.o) failams||
 ||_doc/_||direktorija, skirta dokumentacijai||
 ||_bin/_||direktorija, skirta dvejetainiams (.bin) failams||
@@ -21,7 +21,6 @@
   * /kernel/obj
   * /kernel/bin
   * /kernel/src
-  * /kernel/src/headers
   * /loader
   * /loader/src
   * /loader/doc
