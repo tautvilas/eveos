@@ -1,0 +1,3 @@
+#summary Naudingos nuorodos
+
+[http://www.online.ee/~andre/i80386/ Intel 80386 Programmer's Reference 1986]
