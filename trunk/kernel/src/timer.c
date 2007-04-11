@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "idt.h"
 #include "ports.h"
+#include "vga.h"
 
 #define PIT_COMMAND  0x43
 #define PIT_CHANNEL1 0x40 /* IRQ0 clock */
@@ -21,11 +22,31 @@ static void KERNEL_CALL
 timer_handler(regs_t * apRegs)
 {
     gTimerTicks++;
-    /*
-    if(gTimerTicks % _TIMER_RATE == 0) {
-        printf("One second passed\n");
+
+    vga_pos_t cursor = vga_get_cursor_pos();
+    color_t bg = vga_get_bg_color();
+    color_t fg = vga_get_fg_color();
+
+    vga_set_fg_color(VGA_CL_BLACK);
+    vga_set_bg_color(VGA_CL_WHITE);
+
+    if(gTimerTicks % _TIMER_RATE == 0)
+    {
+        int numSecs = gTimerTicks / _TIMER_RATE;
+        int length = 0;
+        while(numSecs)
+        {
+            numSecs /= 10;
+            length++;
+        }
+        vga_set_cursor_pos(71 - length, 0); /* TODO magic number to constant */
+        printf("Uptime: %ds", gTimerTicks / _TIMER_RATE);
     }
-    */
+
+    vga_set_cursor_pos(cursor.mX, cursor.mY);
+    vga_set_bg_color(bg);
+    vga_set_fg_color(fg);
+
     return;
 }
 
