@@ -52,7 +52,7 @@ extern color_t KERNEL_CALL
 vga_get_bg_color();
 
 extern color_t KERNEL_CALL
-vga_get_bg_color();
+vga_get_fg_color();
 
 extern void KERNEL_CALL
 vga_show_cursor(bool_t aShow);
