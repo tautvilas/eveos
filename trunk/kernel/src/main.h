@@ -7,6 +7,7 @@
 #include "logo.h"     //gLogoImage
 #include "idt.h"      //idt_install
 #include "timer.h"    //timer_install
+#include "paging.h"   //paging_install
 #include "keyboard.h" //keyboard_install
 
 #endif // _MAIN_H_
