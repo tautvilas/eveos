@@ -3,7 +3,9 @@
 
 #include "global.h"
 
-/* This defines what the stack looks like after an ISR was running */
+/**
+  * This defines what the stack looks like after an ISR was running
+  */
 typedef struct
 {
     dword_t gs, fs, es, ds;                          /* pushed the segs last */

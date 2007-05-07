@@ -5,10 +5,11 @@
 #define KERNEL_CALL //__attribute__((cdecl))
 
 
-typedef unsigned char   byte_t;
-typedef unsigned short  word_t;
-typedef unsigned int    dword_t;
-typedef unsigned int    size_t;
+typedef unsigned char       byte_t;
+typedef unsigned short      word_t;
+typedef unsigned int        dword_t;
+typedef unsigned long long  qword_t;
+typedef unsigned int        size_t;
 
 typedef enum {
         FALSE,

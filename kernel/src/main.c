@@ -34,18 +34,27 @@ os_main()
     idt_install();
     __asm__ __volatile__ ("sti");
     printf("ISRs & IRQs are on-line\n");
+
+    //* IDT test */
+    //int x = 4;
+    //vga_print_char(x/0);
+
     timer_install();
     printf("PIT firing rate is %d Hz\n", _TIMER_RATE);
     a20_enable();
     printf("A20 gate enabled\n");
+	paging_install();
+    printf("Paging is enabled\n");
+
+    /* paging test */
+    //dword_t * address;
+    //address = (dword_t *) 0x0fffffff;
+    //*address = 0xffff;
+
 	keyboard_install();
     printf("Keyboard is on-line (US layout)\n");
     printf("\n");
 	printf("> ");
-
-    //IDT test
-    //int x = 4;
-    //vga_print_char(x/0);
 
     for (;;);
     return;

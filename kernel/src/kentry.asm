@@ -88,6 +88,9 @@ ret
 
 bits 32
 
+; Useful assembler functions, called from C code
+%include "utils.asm"
+
 ; ISRs and IRQs function stubs
 %include "isr.asm"
 
@@ -95,7 +98,6 @@ bits 32
 _idt_load:
     lidt [_gIdtp]
     ret
-
 
 isr_common:
     pusha
