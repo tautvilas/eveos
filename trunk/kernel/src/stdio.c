@@ -34,9 +34,9 @@ print_int_dec(const int aInt)
 }
 
 static void KERNEL_CALL
-print_int_hex(const int aInt)
+print_int_hex(const unsigned int aInt)
 {
-    int x = aInt;
+    unsigned int x = aInt;
     int i;
     int count = 0;
     while(x)
