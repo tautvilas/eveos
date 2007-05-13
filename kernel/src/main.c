@@ -1,5 +1,7 @@
 #include "main.h"
 
+int gTmp = 0;
+
 static void KERNEL_CALL
 put_logo()
 {
@@ -43,8 +45,13 @@ os_main()
     printf("PIT firing rate is %d Hz\n", _TIMER_RATE);
     a20_enable();
     printf("A20 gate enabled\n");
+    mm_install();
+    printf("Memory manager enabled\n");
 	paging_install();
     printf("Paging is enabled\n");
+    mm_print_info();
+    
+    printf("Test: %x %x %x\n", &gTmp, &os_main, &paging_install );
 
     /* paging test */
     //dword_t * address;
