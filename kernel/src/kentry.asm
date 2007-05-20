@@ -66,6 +66,7 @@ go_pm:
     mov ss, ax
     mov gs, ax
 
+    ; TODO check this out why it was not workingjus after the _start:
     mov ecx, _gBssEnd
     sub ecx, _gBssStart
     mov eax, _gBssStart - KERNEL_BASE
