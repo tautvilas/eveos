@@ -10,5 +10,6 @@
 
 ; sizes
     STACK_SIZE                  equ 8192    ; stack size in bytes
+    PAGE_SIZE                   equ 4096    ; page size in bytes
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF

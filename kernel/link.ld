@@ -1,8 +1,9 @@
 OUTPUT_FORMAT("binary")
 OUTPUT_ARCH(i386)
-ENTRY(_start)                   /* kernel entry point */
-_gVmBase    = 0xF00008000       /* virtual address of kernel */
-_gPhysBase  = 0x000008000       /* physical address of kernel */
+ENTRY(_start)                  /* kernel entry point */
+_gVmBase    = 0x80008000;      /* virtual address of kernel */
+_g2gb       = 0x80000000;      /* 2 GB mark */
+_gPhysBase  = 0x00008000;      /* physical address of kernel */
 
 /* this instructs the linker how to lay out sections in the output */
 SECTIONS

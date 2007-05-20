@@ -33,7 +33,7 @@
 /**
  *  Values to build access_t value by or'ing
  */
-#define ACC_SUPER           0   
+#define ACC_SUPER           0
 #define ACC_USER            4   // 0100b
 #define ACC_READ            0
 #define ACC_RW              2   // 0010b
@@ -53,8 +53,7 @@
 #define MM_PAGE_DIR_SIZE    1024
 
 
-typedef dword_t             mm_access_t;       
-//typedef byte_t              page_t[MM_PAGE_SIZE]; 
+typedef dword_t             mm_access_t;
 typedef pointer_t*          mm_page_tbl_t;
 typedef mm_page_tbl_t*      mm_page_dir_t;
 
@@ -66,26 +65,26 @@ typedef struct {
     } mm_page_t;
 
 typedef struct {
-        pointer_t       mCode;      
+        pointer_t       mCode;
         pointer_t       mData;
         pointer_t       mStack;
         pointer_t       mHeap;
         pointer_t       mHeapEnd;
         mm_page_tbl_t   mPageDir[1024];
     } process_mem_t;
-    
+
 // TODO: gx: move to process manager
 typedef struct {
         process_mem_t   mMem;
         process_name_t  mName;
     } process_t;
-    
-   
+
+
 process_t gTmpActiveProcess;
 process_t* gpActiveProcess = &gTmpActiveProcess;
-    
 
-// Symbols from linker. Does not really matter the type of them as the 
+
+// Symbols from linker. Does not really matter the type of them as the
 // address of them is what matters.
 extern char         gKernelStart;
 extern char         gKernelEnd;
@@ -148,18 +147,18 @@ mm_install()
     pointer_t page;
     pointer_t ram_top;
     size_t ram_top_page = MM_KERNEL_START + MM_KERNEL_SIZE;
-    
+
     gpFreePageStack     = mm_page_to_pointer(ram_top_page);
     gpFreePageStackTop  = gpFreePageStack;
     gPageCount          = MM_RAM_SIZE; // in the future this should be calculated at run-time
-    
+
     // TODO: 2007-05-14 gx: better calc
     ram_top_page        += gPageCount * sizeof(pointer_t) / MM_PAGE_SIZE + 1;
-    
+
     for (
-            page    = mm_page_to_pointer(gPageCount - 1), 
-            ram_top = mm_page_to_pointer(ram_top_page); 
-            page >= ram_top; 
+            page    = mm_page_to_pointer(gPageCount - 1),
+            ram_top = mm_page_to_pointer(ram_top_page);
+            page >= ram_top;
             page -= MM_PAGE_SIZE
         )
     {
@@ -171,7 +170,7 @@ mm_install()
     size_t      stack_size;
     pointer_t   page_addr;          // used in loop
     pointer_t   first_free_addr;
-    
+
     // assuming that all memory before kernel and kernel itself is used
     if ((dword_t)&gKernelEnd > 1024 * 1024)
     {
@@ -183,38 +182,38 @@ mm_install()
     {
         used_pages  = 1024 * 1024;
     }
-    
+
     // putting free pages stack jus after kernel
     gpFreePageStack     = mm_page_to_pointer(used_pages);
     gpFreePageStackTop  = gpFreePageStack;
-    
+
     // calculating total number of pages that can fit in RAM
     // NOT using last bytes of RAM if its not a full page.
     // emm.. this is a geeky way to write (gRamSize / MM_PAGE_SIZE) but
     // should be a little faster then that. Of course it's worth as this code
     // is executed only once when kernel starts but... let it be... ;-)
     gTotalPageCount = gRamSize >> MM_PAGE_ADDR_SHIFT;
-    
+
     // calculating space needed for free pages stack
     stack_size      = gTotalPageCount * sizeof(pointer_t);
     used_pages      += stack_size >> MM_PAGE_ADDR_SHIFT;
     if (stack_size & ~MM_PAGE_ADDR_MASK)
         used_pages  += 1;
-        
+
     // should we optimize this loop? (1GB is 262144 pages)
     first_free_addr = mm_page_to_pointer(used_pages);
     for (
-            page_addr   = mm_page_to_pointer(gTotalPageCount - 1); 
-            page_addr >= first_free_addr; 
+            page_addr   = mm_page_to_pointer(gTotalPageCount - 1);
+            page_addr >= first_free_addr;
             page_addr -= MM_PAGE_SIZE
         )
     {
         mm_free_page(page_addr);
     }
     // done with memory management
-    
+
     //mm_load_kernel_process();
-    
+
     //mm_install_paging(used_pages);
 }
 
@@ -225,7 +224,7 @@ mm_load_kernel_process(process_t& arProcess)
     arProcess.mMem.mCode    = &gKernelStart;
     arProcess.mMem.mData    = 0;
     arProcess.mMem.mStack   = 0;
-    
+
     if ((dword_t)&gKernelEnd > 1024 * 1024)
     {
         arProcess.mMem.mHeap    = &gKernelEnd;
@@ -234,18 +233,18 @@ mm_load_kernel_process(process_t& arProcess)
     {
         arProcess.mMem.mHeap    = 1024 * 1024;
     }
-    
+
     arProcess.mMem.mHeapEnd = arProcess.mMem.mHeap;
-    
+
     arProcess.mMem.mPageDir = mm_page_dir(ACC_SUPER | ACC_RW);
-        
+
 }
 
 
 void KERNEL_CALL
 mm_load_process()
 {
-    
+
 }
 
 
@@ -256,29 +255,29 @@ mm_install_paging(size_t aPagesPresent)
     size_t  entry;
     size_t  page            = 0;
     size_t  present_pages   = 183;
-    
+
     //page_table_t*   pPageTable;
     pointer_t*  pPageTable;
-    
-    // assuming that page directory is allocated immediately after 
+
+    // assuming that page directory is allocated immediately after
     // already used memory
-    gpPageDirectory = mm_alloc_page_directory(ACC_SUPER | ACC_RW);    
+    gpPageDirectory = mm_alloc_page_directory(ACC_SUPER | ACC_RW);
     present_pages   += 1;
-    
+
     for (
-            dir = 0; 
-            page < present_pages; 
+            dir = 0;
+            page < present_pages;
             ++dir
         )
     {
-        // assuming that page table is allocated immediately after 
+        // assuming that page table is allocated immediately after
         // already used memory
         pPageTable      = mm_alloc_page_table(ACC_SUPER | ACC_RW);
         present_pages   += 1;
         // filling page table entries
         for (
-                entry = 0; 
-                page < present_pages && entry < MM_PAGE_TABLE_SIZE; 
+                entry = 0;
+                page < present_pages && entry < MM_PAGE_TABLE_SIZE;
                 ++entry, ++page
             )
         {
@@ -287,18 +286,18 @@ mm_install_paging(size_t aPagesPresent)
                 );
 
         }
-        
+
         // adding page table to page directory
         gpPageDirectory[dir]  = (pointer_t)(
                 (dword_t)pPageTable | ENTRY_PRESENT | ACC_SUPER | ACC_RW
             );
     }
-//printf("page dir at %x %x %x\n", (dword_t)gpPageDirectory, gpPageDirectory[0], 
+//printf("page dir at %x %x %x\n", (dword_t)gpPageDirectory, gpPageDirectory[0],
 //        ((pointer_t*)((dword_t)gpPageDirectory[0] & 0xFFFFFF00))[0]); kernel_panic();
-    
+
     /* write_cr3, read_cr3, write_cr0, and read_cr0 all come from the assembly functions */
     write_cr3((dword_t)gpPageDirectory);   // put that page directory address into CR3
-    write_cr0(read_cr0() | 0x80000000);     // set the paging bit in CR0 to 1 
+    write_cr0(read_cr0() | 0x80000000);     // set the paging bit in CR0 to 1
 }
 
 
@@ -317,10 +316,10 @@ mm_free_page(const pointer_t aPage)
     pointer_t page  = mm_containing_page(aPage);
     if (mm_is_page_free(page))
         return;
-        
+
     *gpFreePageStackTop = page;
     gpFreePageStackTop++;
-    
+
 }
 
 
@@ -334,7 +333,7 @@ mm_alloc_page()
 {
     if (gpFreePageStackTop == gpFreePageStack)
         return NULL;
-        
+
     gpFreePageStackTop--;
     return *gpFreePageStackTop;
 }
@@ -384,13 +383,13 @@ void KERNEL_CALL
 mm_print_info()
 {
     size_t  free_pages  = mm_get_free_pages();
-    
+
     printf("Memory manager\n");
     printf("\taddress:  \t%x\n", gpFreePageStack);
     printf("\tsize:     \t%d bytes\n", gTotalPageCount * sizeof(pointer_t));
-    printf("\tfree:     \t%d pages (%d bytes)\n", free_pages, 
-            free_pages * MM_PAGE_SIZE); 
-}   
+    printf("\tfree:     \t%d pages (%d bytes)\n", free_pages,
+            free_pages * MM_PAGE_SIZE);
+}
 
 
 /**
@@ -415,8 +414,8 @@ mm_page_to_pointer(size_t aPage)
 pointer_t KERNEL_CALL
 mm_containing_page(const pointer_t aPointer)
 {
-    return (pointer_t)((size_t)aPointer & MM_PAGE_ADDR_MASK);  
-}   
+    return (pointer_t)((size_t)aPointer & MM_PAGE_ADDR_MASK);
+}
 
 
 /**
