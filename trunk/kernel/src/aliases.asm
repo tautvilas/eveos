@@ -19,9 +19,12 @@
 
 ; sizes
     STACK_SIZE                  equ 8192    ; stack size in bytes
-    PAGE_SIZE                   equ 4096    ; page size in bytes
+    PAGE_SIZE                   equ 1000h   ; page size in bytes
+    NUM_PAGE_ENTRIES            equ 1024
+    NUM_PAGE_TABLES             equ 2
 
 ; flags
-    PAGE_RW_PRESENT            equ 3
+    PAGE_RW_PRESENT             equ 3
+    PAGING_BIT                  equ 80000000h
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF

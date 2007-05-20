@@ -2,6 +2,9 @@
 
 int gTmp = 0;
 
+extern void * sys_stack;
+extern void * gKernelStart;
+
 static void KERNEL_CALL
 put_logo()
 {
@@ -58,7 +61,7 @@ os_main()
     //address = (dword_t *) 0x80000000;
     //*address = 0xffff;
 
-    printf("%x\n" , os_main);
+    printf("%x\n" , &sys_stack);
 
 	keyboard_install();
     printf("Keyboard is on-line (US layout)\n");

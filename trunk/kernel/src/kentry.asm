@@ -12,6 +12,7 @@ bits 16
 
 global _start     ; entry symbol for linker
 global _idt_load  ; function for loading IDT
+global _sys_stack
 
 extern _os_main           ; OS main C function
 extern _gIdtp             ; Pointer to IDT
@@ -61,35 +62,62 @@ go_pm:
     ; init paging
     mov esp, _sys_stack - KERNEL_BASE
 
-    ; init kernel page table (over 2GB and first 4MB)
-    mov eax, pd - KERNEL_BASE       ; eax  = &pd
-    mov ebx, pt - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
+    ; init kernel page table (over 2GB and first 8MB)
+    ; TODO maybe do this with macros
+    mov eax, _pd - KERNEL_BASE      ; eax  = &pd
+
+    mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
     mov [eax], ebx                  ; pd[0] = &pt
+    ;add eax, 4
+    ;mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
+    ;mov [eax], ebx
 
-    ; TODO:zv:fix this
-    mov eax,  pd - KERNEL_BASE + PAGE_DIRECTORY_OFFSET ; eax = &PDE[960]
-    mov [eax], ebx                  ; PD[960] = &PT
+    mov eax,  _pd - KERNEL_BASE + PAGE_DIRECTORY_OFFSET ; eax = &pde[800h]
 
-    ; fill in the page table
+    mov [eax], ebx                  ; pd[960] = &pt
+    mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
+    mov [eax], ebx                  ; pd[0] = &pt
+    ;add eax, 4
+    ;mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
+    ;mov [eax], ebx
 
-    mov edi, pt - KERNEL_BASE       ; edi = &PT
-    mov eax, 3                      ; Address 0, bit p & r/w set
-    mov ecx, 1024                   ; 1024 entries
-init_pt:
+    ; fill in the page tables
+
+    mov edi, _pt1 - KERNEL_BASE     ; edi = &pt
+    mov eax, PAGE_RW_PRESENT        ; Address 0, bit p & r/w set
+    mov ecx, NUM_PAGE_ENTRIES       ; 1024 entries
+init_pt1:
     stosd                           ; Write one entry
-    add eax, 1000h                  ; Next page address
-    loop init_pt                    ; Loop
+    add eax, PAGE_SIZE              ; Next page address
+    loop init_pt1                   ; Loop
+
+    ;mov edi, _pt2 - KERNEL_BASE     ; edi = &pt
+    ;mov eax, PAGE_RW_PRESENT        ; Address 0, bit p & r/w set
+    ;mov ecx, NUM_PAGE_ENTRIES       ; 1024 entries
+;init_pt2:
+    ;stosd                           ; Write one entry
+    ;add eax, PAGE_SIZE              ; Next page address
+    ;loop init_pt2                   ; Loop
+
+    ; fill the rest of page dir with 0 entries (page table not present)
+
+    ;mov edi, _pd - KERNEL_BASE + NUM_PAGE_TABLES * 4
+    ;mov eax, 0        ; Address 0, bit p & r/w set
+    ;mov ecx, NUM_PAGE_ENTRIES - NUM_PAGE_TABLES
+;init_pd:
+    ;stosd                           ; Write one entry
+    ;loop init_pd                    ; Loop
 
     ; set the page directory in cr3
 
-    mov eax,  pd - KERNEL_BASE      ; eax = &PD
-    mov cr3, eax                    ; cr3 = &PD
+    mov eax,  _pd - KERNEL_BASE     ; eax = &pd
+    mov cr3, eax                    ; cr3 = &pd
 
     ; set CR0's PG bit.
 
     mov eax, cr0
-    or eax, 80000000h           ; Set PG bit
-    mov cr0,eax                 ; Paging is on!
+    or eax, PAGING_BIT          ; Set PG bit
+    mov cr0, eax                ; Paging is on!
     jmp $+2                     ; Flush the instruction queue.
 
     jmp CODE_SEL:paging_enabled
@@ -219,7 +247,7 @@ gdt0                   ; Null descriptor,as per convention gdt0 is 0
 
 CODE_SEL equ $-gdt     ; This is 8h,ie 2nd descriptor in gdt
 code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
-    dw 0xffffb         ; Limit 4Gb  bits 0-15 of segment descriptor
+    dw 0xffff          ; Limit 4Gb  bits 0-15 of segment descriptor
     dw 0x0000          ; BASE 0h bits 16-31 of segment descriptor (sd)
     db 0x00            ; BASE addr of seg 16-23 of 32bit addr,32-39 of sd
     db 10011010b       ; P,DPL(2),S,TYPE(3),A->Present bit 1,Descriptor
@@ -232,7 +260,7 @@ code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
     db 0x00            ; BASE addr of seg 24-31 of 32bit addr,56-63 of sd
 DATA_SEL equ $-gdt     ; ie 10h, beginning of next 8 bytes for data sd
 data_gd                ; Data descriptor 4Gb flat seg at 0000:0000h
-    dw 0x0ffff         ; Limit 4Gb
+    dw 0xffff          ; Limit 4Gb
     dw 0x0000          ; BASE 0000:0000h
     db 0x00            ; Descriptor format same as above
     db 10010010b
@@ -246,11 +274,14 @@ gdt_end
 
 SECTION .bss
 ; page directory
-pd:
+_pd:
     resb PAGE_SIZE
 
-; page table
-pt:
+; page tables
+_pt1:
+    resb PAGE_SIZE
+
+_pt2:
     resb PAGE_SIZE
 
 ; system stack

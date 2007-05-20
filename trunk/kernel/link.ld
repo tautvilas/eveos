@@ -30,7 +30,7 @@ SECTIONS
         *(.data)
             . = ALIGN(4096);
     }
-    .bss : AT(_gKernelStart + (bss - code))
+    .bss : AT(_gKernelOffset + (bss - code))
     {
         bss = .;
         *(.bss)
