@@ -26,15 +26,17 @@ SECTIONS
            and maybe other, that is why i wrote .rodata*
          */
         *(.rodata*)
-        *(.rdata)
+        *(.rdata*)
         *(.data)
             . = ALIGN(4096);
     }
     .bss : AT(_gKernelOffset + (bss - code))
     {
+        _gBssStart = .;
         bss = .;
-        *(.bss)
+        *(.bss*)
             . = ALIGN(4096);
+        _gBssEnd = .;
     }
     /*end = .; /* this marks the end of all sections */
     _gKernelEnd = .;

@@ -13,6 +13,11 @@ bits 16
 global _start     ; entry symbol for linker
 global _idt_load  ; function for loading IDT
 global _sys_stack
+global _pt2
+global _pt2_end
+
+extern _gBssStart
+extern _gBssEnd
 
 extern _os_main           ; OS main C function
 extern _gIdtp             ; Pointer to IDT
@@ -28,11 +33,13 @@ SECTION .text
     ; this jmp is needed for kernel loader integrity test
     jmp _start
 _start:
+    ; fill .bss with 0
 
-    ; print out OS welcome message
     mov eax, title - KERNEL_BASE
     mov si, ax
     call print_str - KERNEL_BASE
+
+    call enableA20 - KERNEL_BASE
 
     cli             ; Disable external interrupts
 
@@ -59,6 +66,15 @@ go_pm:
     mov ss, ax
     mov gs, ax
 
+    mov ecx, _gBssEnd
+    sub ecx, _gBssStart
+    mov eax, _gBssStart - KERNEL_BASE
+set_bss_null:
+    mov byte [eax], 0
+    inc eax
+    loop set_bss_null
+
+
     ; init paging
     mov esp, _sys_stack - KERNEL_BASE
 
@@ -74,9 +90,8 @@ go_pm:
 
     mov eax,  _pd - KERNEL_BASE + PAGE_DIRECTORY_OFFSET ; eax = &pde[800h]
 
-    mov [eax], ebx                  ; pd[960] = &pt
     mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
-    mov [eax], ebx                  ; pd[0] = &pt
+    mov [eax], ebx                  ; pd[800] = &pt
     ;add eax, 4
     ;mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
     ;mov [eax], ebx
@@ -138,6 +153,8 @@ paging_enabled:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 bits 16
+
+%include "enableA20.asm"
 
 ; Function to print out a string, which address is located in [SI]
 print_str:
@@ -283,6 +300,7 @@ _pt1:
 
 _pt2:
     resb PAGE_SIZE
+_pt2_end:
 
 ; system stack
     resb STACK_SIZE    ; This reserves 8KBytes of memory
