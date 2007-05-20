@@ -55,10 +55,10 @@
 
 typedef dword_t             mm_access_t;       
 //typedef byte_t              page_t[MM_PAGE_SIZE]; 
-typedef pointer_t*          mm_page_table_t;
-typedef page_table_t*       mm_page_dir_t;
+typedef pointer_t*          mm_page_tbl_t;
+typedef mm_page_tbl_t*      mm_page_dir_t;
 
-typedef char[12]            process_name_t;
+typedef char                process_name_t[12];
 
 typedef struct {
         process_name_t  mProcName;
@@ -71,13 +71,13 @@ typedef struct {
         pointer_t       mStack;
         pointer_t       mHeap;
         pointer_t       mHeapEnd;
-        page_table_t    mPageDir[1024];
+        mm_page_tbl_t   mPageDir[1024];
     } process_mem_t;
     
 // TODO: gx: move to process manager
 typedef struct {
         process_mem_t   mMem;
-        char            mName[12];
+        process_name_t  mName;
     } process_t;
     
    
@@ -134,10 +134,10 @@ void KERNEL_CALL
 mm_install_paging();
 
 pointer_t* KERNEL_CALL
-mm_alloc_page_table(access_t aAccess);
+mm_alloc_page_table(mm_access_t aAccess);
 
 pointer_t* KERNEL_CALL
-mm_alloc_page_directory(access_t aAccess);
+mm_alloc_page_directory(mm_access_t aAccess);
 
 
 
@@ -213,9 +213,9 @@ mm_install()
     }
     // done with memory management
     
-    mm_load_kernel_process();
+    //mm_load_kernel_process();
     
-    mm_install_paging(used_pages);
+    //mm_install_paging(used_pages);
 }
 
 
@@ -341,7 +341,7 @@ mm_alloc_page()
 
 
 pointer_t* KERNEL_CALL
-mm_alloc_page_table(access_t aAccess)
+mm_alloc_page_table(mm_access_t aAccess)
 {
     size_t          flags       = aAccess & ACC_MASK;
     pointer_t*      pPageTable  = (pointer_t*)mm_alloc_page();
@@ -355,7 +355,7 @@ mm_alloc_page_table(access_t aAccess)
 
 
 pointer_t* KERNEL_CALL
-mm_alloc_page_directory(access_t aAccess)
+mm_alloc_page_directory(mm_access_t aAccess)
 {
     size_t          flags       = aAccess & ACC_MASK;
     pointer_t*      pPageDir    = (pointer_t*)mm_alloc_page();

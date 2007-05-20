@@ -1,17 +1,19 @@
 OUTPUT_FORMAT("binary")
-ENTRY(_start)               /* kernel entry point */
-phys = 0x00008000;          /* address in memory where kernel is loaded */
+OUTPUT_ARCH(i386)
+ENTRY(_start)                   /* kernel entry point */
+_gVmBase    = 0xF00008000       /* virtual address of kernel */
+_gPhysBase  = 0x000008000       /* physical address of kernel */
 
 /* this instructs the linker how to lay out sections in the output */
 SECTIONS
 {
-    .text phys : AT(phys) {
+    .text _gVmBase : AT(_gVmBase) {
         _gKernelStart = .;
         code = .;
         *(.text)
             . = ALIGN(4096); /* align every section on a separate page */
     }
-    .data : AT(phys + (data - code))
+    .data : AT(_gVmBase + (data - code))
     {
         data = .;
         /* rodata is a special section made by GCC for read only data
@@ -25,7 +27,7 @@ SECTIONS
         *(.data)
             . = ALIGN(4096);
     }
-    .bss : AT(phys + (bss - code))
+    .bss : AT(_gVmBase + (bss - code))
     {
         bss = .;
         *(.bss)
