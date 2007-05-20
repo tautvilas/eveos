@@ -18,6 +18,8 @@ extern _gIdtp             ; Pointer to IDT
 extern _exception_handler ; ISRs handler
 extern _irq_handler       ; IRQs handler
 
+extern _gVmBase
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -27,6 +29,8 @@ SECTION .text
     ; this jmp is needed for kernel loader integrity test
     jmp _start
 _start:
+mov eax, _gVmBase
+jmp $
 
     mov si, title
     call print_str
