@@ -6,6 +6,7 @@ phys = 0x00008000;          /* address in memory where kernel is loaded */
 SECTIONS
 {
     .text phys : AT(phys) {
+        _gKernelStart = .;
         code = .;
         *(.text)
             . = ALIGN(4096); /* align every section on a separate page */
@@ -30,6 +31,7 @@ SECTIONS
         *(.bss)
             . = ALIGN(4096);
     }
-    end = .; /* this marks the end of all sections */
+    /*end = .; /* this marks the end of all sections */
+    _gKernelEnd = .;
 }
 
