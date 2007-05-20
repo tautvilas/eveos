@@ -3,7 +3,12 @@
 int gTmp = 0;
 
 extern void * sys_stack;
-extern void * gKernelStart;
+extern void * pt2;
+extern void * pt2_end;
+extern byte_t * gBssStart;
+extern void * gBssEnd;
+extern byte_t * gKernelStart;
+extern byte_t * gKernelEnd;
 
 static void KERNEL_CALL
 put_logo()
@@ -32,6 +37,8 @@ put_logo()
 void KERNEL_CALL
 os_main()
 {
+    // bss zeroing hack
+    // memset((byte_t*) &gBssStart + 0x5000, 0, 0x1000);
     vga_show_cursor(TRUE);
     vga_set_cursor_pos(0, 4); // for not overwriting loader messages
     printf("Eve successfully switched to P-mode with paging\n");
@@ -54,14 +61,14 @@ os_main()
 	//paging_install();
     printf("Paging is enabled\n");
     //mm_print_info();
-    
 
     /* paging test */
     //dword_t * address;
     //address = (dword_t *) 0x80000000;
     //*address = 0xffff;
 
-    printf("%x\n" , &sys_stack);
+    printf("%x %x %x\n" , &pt2, &pt2_end, &sys_stack);
+    printf("%x %x\n" , &gBssStart, &gBssEnd);
 
 	keyboard_install();
     printf("Keyboard is on-line (US layout)\n");
