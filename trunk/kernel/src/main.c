@@ -2,14 +2,6 @@
 
 int gTmp = 0;
 
-extern void * sys_stack;
-extern void * pt2;
-extern void * pt2_end;
-extern byte_t * gBssStart;
-extern void * gBssEnd;
-extern byte_t * gKernelStart;
-extern byte_t * gKernelEnd;
-
 static void KERNEL_CALL
 put_logo()
 {
@@ -41,7 +33,7 @@ os_main()
     // memset((byte_t*) &gBssStart + 0x5000, 0, 0x1000);
     vga_show_cursor(TRUE);
     vga_set_cursor_pos(0, 4); // for not overwriting loader messages
-    printf("Eve successfully switched to P-mode with paging\n");
+    printf("Eve successfully switched to P-mode with paging enabled\n");
     put_logo();
 
     idt_install();
@@ -57,18 +49,18 @@ os_main()
     a20_enable();
     printf("A20 gate enabled\n");
     //mm_install();
-    printf("Memory manager enabled\n");
+    //printf("Memory manager enabled\n");
 	//paging_install();
-    printf("Paging is enabled\n");
+    //printf("Paging is enabled\n");
     //mm_print_info();
 
     /* paging test */
     //dword_t * address;
-    //address = (dword_t *) 0x80000000;
+    //address = (dword_t *) 0x80900000;
     //*address = 0xffff;
 
-    printf("%x %x %x\n" , &pt2, &pt2_end, &sys_stack);
-    printf("%x %x\n" , &gBssStart, &gBssEnd);
+    //printf("%x %x %x\n" , &pt2, &pt2_end, &sys_stack);
+    //printf("%x %x\n" , &gBssStart, &gBssEnd);
 
 	keyboard_install();
     printf("Keyboard is on-line (US layout)\n");

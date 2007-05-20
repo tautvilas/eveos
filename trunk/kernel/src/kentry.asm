@@ -12,17 +12,14 @@ bits 16
 
 global _start     ; entry symbol for linker
 global _idt_load  ; function for loading IDT
-global _sys_stack
-global _pt2
-global _pt2_end
 
-extern _gBssStart
-extern _gBssEnd
+extern _gBssStart           ; kernel bss section start
+extern _gBssEnd             ; kernel bss section end
 
-extern _os_main           ; OS main C function
-extern _gIdtp             ; Pointer to IDT
-extern _exception_handler ; ISRs handler
-extern _irq_handler       ; IRQs handler
+extern _os_main             ; OS main C function
+extern _gIdtp               ; Pointer to IDT
+extern _exception_handler   ; ISRs handler
+extern _irq_handler         ; IRQs handler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -33,7 +30,6 @@ SECTION .text
     ; this jmp is needed for kernel loader integrity test
     jmp _start
 _start:
-    ; fill .bss with 0
 
     mov eax, title - KERNEL_BASE
     mov si, ax
@@ -66,7 +62,8 @@ go_pm:
     mov ss, ax
     mov gs, ax
 
-    ; TODO check this out why it was not workingjus after the _start:
+    ; TODO check this out why it was not working after the _start:
+    ; fill .bss with 0
     mov ecx, _gBssEnd
     sub ecx, _gBssStart
     mov eax, _gBssStart - KERNEL_BASE
@@ -85,17 +82,17 @@ set_bss_null:
 
     mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
     mov [eax], ebx                  ; pd[0] = &pt
-    ;add eax, 4
-    ;mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
-    ;mov [eax], ebx
+    add eax, 4
+    mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
+    mov [eax], ebx
 
     mov eax,  _pd - KERNEL_BASE + PAGE_DIRECTORY_OFFSET ; eax = &pde[800h]
 
     mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
     mov [eax], ebx                  ; pd[800] = &pt
-    ;add eax, 4
-    ;mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
-    ;mov [eax], ebx
+    add eax, 4
+    mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
+    mov [eax], ebx
 
     ; fill in the page tables
 
@@ -107,22 +104,13 @@ init_pt1:
     add eax, PAGE_SIZE              ; Next page address
     loop init_pt1                   ; Loop
 
-    ;mov edi, _pt2 - KERNEL_BASE     ; edi = &pt
-    ;mov eax, PAGE_RW_PRESENT        ; Address 0, bit p & r/w set
-    ;mov ecx, NUM_PAGE_ENTRIES       ; 1024 entries
-;init_pt2:
-    ;stosd                           ; Write one entry
-    ;add eax, PAGE_SIZE              ; Next page address
-    ;loop init_pt2                   ; Loop
-
-    ; fill the rest of page dir with 0 entries (page table not present)
-
-    ;mov edi, _pd - KERNEL_BASE + NUM_PAGE_TABLES * 4
-    ;mov eax, 0        ; Address 0, bit p & r/w set
-    ;mov ecx, NUM_PAGE_ENTRIES - NUM_PAGE_TABLES
-;init_pd:
-    ;stosd                           ; Write one entry
-    ;loop init_pd                    ; Loop
+    mov edi, _pt2 - KERNEL_BASE     ; edi = &pt
+    mov eax, PAGE_RW_PRESENT        ; Address 0, bit p & r/w set
+    mov ecx, NUM_PAGE_ENTRIES       ; 1024 entries
+init_pt2:
+    stosd                           ; Write one entry
+    add eax, PAGE_SIZE              ; Next page address
+    loop init_pt2                   ; Loop
 
     ; set the page directory in cr3
 
@@ -262,6 +250,7 @@ gdt0                   ; Null descriptor,as per convention gdt0 is 0
     dd 0               ; In all the segment descriptor is 64 bits
 
 ; ATTENTION! If code segment position is about to be changed changes must be made to idt.c
+; TODO externalize segment values
 
 CODE_SEL equ $-gdt     ; This is 8h,ie 2nd descriptor in gdt
 code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
