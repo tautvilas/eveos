@@ -25,6 +25,7 @@ put_logo()
     vga_set_fg_color(VGA_CL_LIGHT_GRAY);
 }
 
+
 void KERNEL_CALL
 os_main()
 {
@@ -47,11 +48,10 @@ os_main()
     printf("A20 gate enabled\n");
     mm_install();
     printf("Memory manager enabled\n");
-	paging_install();
+	//paging_install();
     printf("Paging is enabled\n");
     mm_print_info();
     
-    printf("Test: %x %x %x\n", &gTmp, &os_main, &paging_install );
 
     /* paging test */
     //dword_t * address;

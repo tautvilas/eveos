@@ -21,8 +21,8 @@
 
 
 typedef byte_t          access_t;        
-typedef pointer_t       page_table_t[1024];
-typedef page_table_t*   page_dir_t[1024];
+typedef pointer_t       page_table_t[PAGE_TABLE_SIZE];
+typedef page_table_t*   page_dir_t[PAGE_DIR_SIZE];
 
 
 
