@@ -18,12 +18,6 @@ extern _gIdtp             ; Pointer to IDT
 extern _exception_handler ; ISRs handler
 extern _irq_handler       ; IRQs handler
 
-extern _gVmBase
-extern _gPhysBase
-
-; TODO:zv 2007 05 20: load at runtime
-BASE equ 0x80000000;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,22 +27,25 @@ SECTION .text
     ; this jmp is needed for kernel loader integrity test
     jmp _start
 _start:
-    mov eax, _gVmBase
 
-    ;mov si, title
-    ;call print_str
+    ; print out OS welcome message
+    mov eax, title - KERNEL_BASE
+    mov si, ax
+    call print_str - KERNEL_BASE
 
-    cli             ; Clear or disable interrupts
+    cli             ; Disable external interrupts
+
+    ; init gdt
     mov eax, gdtptr
-    sub eax, BASE
+    sub eax, KERNEL_BASE
     lgdt[eax]
+
+    ; init p-mode
     mov eax, cr0    ; The lsb of cr0 is the protected mode bit
     or al, 1        ; Set protected mode bit
     mov cr0, eax    ; Mov modified word to the control register
     ; far jump is for setting code segment
-    ;mov eax, go_pm
-    ;sub eax, _gVmBase
-    jmp dword CODE_SEL:go_pm - BASE
+    jmp dword CODE_SEL:go_pm - KERNEL_BASE
 
 bits 32
 
@@ -61,32 +58,32 @@ go_pm:
     mov ss, ax
     mov gs, ax
 
-    ; enable paging
-    mov esp, _sys_stack - BASE
+    ; init paging
+    mov esp, _sys_stack - KERNEL_BASE
 
-    ; init kernel table (over 2GB and first 4MB)
-    mov eax,  pd - BASE       ; eax  = &PD
-    mov ebx,  pt - BASE + 3   ; ebx  = &PT | 3
-    mov [eax], ebx                  ;PD[0] = &PT
+    ; init kernel page table (over 2GB and first 4MB)
+    mov eax, pd - KERNEL_BASE       ; eax  = &pd
+    mov ebx, pt - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
+    mov [eax], ebx                  ; pd[0] = &pt
 
     ; TODO:zv:fix this
-    mov eax,  pd - BASE + 512 * 4 ; eax = &PDE[960]
-    mov [eax], ebx              ; PD[960] = &PT
+    mov eax,  pd - KERNEL_BASE + PAGE_DIRECTORY_OFFSET ; eax = &PDE[960]
+    mov [eax], ebx                  ; PD[960] = &PT
 
-    ; fill in page table
+    ; fill in the page table
 
-    mov edi, pt - BASE    ; edi = &PT
-    mov eax, 3                  ; Address 0, bit p & r/w set
-    mov ecx, 1024               ; 1024 entries
+    mov edi, pt - KERNEL_BASE       ; edi = &PT
+    mov eax, 3                      ; Address 0, bit p & r/w set
+    mov ecx, 1024                   ; 1024 entries
 init_pt:
-    stosd                       ; Write one entry
-    add eax, 1000h              ; Next page address
-    loop init_pt                ; Loop
+    stosd                           ; Write one entry
+    add eax, 1000h                  ; Next page address
+    loop init_pt                    ; Loop
 
     ; set the page directory in cr3
 
-    mov eax,  pd - BASE   ; eax = &PD
-    mov cr3, eax                ; cr3 = &PD
+    mov eax,  pd - KERNEL_BASE      ; eax = &PD
+    mov cr3, eax                    ; cr3 = &PD
 
     ; set CR0's PG bit.
 
@@ -204,12 +201,13 @@ irq_common:
 
 SECTION .data
 
-title          db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
+title:
+    db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
 
 ; main pointer to gdt
 gdtptr :
     dw gdt_end-gdt-1   ; Length of the gdt - 1
-    dd gdt - BASE      ; physical address of gdt
+    dd gdt - KERNEL_BASE      ; physical address of gdt
 ; the mighty gdt itself
 gdt
 NULL_SEL equ $-gdt     ; $->current location,so nullsel = 0h
@@ -222,8 +220,8 @@ gdt0                   ; Null descriptor,as per convention gdt0 is 0
 CODE_SEL equ $-gdt     ; This is 8h,ie 2nd descriptor in gdt
 code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
     dw 0xffffb         ; Limit 4Gb  bits 0-15 of segment descriptor
-    dw 0x0000          ; Base 0h bits 16-31 of segment descriptor (sd)
-    db 0x00            ; Base addr of seg 16-23 of 32bit addr,32-39 of sd
+    dw 0x0000          ; BASE 0h bits 16-31 of segment descriptor (sd)
+    db 0x00            ; BASE addr of seg 16-23 of 32bit addr,32-39 of sd
     db 10011010b       ; P,DPL(2),S,TYPE(3),A->Present bit 1,Descriptor
                        ; privilege level 0-3,Segment descriptor 1 ie code
                        ; or data seg descriptor,Type of seg,Accessed bit
@@ -231,11 +229,11 @@ code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
                        ; granular, 1 default operation size is 32bit seg
                        ; AVL : Available field for user or OS
                        ; Lower nibble bits 16-19 of segment limit
-    db 0x00            ; Base addr of seg 24-31 of 32bit addr,56-63 of sd
+    db 0x00            ; BASE addr of seg 24-31 of 32bit addr,56-63 of sd
 DATA_SEL equ $-gdt     ; ie 10h, beginning of next 8 bytes for data sd
 data_gd                ; Data descriptor 4Gb flat seg at 0000:0000h
     dw 0x0ffff         ; Limit 4Gb
-    dw 0x0000          ; Base 0000:0000h
+    dw 0x0000          ; BASE 0000:0000h
     db 0x00            ; Descriptor format same as above
     db 10010010b
     db 11001111b
