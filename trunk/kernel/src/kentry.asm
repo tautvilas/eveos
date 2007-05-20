@@ -19,6 +19,10 @@ extern _exception_handler ; ISRs handler
 extern _irq_handler       ; IRQs handler
 
 extern _gVmBase
+extern _gPhysBase
+
+; TODO:zv 2007 05 20: load at runtime
+BASE equ 0x80000000;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -29,19 +33,22 @@ SECTION .text
     ; this jmp is needed for kernel loader integrity test
     jmp _start
 _start:
-mov eax, _gVmBase
-jmp $
+    mov eax, _gVmBase
 
-    mov si, title
-    call print_str
+    ;mov si, title
+    ;call print_str
 
     cli             ; Clear or disable interrupts
-    lgdt[gdtr]      ; Load GDT
+    mov eax, gdtptr
+    sub eax, BASE
+    lgdt[eax]
     mov eax, cr0    ; The lsb of cr0 is the protected mode bit
     or al, 1        ; Set protected mode bit
     mov cr0, eax    ; Mov modified word to the control register
     ; far jump is for setting code segment
-    jmp CODE_SEL:go_pm
+    ;mov eax, go_pm
+    ;sub eax, _gVmBase
+    jmp dword CODE_SEL:go_pm - BASE
 
 bits 32
 
@@ -54,7 +61,46 @@ go_pm:
     mov ss, ax
     mov gs, ax
 
-    mov esp, _sys_stack
+    ; enable paging
+    mov esp, _sys_stack - BASE
+
+    ; init kernel table (over 2GB and first 4MB)
+    mov eax,  pd - BASE       ; eax  = &PD
+    mov ebx,  pt - BASE + 3   ; ebx  = &PT | 3
+    mov [eax], ebx                  ;PD[0] = &PT
+
+    ; TODO:zv:fix this
+    mov eax,  pd - BASE + 512 * 4 ; eax = &PDE[960]
+    mov [eax], ebx              ; PD[960] = &PT
+
+    ; fill in page table
+
+    mov edi, pt - BASE    ; edi = &PT
+    mov eax, 3                  ; Address 0, bit p & r/w set
+    mov ecx, 1024               ; 1024 entries
+init_pt:
+    stosd                       ; Write one entry
+    add eax, 1000h              ; Next page address
+    loop init_pt                ; Loop
+
+    ; set the page directory in cr3
+
+    mov eax,  pd - BASE   ; eax = &PD
+    mov cr3, eax                ; cr3 = &PD
+
+    ; set CR0's PG bit.
+
+    mov eax, cr0
+    or eax, 80000000h           ; Set PG bit
+    mov cr0,eax                 ; Paging is on!
+    jmp $+2                     ; Flush the instruction queue.
+
+    jmp CODE_SEL:paging_enabled
+
+    ;push paging_enabled         ;Keep full address (8000xxxxh)
+    ;ret                         ;Jump at Paging Mode (below)
+
+paging_enabled:
 
     ; here is the master call
     call _os_main
@@ -104,7 +150,8 @@ _idt_load:
     ret
 
 isr_common:
-    pusha
+    cld
+    pushad
     push ds
     push es
     push fs
@@ -123,12 +170,12 @@ isr_common:
     pop fs
     pop es
     pop ds
-    popa
+    popad
     add esp, 8  ; cleans up pushed error code and ISR number
     iret        ; pops cs, eip, eflags, ss and esp
 
 irq_common:
-    pusha
+    pushad
     push ds
     push fs
     push es
@@ -147,7 +194,7 @@ irq_common:
     pop fs
     pop es
     pop ds
-    popa
+    popad
     add esp, 8  ; cleans up pushed error code and ISR number
     iret        ; pops cs, eip, eflags, ss and esp
 
@@ -160,9 +207,9 @@ SECTION .data
 title          db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
 
 ; main pointer to gdt
-gdtr :
+gdtptr :
     dw gdt_end-gdt-1   ; Length of the gdt - 1
-    dd gdt             ; physical address of gdt
+    dd gdt - BASE      ; physical address of gdt
 ; the mighty gdt itself
 gdt
 NULL_SEL equ $-gdt     ; $->current location,so nullsel = 0h
@@ -199,8 +246,16 @@ gdt_end
 ; BSS                                                   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; system stack
 SECTION .bss
+; page directory
+pd:
+    resb PAGE_SIZE
+
+; page table
+pt:
+    resb PAGE_SIZE
+
+; system stack
     resb STACK_SIZE    ; This reserves 8KBytes of memory
 _sys_stack:
 
