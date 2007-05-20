@@ -31,7 +31,7 @@ os_main()
 {
     vga_show_cursor(TRUE);
     vga_set_cursor_pos(0, 4); // for not overwriting loader messages
-    printf("Eve successfully switched to P-mode\n");
+    printf("Eve successfully switched to P-mode with paging\n");
     put_logo();
 
     idt_install();
@@ -55,8 +55,10 @@ os_main()
 
     /* paging test */
     //dword_t * address;
-    //address = (dword_t *) 0x0fffffff;
+    //address = (dword_t *) 0x80000000;
     //*address = 0xffff;
+
+    printf("%x\n" , os_main);
 
 	keyboard_install();
     printf("Keyboard is on-line (US layout)\n");
