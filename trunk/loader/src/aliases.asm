@@ -26,7 +26,8 @@
     OFF_STACK                   equ 03feh
 
 ; sizes
-    KERNEL_SIZE                 equ 32      ; kernel size in sectors
+    ; TODO:zv 2007 05 22: load at runtime
+    KERNEL_SIZE                 equ 41      ; kernel size in sectors
     STACK_SIZE                  equ 8192    ; stack size in bytes
 
 ; other stuff
