@@ -87,10 +87,10 @@ set_bss_null:
     mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
     mov [eax], ebx
 
-    mov eax,  _pd - KERNEL_BASE + PAGE_DIRECTORY_OFFSET ; eax = &pde[800h]
+    mov eax,  _pd - KERNEL_BASE + PAGE_DIRECTORY_OFFSET ; eax = &pde[512h]
 
     mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
-    mov [eax], ebx                  ; pd[800] = &pt
+    mov [eax], ebx                  ; pd[512] = &pt
     add eax, 4
     mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
     mov [eax], ebx

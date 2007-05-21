@@ -185,6 +185,8 @@ mm_install()
     pointer_t   first_free_addr;
     dword_t     kernel_end  = (dword_t)&gKernelEnd - (dword_t)&gKernelBase;
 
+    printf("kernel end: %x\n", kernel_end);
+
     // assuming that all memory before kernel and kernel itself is used
     if (kernel_end > MM_SYSTEM_LO_MEM)
     {
@@ -199,6 +201,7 @@ mm_install()
 
     // putting free pages stack jus after kernel
     gpFreePageStack     = mm_page_to_pointer(used_pages);
+    printf("stack top: %x\n", gpFreePageStack);
     gpFreePageStackTop  = gpFreePageStack;
 
     // calculating total number of pages that can fit in RAM
@@ -340,8 +343,11 @@ printf("dir idx: %d\n", dir); //kernel_panic();
 //kernel_panic();
     // write_cr3, read_cr3, write_cr0, and read_cr0 all come from the assembly functions
 //mm_print_info();
-    write_cr3((dword_t)gpPageDirectory);   // put that page directory address into CR3
+    printf("Page dir:\t%x\n", gpPageDirectory);
+    printf("Page dir[0]:\t%x\n", gpPageDirectory[0]);
+    printf("Page dir[512]:\t%x\n", gpPageDirectory[512]);
 for(;;);
+    write_cr3((dword_t)gpPageDirectory);   // put that page directory address into CR3
     //write_cr0(read_cr0() | 0x80000000);     // set the paging bit in CR0 to 1
 kernel_panic();
 }

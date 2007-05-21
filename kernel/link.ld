@@ -1,6 +1,7 @@
 OUTPUT_FORMAT("binary")
 OUTPUT_ARCH(i386)
 ENTRY(_start)                  /* kernel entry point */
+
 _gKernelBase        = 0x80000000;                       /* mark of kernel space */
 _gKernelOffset      = 0x00008000;                       /* stands for physical address of kernel and as offset from kernel base */
 _gKernelStart       = _gKernelBase + _gKernelOffset;    /* virtual address of kernel */
@@ -28,15 +29,22 @@ SECTIONS
         *(.data)
             . = ALIGN(4096);
     }
-    .bss : AT(_gKernelOffset + (bss - code))
+    .bss : AT(_gKernelStart + (bss - code))
     {
         _gBssStart = .;
         bss = .;
         *(.bss*)
+        *(COMMON)
             . = ALIGN(4096);
         _gBssEnd = .;
     }
     /*end = .; /* this marks the end of all sections */
     _gKernelEnd = .;
+
+    /* ignore these gcc misc sections */
+    /DISCARD/ : {
+        *(.comment*)
+        *(.note*)
+    }
 }
 
