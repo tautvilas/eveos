@@ -10,6 +10,6 @@
 #include "timer.h"      //timer_install
 //#include "paging.h"     //paging_install
 #include "keyboard.h"   //keyboard_install
-//#include "memmgr.h"     // mm_install
+#include "memmgr.h"     // mm_install
 
 #endif // _MAIN_H_

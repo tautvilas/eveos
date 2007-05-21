@@ -52,9 +52,9 @@ define C_COMPILE
 		$Egcc $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
-#paging.o memmgr.o
+#paging.o
 kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o stdio.o logo.o timer.o \
-	keyboard.o
+	keyboard.o memmgr.o
 	@echo ~~~ Linking $(^F)
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done

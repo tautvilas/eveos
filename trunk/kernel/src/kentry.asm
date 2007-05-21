@@ -10,6 +10,7 @@
 
 bits 16
 
+global _sys_stack
 global _start     ; entry symbol for linker
 global _idt_load  ; function for loading IDT
 

@@ -16,9 +16,10 @@ memcpy(byte_t* apDest, const byte_t* apSrc, size_t aCount)
 extern byte_t* KERNEL_CALL
 memset(byte_t* apDest, byte_t aVal, size_t aCount)
 {
+    byte_t* pDest   = apDest;
     for(; aCount; aCount--)
     {
-        *apDest++ = aVal;
+        *pDest++ = aVal;
     }
     return apDest;
 }
@@ -27,9 +28,22 @@ memset(byte_t* apDest, byte_t aVal, size_t aCount)
 extern word_t* KERNEL_CALL
 memsetw(word_t* apDest, word_t aVal, size_t aCount)
 {
+    word_t* pDest   = apDest;
     for(; aCount; aCount--)
     {
-        *apDest++ = aVal;
+        *pDest++ = aVal;
+    }
+    return apDest;
+}
+
+
+extern dword_t* KERNEL_CALL
+memsetd(dword_t* apDest, dword_t aVal, size_t aCount)
+{
+    dword_t* pDest  = apDest;
+    for(; aCount; aCount--)
+    {
+        *pDest++ = aVal;
     }
     return apDest;
 }
