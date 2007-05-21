@@ -1,8 +1,6 @@
 OUTPUT_FORMAT("binary")
 OUTPUT_ARCH(i386)
-
 ENTRY(_start)                  /* kernel entry point */
-
 _gKernelBase        = 0x80000000;                       /* mark of kernel space */
 _gKernelOffset      = 0x00008000;                       /* stands for physical address of kernel and as offset from kernel base */
 _gKernelStart       = _gKernelBase + _gKernelOffset;    /* virtual address of kernel */

@@ -38,6 +38,19 @@ memset(byte_t* apDest, byte_t aVal, size_t aCount);
 extern word_t* KERNEL_CALL
 memsetw(word_t* apDest, word_t aVal, size_t aCount);
 
+
+/**
+ *  Fills memory double words with specified value.
+ *
+ *  @param  apDest  Destination address.
+ *  @param  aVal    Value to set.
+ *  @param  aCount  Number of double words to fill.
+ *  @return         Destination address.
+ */
+extern dword_t* KERNEL_CALL
+memsetd(dword_t* apDest, dword_t aVal, size_t aCount);
+
+
 /**
  *  Counts zero-terminated string length.
  *

@@ -26,7 +26,7 @@
     OFF_STACK                   equ 03feh
 
 ; sizes
-    KERNEL_SIZE                 equ 25      ; kernel size in sectors
+    KERNEL_SIZE                 equ 32      ; kernel size in sectors
     STACK_SIZE                  equ 8192    ; stack size in bytes
 
 ; other stuff

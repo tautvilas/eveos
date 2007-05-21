@@ -1,6 +1,7 @@
 #include "memmgr.h"
 #include "stdio.h"
 #include "idt.h"
+#include "mem.h"
 
 /**
  *  Mask to zero-out unused bits from address
@@ -49,14 +50,24 @@
 #define ENTRY_PRESENT       1
 
 
-#define MM_PAGE_TABLE_SIZE  1024
+/**
+ *  Bit in CR0 to enable paging
+ */
+#define MM_ENABLE_PAGING    0x80000000
+
+
+#define MM_PAGE_TBL_SIZE    1024
 #define MM_PAGE_DIR_SIZE    1024
+
+
+#define MM_SYSTEM_LO_MEM    MEGABYTE
 
 
 typedef dword_t             mm_access_t;
 typedef pointer_t*          mm_page_tbl_t;
 typedef mm_page_tbl_t*      mm_page_dir_t;
 
+/*
 typedef char                process_name_t[12];
 
 typedef struct {
@@ -82,12 +93,14 @@ typedef struct {
 
 process_t gTmpActiveProcess;
 process_t* gpActiveProcess = &gTmpActiveProcess;
+*/
 
 
 // Symbols from linker. Does not really matter the type of them as the
 // address of them is what matters.
 extern char         gKernelStart;
 extern char         gKernelEnd;
+extern char         gKernelBase;
 
 
 extern void write_cr0(dword_t);
@@ -100,7 +113,7 @@ extern dword_t read_cr3();
  *  RAM size in bytes
  *  TODO: gx 2007-05-15: load at run time
  */
-static size_t       gRamSize            = 1024 * 1024 * 8; // 8mb
+static size_t       gRamSize            = MEGABYTE * 8; // 8mb
 
 //static size_t       gKernelStartPage;
 //static size_t       gKernelEndPage;
@@ -112,11 +125,11 @@ static size_t       gTotalPageCount;
 
 
 /**
- *  Pointer to page directory.
+ *  Page directory.
  *
  *  Don't really know if we actually need this (gx)
  */
-static pointer_t*  gpPageDirectory;
+static mm_page_dir_t    gpPageDirectory;
 
 
 
@@ -170,17 +183,18 @@ mm_install()
     size_t      stack_size;
     pointer_t   page_addr;          // used in loop
     pointer_t   first_free_addr;
+    dword_t     kernel_end  = (dword_t)&gKernelEnd - (dword_t)&gKernelBase;
 
     // assuming that all memory before kernel and kernel itself is used
-    if ((dword_t)&gKernelEnd > 1024 * 1024)
+    if (kernel_end > MM_SYSTEM_LO_MEM)
     {
-        used_pages  = (dword_t)&gKernelEnd >> MM_PAGE_ADDR_SHIFT;
-        if ((dword_t)&gKernelEnd & ~MM_PAGE_ADDR_MASK)
+        used_pages  = kernel_end >> MM_PAGE_ADDR_SHIFT;
+        if (kernel_end & ~MM_PAGE_ADDR_MASK)
             used_pages  += 1;
     }
     else
     {
-        used_pages  = 1024 * 1024;
+        used_pages  = MM_SYSTEM_LO_MEM / MM_PAGE_SIZE;
     }
 
     // putting free pages stack jus after kernel
@@ -190,9 +204,10 @@ mm_install()
     // calculating total number of pages that can fit in RAM
     // NOT using last bytes of RAM if its not a full page.
     // emm.. this is a geeky way to write (gRamSize / MM_PAGE_SIZE) but
-    // should be a little faster then that. Of course it's worth as this code
-    // is executed only once when kernel starts but... let it be... ;-)
-    gTotalPageCount = gRamSize >> MM_PAGE_ADDR_SHIFT;
+    // should be a little faster then that. Of course it's worth nothing
+    // as this code is executed only once when kernel starts but...
+    // let it be... ;-)
+    gTotalPageCount     = gRamSize >> MM_PAGE_ADDR_SHIFT;
 
     // calculating space needed for free pages stack
     stack_size      = gTotalPageCount * sizeof(pointer_t);
@@ -214,11 +229,11 @@ mm_install()
 
     //mm_load_kernel_process();
 
-    //mm_install_paging(used_pages);
+    mm_install_paging(used_pages);
 }
 
 
-void KERNEL_CALL
+/*void KERNEL_CALL
 mm_load_kernel_process(process_t& arProcess)
 {
     arProcess.mMem.mCode    = &gKernelStart;
@@ -245,7 +260,7 @@ void KERNEL_CALL
 mm_load_process()
 {
 
-}
+} */
 
 
 void KERNEL_CALL
@@ -254,51 +269,83 @@ mm_install_paging(size_t aPagesPresent)
     size_t  dir;
     size_t  entry;
     size_t  page            = 0;
-    size_t  present_pages   = 183;
+    size_t  present_pages   = aPagesPresent; // 183
+
+    const dword_t ENTRY_FLAGS   = ACC_SUPER | ACC_RW | ENTRY_PRESENT;
 
     //page_table_t*   pPageTable;
-    pointer_t*  pPageTable;
+    mm_page_tbl_t   page_table;
 
     // assuming that page directory is allocated immediately after
     // already used memory
-    gpPageDirectory = mm_alloc_page_directory(ACC_SUPER | ACC_RW);
+    gpPageDirectory = (mm_page_dir_t)memsetd(mm_alloc_page(), 0, MM_PAGE_DIR_SIZE);
     present_pages   += 1;
+printf("dir: %x\n", gpPageDirectory);
+
+    page_table      = (mm_page_tbl_t)memsetd(mm_alloc_page(), 0, MM_PAGE_TBL_SIZE);
+    present_pages   += 1;
+printf("tbl 1mb: %x\n", page_table);
+    for (entry = 0; entry < MM_SYSTEM_LO_MEM / MM_PAGE_SIZE; ++entry)
+    {
+        page_table[entry]   = (pointer_t)(
+                (dword_t)mm_page_to_pointer(entry) | ENTRY_FLAGS
+            );
+//printf("entry: %d %x\n", entry, (dword_t)mm_page_to_pointer(entry) | ENTRY_FLAGS);
+    }
+    gpPageDirectory[0]  = page_table;
+//kernel_panic();
 
     for (
-            dir = 0;
+            dir = (dword_t)&gKernelBase / MEGABYTE / 4;
             page < present_pages;
             ++dir
         )
     {
         // assuming that page table is allocated immediately after
         // already used memory
-        pPageTable      = mm_alloc_page_table(ACC_SUPER | ACC_RW);
+        page_table      = mm_alloc_page();
         present_pages   += 1;
+printf("tbl: %x\n", page_table);
         // filling page table entries
         for (
                 entry = 0;
-                page < present_pages && entry < MM_PAGE_TABLE_SIZE;
+                page < present_pages && entry < MM_PAGE_TBL_SIZE;
                 ++entry, ++page
             )
         {
-            pPageTable[entry]    = (pointer_t)(
-                    ((dword_t)mm_page_to_pointer(page)) | ENTRY_PRESENT | ACC_SUPER | ACC_RW
+            page_table[entry]    = (pointer_t)(
+                    (dword_t)mm_page_to_pointer(page) | ENTRY_FLAGS
                 );
 
         }
 
+        for (; entry < MM_PAGE_TBL_SIZE; ++entry)
+        {
+            page_table[entry]   = NULL;
+        }
+
+printf("dir idx: %d\n", dir); //kernel_panic();
         // adding page table to page directory
         gpPageDirectory[dir]  = (pointer_t)(
-                (dword_t)pPageTable | ENTRY_PRESENT | ACC_SUPER | ACC_RW
+                (dword_t)page_table | ENTRY_FLAGS
             );
     }
+
+    gpPageDirectory[MM_PAGE_DIR_SIZE - 1]   = (pointer_t)(
+            (dword_t)gpPageDirectory | ENTRY_FLAGS
+        );
+
 //printf("page dir at %x %x %x\n", (dword_t)gpPageDirectory, gpPageDirectory[0],
 //        ((pointer_t*)((dword_t)gpPageDirectory[0] & 0xFFFFFF00))[0]); kernel_panic();
-
-    /* write_cr3, read_cr3, write_cr0, and read_cr0 all come from the assembly functions */
+//kernel_panic();
+    // write_cr3, read_cr3, write_cr0, and read_cr0 all come from the assembly functions
+//mm_print_info();
     write_cr3((dword_t)gpPageDirectory);   // put that page directory address into CR3
-    write_cr0(read_cr0() | 0x80000000);     // set the paging bit in CR0 to 1
+for(;;);
+    //write_cr0(read_cr0() | 0x80000000);     // set the paging bit in CR0 to 1
+kernel_panic();
 }
+
 
 
 /**
@@ -345,7 +392,7 @@ mm_alloc_page_table(mm_access_t aAccess)
     size_t          flags       = aAccess & ACC_MASK;
     pointer_t*      pPageTable  = (pointer_t*)mm_alloc_page();
     size_t          i;
-    for (i = 0; i < MM_PAGE_TABLE_SIZE; ++i)
+    for (i = 0; i < MM_PAGE_TBL_SIZE; ++i)
     {
         pPageTable[i]   = (pointer_t)flags;
     }
