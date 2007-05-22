@@ -60,6 +60,10 @@ global _irq13
 global _irq14
 global _irq15
 
+; Kernel service interrupt
+
+global _isr69
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -350,3 +354,11 @@ _irq15:
     push byte 0 ; we need dummy byte here
     push byte 47
     jmp irq_common
+
+; kernel service interrupt stub
+
+_isr69:
+    cli
+    push byte 0
+    push byte 69
+    jmp isr_common
