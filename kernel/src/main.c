@@ -1,6 +1,6 @@
 #include "main.h"
 
-int gTmp = 0;
+char* gTestString = "### Kernel sys_write welcomes you! ###\n";
 
 static void KERNEL_CALL
 put_logo()
@@ -40,6 +40,9 @@ os_main()
     __asm__ __volatile__ ("sti");
     printf("ISRs & IRQs are on-line\n");
 
+    sys_call_table_install();
+    printf("System call table installed\n");
+
     //* IDT test */
     //int x = 4;
     //vga_print_char(x/0);
@@ -61,8 +64,17 @@ os_main()
     //address = (dword_t *) 0x80900000;
     //*address = 0xffff;
 
-    //printf("%x %x %x\n" , &pt2, &pt2_end, &sys_stack);
-    //printf("%x %x\n" , &gBssStart, &gBssEnd);
+    /* kernel call demonstration */
+
+    int len = strlen(gTestString);
+
+    __asm__ __volatile__ ("pusha");
+    __asm__ __volatile__ ("mov $4, %eax");  // syscall id (sys_write)
+    __asm__ __volatile__ ("mov $1, %ebx");  // stdio
+    __asm__ __volatile__ ("movl %0, %%ecx;" :: "m"(gTestString) : "%ecx"); //string offset
+    __asm__ __volatile__ ("mov %0, %%edx;" :: "m"(len) : "%edx");  // string length
+    __asm__ __volatile__ ("int $69");
+    __asm__ __volatile__ ("popa");
 
 	keyboard_install();
     printf("Keyboard is on-line (US layout)\n");

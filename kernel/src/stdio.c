@@ -11,6 +11,13 @@ static void KERNEL_CALL
 print_int_dec(const int aInt)
 {
     int x = aInt;
+
+    if (x == 0)
+    {
+        PRINT_CHAR('0');
+        return;
+    }
+
     int y = 0;
     int count = 0;
 

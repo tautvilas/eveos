@@ -3,6 +3,11 @@ global _read_cr3;
 global _write_cr0;
 global _write_cr3;
 
+global _read_eax;
+global _read_ebx;
+global _read_ecx;
+global _read_edx;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Paging                                                ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -29,4 +34,23 @@ _write_cr3:
     mov eax, [ebp+8]
     mov cr3, eax
     pop ebp
+    retn
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; misc                                                  ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+_read_eax:
+    retn
+
+_read_ebx:
+    mov eax, ebx
+    retn
+
+_read_ecx:
+    mov eax, ecx
+    retn
+
+_read_edx:
+    mov eax, edx
     retn

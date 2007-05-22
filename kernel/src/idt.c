@@ -2,6 +2,7 @@
 #include "idt.h"
 #include "stdio.h"
 #include "ports.h"
+#include "syscalls.h"
 
 #define NUM_ISRS            32
 #define KERNEL_CODE_SEGMENT 0x08
@@ -18,7 +19,12 @@
 /* End of interrupt signal */
 #define PIC_EOI             0x20
 
-extern void idt_load(); /* assembler fuction with 'lidt' instruction */
+/* number of system calls */
+#define NUM_SYS_CALLS       20
+
+extern idt_load(); /* assembler fuction with 'lidt' instruction */
+
+extern dword_t read_eax();
 
 /* ISR entries, see kentry.asm for more info */
 
@@ -54,6 +60,8 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+
+extern void isr69();
 
 /* IRQ entries, see kentry.asm for more info */
 
@@ -95,11 +103,23 @@ typedef struct
 
 idt_ptr_t gIdtp;    /* non static for asm to reach */
 
-/* pointers to IRQ handling functions */
-static void *gpIrqRoutines[16] =
+/* pointers to isr handling functions */
+static void *gpIsrRoutines[70] =
 {
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+/* pointers to kernel services handling functions */
+static void *gpSysCallRoutines[NUM_SYS_CALLS] =
+{
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 static idt_entry_t gIdt[256];
@@ -161,15 +181,27 @@ idt_set_gate(byte_t aNum, dword_t aBase, byte_t aSel, byte_t aFlags)
 }
 
 void KERNEL_CALL
+isr_install_handler(int aIsr, void (*handler)(regs_t *apR))
+{
+    gpIsrRoutines[aIsr] = handler;
+}
+
+void KERNEL_CALL
 irq_install_handler(int aIrq, void (*handler)(regs_t *apR))
 {
-    gpIrqRoutines[aIrq] = handler;
+    gpIsrRoutines[aIrq + 32] = handler;
 }
 
 void KERNEL_CALL
 irq_uninstall_handler(int aIrq)
 {
-    gpIrqRoutines[aIrq] = 0;
+    gpIsrRoutines[aIrq + 32] = 0;
+}
+
+void KERNEL_CALL
+isr_uninstall_handler(int aIsr)
+{
+    gpIsrRoutines[aIsr] = 0;
 }
 
 /* IRQs 0-7 are by default mapped to entries 8-15
@@ -236,6 +268,8 @@ idt_install()
     idt_set_gate(30, (dword_t)isr30, KERNEL_CODE_SEGMENT, IDT_FLAGS);
     idt_set_gate(31, (dword_t)isr31, KERNEL_CODE_SEGMENT, IDT_FLAGS);
 
+    idt_set_gate(69, (dword_t)isr69, KERNEL_CODE_SEGMENT, IDT_FLAGS);
+
     /* IRQs */
 
     irq_remap();
@@ -258,7 +292,35 @@ idt_install()
     idt_set_gate(47, (dword_t)irq15, KERNEL_CODE_SEGMENT, IDT_FLAGS);
 
     idt_load();
+
     return;
+}
+
+void KERNEL_CALL
+sys_call_handler(regs_t * apRegs) {
+    dword_t sys_call_id = apRegs->eax;
+    if (sys_call_id < NUM_SYS_CALLS)
+    {
+        void (*handler)(regs_t *r);
+        handler = gpSysCallRoutines[sys_call_id];
+        if (handler)
+        {
+            handler(apRegs);
+            return;
+        }
+    }
+    printf("No such kernel service - %d\n", sys_call_id);
+    return;
+}
+
+/** Install system call (int 69) handler **/
+
+void KERNEL_CALL
+sys_call_table_install() {
+    isr_install_handler(69, sys_call_handler);
+
+    //void (*handler)(regs_t* apRegs) = sys_write;
+    gpSysCallRoutines[SYS_WRITE] = sys_write;
 }
 
 /* Kernel panic function, dumps system registers and halts */
@@ -297,12 +359,26 @@ kernel_panic()
 void KERNEL_CALL
 exception_handler(regs_t * apRegs)
 {
-    if(apRegs->int_no < 32)
+    /* This is a blank function pointer */
+    void (*handler)(regs_t *r);
+
+    handler = gpIsrRoutines[apRegs->int_no];
+    if (handler)
+    {
+        handler(apRegs);
+    }
+    else if (apRegs->int_no < 32)
     {
         printf(gpExceptionMessages[apRegs->int_no]);
         printf(" Exception caught\n");
         kernel_panic();
     }
+    else
+    {
+        printf("Unhadled interrupt caught - %d\n", apRegs->int_no);
+        printf(" Exception caught\n");
+    }
+    return;
 }
 
 /**
@@ -318,7 +394,7 @@ irq_handler(regs_t * apRegs)
 
     /* Find out if we have a custom handler to run for this
     *  IRQ, and then finally, run it */
-    handler = gpIrqRoutines[apRegs->int_no - 32];
+    handler = gpIsrRoutines[apRegs->int_no];
     if (handler)
     {
         handler(apRegs);
