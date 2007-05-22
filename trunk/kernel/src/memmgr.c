@@ -283,20 +283,6 @@ mm_install_paging(size_t aPagesPresent)
     // already used memory
     gpPageDirectory = (mm_page_dir_t)memsetd(mm_alloc_page(), 0, MM_PAGE_DIR_SIZE);
     present_pages   += 1;
-printf("dir: %x\n", gpPageDirectory);
-
-    page_table      = (mm_page_tbl_t)memsetd(mm_alloc_page(), 0, MM_PAGE_TBL_SIZE);
-    present_pages   += 1;
-printf("tbl 1mb: %x\n", page_table);
-    for (entry = 0; entry < MM_SYSTEM_LO_MEM / MM_PAGE_SIZE; ++entry)
-    {
-        page_table[entry]   = (pointer_t)(
-                (dword_t)mm_page_to_pointer(entry) | ENTRY_FLAGS
-            );
-//printf("entry: %d %x\n", entry, (dword_t)mm_page_to_pointer(entry) | ENTRY_FLAGS);
-    }
-    gpPageDirectory[0]  = page_table;
-//kernel_panic();
 
     for (
             dir = (dword_t)&gKernelBase / MEGABYTE / 4;
@@ -308,7 +294,7 @@ printf("tbl 1mb: %x\n", page_table);
         // already used memory
         page_table      = mm_alloc_page();
         present_pages   += 1;
-printf("tbl: %x\n", page_table);
+
         // filling page table entries
         for (
                 entry = 0;
@@ -338,18 +324,8 @@ printf("dir idx: %d\n", dir); //kernel_panic();
             (dword_t)gpPageDirectory | ENTRY_FLAGS
         );
 
-//printf("page dir at %x %x %x\n", (dword_t)gpPageDirectory, gpPageDirectory[0],
-//        ((pointer_t*)((dword_t)gpPageDirectory[0] & 0xFFFFFF00))[0]); kernel_panic();
-//kernel_panic();
-    // write_cr3, read_cr3, write_cr0, and read_cr0 all come from the assembly functions
-//mm_print_info();
-    printf("Page dir:\t%x\n", gpPageDirectory);
-    printf("Page dir[0]:\t%x\n", gpPageDirectory[0]);
-    printf("Page dir[512]:\t%x\n", gpPageDirectory[512]);
-for(;;);
+
     write_cr3((dword_t)gpPageDirectory);   // put that page directory address into CR3
-    //write_cr0(read_cr0() | 0x80000000);     // set the paging bit in CR0 to 1
-kernel_panic();
 }
 
 
