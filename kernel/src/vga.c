@@ -7,7 +7,9 @@
 #include "mem.h"
 
 
-#define VGA_MEM                             ((byte_t*)0xB8000)
+// :TODO: gx 2007-05-22: use gsVgaMem instead of this constant to avoid
+//      arithmetics every time using VGA_MEM
+#define VGA_MEM                             ((byte_t*)(0xB8000 + (dword_t)&gKernelBase))
 
 #define VGA_LINE_WIDTH                      80
 #define VGA_LINE_COUNT                      25
@@ -21,6 +23,8 @@
 #define VGA_CURSOR_START                    0x0A
 #define VGA_CURSOR_DISABLE_MASK             0x20    // 00100000b
 
+
+extern char gKernelBase;
 
 // we should use some kind of vga_init() to initialize cursor with real
 // values and VGA ports with 0x3d4/0x3d5 or 0x3b4/0x3b5 values depending
@@ -175,7 +179,9 @@ vga_print_char(char aChar)
         case '\b':
             if (pos.mX > 0)
                 pos.mX--;
-            // should replace memory with blank
+            gsCursor.mpMemPos           -= 2;
+            *(gsCursor.mpMemPos)        = ' ';
+            *(gsCursor.mpMemPos + 1)    = gsBgColor << 4 | gsFgColor;
         break;
 
         default:

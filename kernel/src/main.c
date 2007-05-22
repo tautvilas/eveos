@@ -46,12 +46,12 @@ os_main()
 
     timer_install();
     printf("PIT firing rate is %d Hz\n", _TIMER_RATE);
-    a20_enable();
-    printf("A20 gate enabled\n");
-    //mm_install();
-    //printf("Memory manager enabled\n");
-	//paging_install();
-    //printf("Paging is enabled\n");
+
+    //a20_enable();
+    //printf("A20 gate enabled\n");
+
+    mm_install();
+    mm_print_info();
 
     //mm_print_info();
 

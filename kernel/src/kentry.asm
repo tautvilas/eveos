@@ -72,8 +72,8 @@ bits 32
 go_pm:
     ; initialise all segments to data selector
     mov ax, DATA_SEL
-    mov ds, ax
-    mov fs, ax
+    mov ds, eax
+    mov fs, eax
     mov es, ax
     mov ss, ax
     mov gs, ax
@@ -146,6 +146,14 @@ init_pt2:
     ;ret                         ;Jump at Paging Mode (below)
 
 paging_enabled:
+
+    ; seting stack to use virual address
+    mov eax, esp
+    add eax, KERNEL_BASE
+    mov esp, eax
+
+    ; loading GDT using virtual address
+    lgdt [vmgdtptr]
 
     ; here is the master call
     call _os_main
@@ -259,6 +267,11 @@ a20_failure_msg db "Failded to enable A20 gate! Halting.", 13, 10, 0
 gdtptr :
     dw gdt_end-gdt-1   ; Length of the gdt - 1
     dd gdt - KERNEL_BASE      ; physical address of gdt
+
+vmgdtptr :
+    dw gdt_end-gdt-1    ; Length of the gdt - 1
+    dd gdt              ; virtual address of gdt
+
 ; the mighty gdt itself
 gdt
 NULL_SEL equ $-gdt     ; $->current location,so nullsel = 0h
