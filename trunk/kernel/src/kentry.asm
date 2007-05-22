@@ -38,6 +38,21 @@ _start:
 
     call enableA20 - KERNEL_BASE
 
+    cmp eax, 0
+    je a20_success
+    mov eax, a20_failure_msg - KERNEL_BASE
+    mov si, ax
+    call print_str - KERNEL_BASE
+    cli
+    hlt
+    call print_str - KERNEL_BASE
+
+a20_success:
+    mov eax, a20_success_msg - KERNEL_BASE
+    mov si, ax
+    call print_str - KERNEL_BASE
+
+
     cli             ; Disable external interrupts
 
     ; init gdt
@@ -236,8 +251,9 @@ irq_common:
 
 SECTION .data
 
-title:
-    db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
+title db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
+a20_success_msg db "A20 gate enabled", 13, 10, 0
+a20_failure_msg db "Failded to enable A20 gate! Halting.", 13, 10, 0
 
 ; main pointer to gdt
 gdtptr :

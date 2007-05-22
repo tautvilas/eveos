@@ -32,7 +32,7 @@ os_main()
     // bss zeroing hack
     // memset((byte_t*) &gBssStart + 0x5000, 0, 0x1000);
     vga_show_cursor(TRUE);
-    vga_set_cursor_pos(0, 4); // for not overwriting loader messages
+    vga_set_cursor_pos(0, 5); // for not overwriting loader messages
     printf("Eve successfully switched to P-mode with paging enabled\n");
     put_logo();
 
