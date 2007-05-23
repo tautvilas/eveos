@@ -6,8 +6,8 @@
 
 #define NUM_ISRS            32
 
-extern gdt_cs_sel;
-#define KERNEL_CODE_SEGMENT gdt_cs_sel
+extern gGdtCsSel;
+#define KERNEL_CODE_SEGMENT gGdtCsSel
 #define IDT_FLAGS           0x8E /* entry is present, ring 0 */
 
 #define PIC1                0x20
