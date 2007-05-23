@@ -5,7 +5,9 @@
 #include "syscalls.h"
 
 #define NUM_ISRS            32
-#define KERNEL_CODE_SEGMENT 0x08
+
+extern gdt_cs_sel;
+#define KERNEL_CODE_SEGMENT gdt_cs_sel
 #define IDT_FLAGS           0x8E /* entry is present, ring 0 */
 
 #define PIC1                0x20
@@ -22,9 +24,7 @@
 /* number of system calls */
 #define NUM_SYS_CALLS       20
 
-extern idt_load(); /* assembler fuction with 'lidt' instruction */
-
-extern dword_t read_eax();
+extern void idt_load(); /* assembler fuction with 'lidt' instruction */
 
 /* ISR entries, see kentry.asm for more info */
 
@@ -118,7 +118,7 @@ static void *gpIsrRoutines[70] =
 /* pointers to kernel services handling functions */
 static void *gpSysCallRoutines[NUM_SYS_CALLS] =
 {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, sys_write, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
@@ -318,9 +318,6 @@ sys_call_handler(regs_t * apRegs) {
 void KERNEL_CALL
 sys_call_table_install() {
     isr_install_handler(69, sys_call_handler);
-
-    //void (*handler)(regs_t* apRegs) = sys_write;
-    gpSysCallRoutines[SYS_WRITE] = sys_write;
 }
 
 /* Kernel panic function, dumps system registers and halts */
