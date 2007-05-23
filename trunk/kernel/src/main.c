@@ -56,6 +56,16 @@ os_main()
     mm_install();
     mm_print_info();
 
+    /*{
+        char* p = sbrk(2);
+        printf("----------\n");
+        printf("p: %x\n", p);
+        printf("p[0]: %x\n", (int)*p);
+        printf("p[1]: %x\n", (int)p[1]);
+        printf("p[4095]: %x\n", (int)p[4095]);
+        printf("p[4096]: %x\n", (int)p[4096]);
+    }*/
+
     //mm_print_info();
 
 

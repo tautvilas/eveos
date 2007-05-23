@@ -2,11 +2,11 @@
 #define _GLOBAL_H_
 
 
-#define KERNEL_CALL //__attribute__((cdecl))
+#define KERNEL_CALL         //__attribute__((cdecl))
 
-#define NULL        0
+#define NULL                0
 
-#define MEGABYTE    1048576
+#define MEGABYTE            1048576
 
 typedef unsigned char       byte_t;     // 8bit
 typedef unsigned short      word_t;     // 16bit

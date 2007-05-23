@@ -16,6 +16,10 @@ void KERNEL_CALL
 mm_install();
 
 
+pointer_t KERNEL_CALL
+sbrk(size_t aBytes);
+
+
 /**
  *  Allocates a page of memory.
  *
