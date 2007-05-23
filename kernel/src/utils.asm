@@ -35,22 +35,3 @@ _write_cr3:
     mov cr3, eax
     pop ebp
     retn
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; misc                                                  ;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-_read_eax:
-    retn
-
-_read_ebx:
-    mov eax, ebx
-    retn
-
-_read_ecx:
-    mov eax, ecx
-    retn
-
-_read_edx:
-    mov eax, edx
-    retn

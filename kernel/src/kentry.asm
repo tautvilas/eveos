@@ -11,8 +11,10 @@
 bits 16
 
 global _sys_stack
-global _start     ; entry symbol for linker
-global _idt_load  ; function for loading IDT
+global _start       ; entry symbol for linker
+global _idt_load    ; function for loading IDT
+
+global _gdt_cs_sel          ; gdt cs selector
 
 extern _gBssStart           ; kernel bss section start
 extern _gBssEnd             ; kernel bss section end
@@ -147,6 +149,9 @@ init_pt2:
 
 paging_enabled:
 
+    mov eax, CODE_SEL
+    mov [_gdt_cs_sel], eax
+
     ; seting stack to use virual address
     mov eax, esp
     add eax, KERNEL_BASE
@@ -262,6 +267,9 @@ SECTION .data
 title db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
 a20_success_msg db "A20 gate enabled", 13, 10, 0
 a20_failure_msg db "Failded to enable A20 gate! Halting.", 13, 10, 0
+
+; code selector
+_gdt_cs_sel dd 0x00000000
 
 ; main pointer to gdt
 gdtptr :
