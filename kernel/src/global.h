@@ -2,11 +2,15 @@
 #define _GLOBAL_H_
 
 
+#define DBG_DUMP(expr) (printf(#expr ": "), printf("%x\n", expr))
+
+
 #define KERNEL_CALL         //__attribute__((cdecl))
 
 #define NULL                0
 
 #define MEGABYTE            1048576
+#define GIGABYTE            (MEGABYTE * 1024)
 
 typedef unsigned char       byte_t;     // 8bit
 typedef unsigned short      word_t;     // 16bit

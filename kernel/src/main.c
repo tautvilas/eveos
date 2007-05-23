@@ -57,13 +57,33 @@ os_main()
     mm_print_info();
 
     /*{
-        char* p = sbrk(2);
-        printf("----------\n");
-        printf("p: %x\n", p);
-        printf("p[0]: %x\n", (int)*p);
-        printf("p[1]: %x\n", (int)p[1]);
-        printf("p[4095]: %x\n", (int)p[4095]);
-        printf("p[4096]: %x\n", (int)p[4096]);
+        char* p;
+
+        printf("-----------\n");
+        DBG_DUMP(p = sbrk(2));
+        DBG_DUMP(sbrk(0));
+        DBG_DUMP(*p);
+        DBG_DUMP(p[1]);
+        DBG_DUMP(p[4095]); // possable page fault
+        //DBG_DUMP(p[4096]); // page fault for sure
+
+        printf("-----------\n");
+        DBG_DUMP(p = sbrk(4 * MEGABYTE));
+        DBG_DUMP(sbrk(0));
+        DBG_DUMP(p[0]);
+        DBG_DUMP(p[MEGABYTE]);
+        DBG_DUMP(p[4 * MEGABYTE]); // possable page fault
+        //DBG_DUMP(p[5 * MEGABYTE]); // page fault for sure
+
+        printf("-----------\n");
+        DBG_DUMP(sbrk(-4 * MEGABYTE));
+        DBG_DUMP(p = sbrk(0));
+        DBG_DUMP(p[0]);     // possable page fault
+        //DBG_DUMP(p[MEGABYTE]);  // page fault for sure
+
+        DBG_DUMP(sbrk(-2));
+        DBG_DUMP(p = sbrk(0));
+        //DBG_DUMP(p[0]); // page fault for sure
     }*/
 
     //mm_print_info();

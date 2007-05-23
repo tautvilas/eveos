@@ -17,28 +17,11 @@ mm_install();
 
 
 pointer_t KERNEL_CALL
-sbrk(size_t aBytes);
+sbrk(int aIncrement);
 
 
-/**
- *  Allocates a page of memory.
- *
- *  @return Pointer to memory page.
- */
-pointer_t KERNEL_CALL
-mm_alloc_page();
-
-
-/**
- *  Frees specified page.
- *
- *  Currently if specified memory address is not valid page address, page that
- *  containts specified address is freed.
- *
- *  @param  aPage   Pointer of page to be freed.
- */
-void KERNEL_CALL
-mm_free_page(const pointer_t aPage);
+int KERNEL_CALL
+brk(pointer_t pEnd);
 
 
 /**
