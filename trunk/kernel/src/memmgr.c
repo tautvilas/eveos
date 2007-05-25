@@ -46,44 +46,16 @@
 #define MM_SYSTEM_LO_MEM    MEGABYTE
 
 
-typedef dword_t             mm_access_t;
+typedef uint_t              mm_access_t;
 typedef pointer_t*          mm_page_tbl_t;
 typedef mm_page_tbl_t*      mm_page_dir_t;
-
-/*
-typedef char                process_name_t[12];
-
-typedef struct {
-        process_name_t  mProcName;
-        pointer_t       mPointer;
-    } mm_page_t;
-
-typedef struct {
-        pointer_t       mCode;
-        pointer_t       mData;
-        pointer_t       mStack;
-        pointer_t       mHeap;
-        pointer_t       mHeapEnd;
-        mm_page_tbl_t   mPageDir[1024];
-    } process_mem_t;
-
-// TODO: gx: move to process manager
-typedef struct {
-        process_mem_t   mMem;
-        process_name_t  mName;
-    } process_t;
-
-
-process_t gTmpActiveProcess;
-process_t* gpActiveProcess = &gTmpActiveProcess;
-*/
 
 
 // Symbols from linker. Does not really matter the type of them as the
 // address of them is what matters.
-extern void         gKernelStart;
-extern void         gKernelEnd;
-extern void         gKernelBase;
+extern void                 gKernelStart;
+extern void                 gKernelEnd;
+extern void                 gKernelBase;
 
 
 extern void write_cr0(dword_t);
@@ -97,9 +69,6 @@ extern dword_t read_cr3();
  *  TODO: gx 2007-05-15: load at run time
  */
 static size_t       gsRamSize            = MEGABYTE * 8; // 8mb
-
-//static size_t       gKernelStartPage;
-//static size_t       gKernelEndPage;
 
 
 static pointer_t*   gspFreePageStack;
@@ -167,7 +136,7 @@ mm_install()
     size_t      stack_size;
     pointer_t   page_addr;          // used in loop
     pointer_t   first_free_addr;
-    dword_t     kernel_end  = (dword_t)&gKernelEnd - (dword_t)&gKernelBase;
+    size_t      kernel_end  = (size_t)&gKernelEnd - (size_t)&gKernelBase;
 
     //printf("kernel end: %x\n", kernel_end);
 
@@ -232,7 +201,7 @@ mm_load_kernel_process(process_t& arProcess)
     arProcess.mMem.mData    = 0;
     arProcess.mMem.mStack   = 0;
 
-    if ((dword_t)&gKernelEnd > 1024 * 1024)
+    if ((size_t)&gKernelEnd > 1024 * 1024)
     {
         arProcess.mMem.mHeap    = &gKernelEnd;
     }
@@ -263,7 +232,7 @@ mm_install_paging(size_t aPagesPresent)
     size_t  page            = 0;
     size_t  pages_present   = aPagesPresent;
 
-    const dword_t ENTRY_FLAGS   = ACC_SUPER | ACC_RW | ENTRY_PRESENT;
+    const size_t ENTRY_FLAGS    = ACC_SUPER | ACC_RW | ENTRY_PRESENT;
 
     //page_table_t*   pPageTable;
     mm_page_tbl_t   page_table;
@@ -274,7 +243,7 @@ mm_install_paging(size_t aPagesPresent)
     pages_present   += 1;
 
     for (
-            dir = (dword_t)&gKernelBase / MEGABYTE / 4;
+            dir = (size_t)&gKernelBase / MEGABYTE / 4;
             page < pages_present;
             ++dir
         )
@@ -292,7 +261,7 @@ mm_install_paging(size_t aPagesPresent)
             )
         {
             page_table[entry]    = (pointer_t)(
-                    (dword_t)mm_page_to_pointer(page) | ENTRY_FLAGS
+                    (size_t)mm_page_to_pointer(page) | ENTRY_FLAGS
                 );
 
         }
@@ -304,17 +273,17 @@ mm_install_paging(size_t aPagesPresent)
 
         // adding page table to page directory
         gpPageDirectory[dir]  = (pointer_t)(
-                (dword_t)page_table | ENTRY_FLAGS
+                (size_t)page_table | ENTRY_FLAGS
             );
     }
 
     gpPageDirectory[MM_PAGE_DIR_SIZE - 1]   = (pointer_t)(
-            (dword_t)gpPageDirectory | ENTRY_FLAGS
+            (size_t)gpPageDirectory | ENTRY_FLAGS
         );
 
 
-    write_cr3((dword_t)gpPageDirectory);   // put that page directory address into CR3
-    gpPageDirectory = (pointer_t)((dword_t)gpPageDirectory + (dword_t)&gKernelBase);
+    write_cr3((size_t)gpPageDirectory);   // put that page directory address into CR3
+    gpPageDirectory = (pointer_t)((size_t)gpPageDirectory + (size_t)&gKernelBase);
 
     return pages_present;
 }
@@ -372,7 +341,7 @@ mm_page_dir_t KERNEL_CALL
 mm_page_dir_phys_addr()
 {
     pointer_t*  pDirAddr    = (pointer_t*)((size_t)-1 - sizeof(pointer_t) + 1);
-    return (mm_page_dir_t)((dword_t)*pDirAddr & MM_PAGE_ADDR_MASK);
+    return (mm_page_dir_t)((size_t)*pDirAddr & MM_PAGE_ADDR_MASK);
 }
 
 
@@ -391,7 +360,7 @@ mm_page_tbl_t KERNEL_CALL
 mm_page_tbl_phys_addr(size_t aIndex)
 {
     mm_page_dir_t   pPageDir    = mm_page_dir_addr();
-    return (mm_page_tbl_t)((dword_t)pPageDir[aIndex] & MM_PAGE_ADDR_MASK);
+    return (mm_page_tbl_t)((size_t)pPageDir[aIndex] & MM_PAGE_ADDR_MASK);
 }
 
 
@@ -415,11 +384,11 @@ mm_paging_free_pages(size_t aIndex, size_t aCount)
         page_i  = MM_PAGE_TBL_SIZE - 1;
 
     pPageDir    = mm_page_dir_addr();
-    pTbl        = mm_page_tbl_addr(tbl_i); //(mm_page_tbl_t)((dword_t)pPageDir[tbl_i] & MM_PAGE_ADDR_MASK);
+    pTbl        = mm_page_tbl_addr(tbl_i); //(mm_page_tbl_t)((size_t)pPageDir[tbl_i] & MM_PAGE_ADDR_MASK);
 
     for (count = 0; count < aCount; ++count)
     {
-        mm_free_page((pointer_t)((dword_t)pTbl[page_i] & MM_PAGE_ADDR_MASK));
+        mm_free_page((pointer_t)((size_t)pTbl[page_i] & MM_PAGE_ADDR_MASK));
 
         if (0 == page_i)
         {
@@ -427,7 +396,7 @@ mm_paging_free_pages(size_t aIndex, size_t aCount)
             pPageDir[tbl_i] = NULL;
             tbl_i--;
             page_i  = MM_PAGE_TBL_SIZE - 1;
-            pTbl    = mm_page_tbl_addr(tbl_i); //(mm_page_tbl_t)((dword_t)pPageDir[tbl_i] & MM_PAGE_ADDR_MASK);
+            pTbl    = mm_page_tbl_addr(tbl_i); //(mm_page_tbl_t)((size_t)pPageDir[tbl_i] & MM_PAGE_ADDR_MASK);
         }
         else
         {
@@ -436,7 +405,7 @@ mm_paging_free_pages(size_t aIndex, size_t aCount)
         }
     }
 
-    write_cr3((dword_t)mm_page_dir_phys_addr());
+    write_cr3((size_t)mm_page_dir_phys_addr());
 
     return count;
 }
@@ -451,7 +420,7 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
     mm_page_dir_t   pPageDir;
     mm_page_tbl_t   pTbl;
 
-    const dword_t   ENTRY_FLAGS = (aAccess & ACC_MASK) | ENTRY_PRESENT;
+    const size_t    ENTRY_FLAGS = (aAccess & ACC_MASK) | ENTRY_PRESENT;
 
     tbl_c   = aIndex / MM_PAGE_TBL_SIZE;
     if (aIndex % MM_PAGE_TBL_SIZE)
@@ -482,18 +451,18 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
                 // :TODO: gx 2007-05-23: rollback
                 return count;
             }
-            pPageDir[tbl_c] = (mm_page_tbl_t)((dword_t)pNewTbl | ENTRY_FLAGS);
+            pPageDir[tbl_c] = (mm_page_tbl_t)((size_t)pNewTbl | ENTRY_FLAGS);
             pTbl            = mm_page_tbl_addr(tbl_c);
             tbl_c++;
         }
 
-        pTbl[page_c]    = (pointer_t)((dword_t)pPage | ENTRY_FLAGS);
+        pTbl[page_c]    = (pointer_t)((size_t)pPage | ENTRY_FLAGS);
         // TODO: gx 2007-05-24: would by nice to fill new memory with zeros but
         //      we can not access it beacause page dir is not up to date
         page_c          = (page_c + 1) % MM_PAGE_TBL_SIZE;
     }
 
-    write_cr3((dword_t)mm_page_dir_phys_addr());
+    write_cr3((size_t)mm_page_dir_phys_addr());
 
     return count;
 }
@@ -516,7 +485,7 @@ brk(pointer_t pEnd)
 
     // callculating the start and end addresses of the last actually allocated
     // memory page
-    pCurrPageStart  = (pointer_t)((dword_t)pCurrEnd & MM_PAGE_ADDR_MASK);
+    pCurrPageStart  = (pointer_t)((size_t)pCurrEnd & MM_PAGE_ADDR_MASK);
     pCurrPageEnd    = pCurrPageStart;
     if ((size_t)pCurrEnd & ~MM_PAGE_ADDR_MASK)
         pCurrPageEnd    += MM_PAGE_SIZE;
@@ -626,24 +595,24 @@ sbrk_old(size_t aBytes)
                 return (pointer_t)-1;
             }
             gpPageDirectory[tbl_c]    = (pointer_t)(
-                    (dword_t)tbl | ACC_RW | ACC_SUPER | ENTRY_PRESENT
+                    (size_t)tbl | ACC_RW | ACC_SUPER | ENTRY_PRESENT
                 );
-            write_cr3((dword_t)gpPageDirectory - (dword_t)&gKernelBase);
+            write_cr3((size_t)gpPageDirectory - (size_t)&gKernelBase);
             tbl_c++;
         }
         else
         {
             tbl = (pointer_t)(
-                    (dword_t)gpPageDirectory[tbl_c - 1] & MM_PAGE_ADDR_MASK
+                    (size_t)gpPageDirectory[tbl_c - 1] & MM_PAGE_ADDR_MASK
                 );
         }
         tbl = (pointer_t)((unsigned)(MM_PAGE_DIR_SIZE - 1) * MM_PAGE_SIZE * MM_PAGE_TBL_SIZE
                 + (tbl_c - 1) * MM_PAGE_SIZE);
 
         tbl[page_c] = (pointer_t)(
-                (dword_t)page_addr | ACC_RW | ACC_SUPER | ENTRY_PRESENT
+                (size_t)page_addr | ACC_RW | ACC_SUPER | ENTRY_PRESENT
             );
-        write_cr3((dword_t)gpPageDirectory - (dword_t)&gKernelBase);
+        write_cr3((size_t)gpPageDirectory - (size_t)&gKernelBase);
 
         allocated   += MM_PAGE_SIZE;
         page_c      = (page_c + 1) % MM_PAGE_TBL_SIZE;

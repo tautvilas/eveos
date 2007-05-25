@@ -12,13 +12,15 @@
 #define MEGABYTE            1048576
 #define GIGABYTE            (MEGABYTE * 1024)
 
-typedef unsigned char       byte_t;     // 8bit
-typedef unsigned short      word_t;     // 16bit
-typedef unsigned int        dword_t;    // 32bit
-typedef unsigned long long  qword_t;    // 64bit
+typedef unsigned char       byte_t;     // unsigned 8bit integer
+typedef unsigned short      word_t;     // unsigned 16bit integer
+typedef unsigned int        dword_t;    // unsigned 32bit integer
+typedef unsigned long long  qword_t;    // unsigned 64bit integer
 
-typedef unsigned int        size_t;     // depends on cpu architecture
-typedef void*               pointer_t;  // depends on cpu architecture
+typedef int                 int_t;      // signed pointer width integer
+typedef unsigned int        uint_t;     // unsigned pointer width integer
+typedef uint_t              size_t;     // unsigned pointer width integer
+typedef void*               pointer_t;  // void pointer
 
 typedef enum {
         FALSE,
