@@ -54,12 +54,12 @@ endef
 
 #paging.o
 kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o stdio.o logo.o timer.o \
-	keyboard.o memmgr.o sys_write.o
+	keyboard.o memmgr.o sys_write.o loader.o
 	@echo ~~~ Linking $(^F)
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
 
-kentry.o: kentry.asm aliases.asm isr.asm utils.asm
+kentry.o: kentry.asm isr.asm utils.asm
 	@echo ~~~ Compiling entry
 	$Enasm $(ASFLAGS) $(SRC)kentry.asm -o $(OBJ)kentry.o
 

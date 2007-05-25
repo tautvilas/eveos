@@ -23,6 +23,8 @@ sbrk(int aIncrement);
 int KERNEL_CALL
 brk(pointer_t pEnd);
 
+pointer_t KERNEL_CALL
+mm_alloc_page();
 
 /**
  *  Returns number of free pages.

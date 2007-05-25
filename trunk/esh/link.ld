@@ -36,7 +36,6 @@ SECTIONS
         *(.rodata*)
         *(.rdata*)
         *(.data)
-            . = ALIGN(4096);
         _gDataEnd = .;
     }
     .bss : AT(_gAppStart + (_gBssStart - _gHeaderStart))

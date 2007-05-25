@@ -39,7 +39,7 @@ VPATH := $(SRC_DIR)$(PS)$(BIN_DIR)
 ASFLAGS := -f bin -I$(SRC_DIR)/
 
 
-loader.bin: loader.asm aliases.asm
+loader.bin: loader.asm
 	@echo ~~~ Compiling loader
 	$Enasm $(ASFLAGS) $(SRC)loader.asm -o $(BIN)loader.bin
 	@echo ~~~ Done

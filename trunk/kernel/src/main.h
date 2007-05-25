@@ -11,5 +11,6 @@
 //#include "paging.h"     //paging_install
 #include "keyboard.h"   //keyboard_install
 #include "memmgr.h"     // mm_install
+#include "loader.h"     // multitasking_install
 
 #endif // _MAIN_H_
