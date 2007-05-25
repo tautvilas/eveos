@@ -6,7 +6,7 @@
 ; Init                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%include "aliases.asm"
+%include "../../common/aliases.asm"
 
 bits 16
 
@@ -16,6 +16,7 @@ global _idt_load    ; function for loading IDT
 
 global _gGdtCsSel           ; gdt cs selector
 
+extern _gKernelStart        ; kernel vm start
 extern _gBssStart           ; kernel bss section start
 extern _gBssEnd             ; kernel bss section end
 
@@ -80,7 +81,18 @@ go_pm:
     mov ss, ax
     mov gs, ax
 
-    ; TODO check this out why it was not working after the _start:
+    ; move user apps after bss
+    mov ecx, KERNEL_SIZE * 512;
+    mov eax, _gBssStart
+    sub eax, _gKernelStart
+    sub ecx, eax
+    mov edi, _gBssStart - KERNEL_BASE
+    mov esi, _gBssEnd - KERNEL_BASE
+relocate_user_apps:
+    mov dh, byte [edi + ecx - 1]
+    mov byte [esi + ecx - 1], dh
+    loop relocate_user_apps
+
     ; fill .bss with 0
     mov ecx, _gBssEnd
     sub ecx, _gBssStart
