@@ -1,4 +1,5 @@
 global _read_cr0;
+global _read_cr2;
 global _read_cr3;
 global _write_cr0;
 global _write_cr3;
@@ -14,6 +15,10 @@ global _read_edx;
 
 _read_cr0:
     mov eax, cr0
+    retn
+
+_read_cr2:
+    mov eax, cr2
     retn
 
 _read_cr3:

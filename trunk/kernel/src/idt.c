@@ -7,6 +7,7 @@
 #define NUM_ISRS            32
 
 extern gGdtCsSel;
+extern dword_t read_cr2();
 #define KERNEL_CODE_SEGMENT gGdtCsSel
 #define IDT_FLAGS           0x8E /* entry is present, ring 0 */
 
@@ -368,6 +369,7 @@ exception_handler(regs_t * apRegs)
     {
         printf(gpExceptionMessages[apRegs->int_no]);
         printf(" Exception caught\n");
+        printf("%x\n", read_cr2());
         kernel_panic();
     }
     else
