@@ -1,8 +1,32 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
+//#define DUMP(expr)          (printf(#expr ": "), printf("%x\n", (uint_t)(expr)))
+//#define MARK(expr)          (printf(#expr "\n"))
 
-#define DBG_DUMP(expr) (printf(#expr ": "), printf("%x\n", expr))
+// compile time options
+#define EVE_DEBUG
+#define EVE_DEMO
+
+
+// some useful macros
+#ifdef EVE_DEBUG
+#define DUMP(expr)          (printf(#expr ": "), printf("%x\n", (uint_t)(expr)))
+#define MARK(expr)          (printf(#expr "\n"), (expr))
+#define SEPERATE             (printf("---------\n"))
+#else
+#define DUMP(expr)
+#define MARK(expr)
+#define SEPERATE
+#endif
+
+#ifdef EVE_DEMO
+#define BRAG(f, ...)        printf(f, ##__VA_ARGS__)
+#else
+#define BRAG(f, ...)
+#endif
+
+
 
 
 #define KERNEL_CALL         //__attribute__((cdecl))

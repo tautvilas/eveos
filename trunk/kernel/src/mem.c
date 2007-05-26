@@ -2,21 +2,23 @@
 #include "mem.h"
 
 
-byte_t* KERNEL_CALL
-memcpy(byte_t* apDest, const byte_t* apSrc, size_t aCount)
+pointer_t KERNEL_CALL
+memcpy(pointer_t apDest, const pointer_t apSrc, size_t aCount)
 {
+    byte_t* pDest   = (byte_t*)apDest;
+    byte_t* pSrc    = (byte_t*)apSrc;
     for(; aCount; aCount--)
     {
-        *apDest++ = *apSrc++;
+        *pDest++ = *pSrc++;
     }
     return apDest;
 }
 
 
-extern byte_t* KERNEL_CALL
-memset(byte_t* apDest, byte_t aVal, size_t aCount)
+pointer_t KERNEL_CALL
+memset(pointer_t apDest, byte_t aVal, size_t aCount)
 {
-    byte_t* pDest   = apDest;
+    byte_t* pDest   = (byte_t*)apDest;
     for(; aCount; aCount--)
     {
         *pDest++ = aVal;

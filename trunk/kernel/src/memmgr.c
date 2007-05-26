@@ -749,16 +749,16 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
     mm_paging_alloc_pages(task_start_page, task_page_count, aAccess | ACC_RW);
     // map & alloc stack
     mm_paging_alloc_pages((2U * GIGABYTE - 4 * MEGABYTE) / MM_PAGE_SIZE, MM_PAGE_TBL_SIZE, aAccess | ACC_RW);
-    DBG_DUMP(2U * GIGABYTE / MM_PAGE_SIZE - 1);
+    //DBG_DUMP(2U * GIGABYTE / MM_PAGE_SIZE - 1);
 
     memcpy((byte_t*)apMem->start, apOffset, task_size - apMem->bss_size);
-    DBG_DUMP(2);
+    //DBG_DUMP(2);
     // bss memset 0
     memset((byte_t*)(apMem->start + task_size - apMem->bss_size), apMem->bss_size, 0x0);
-    DBG_DUMP(3);
+    //DBG_DUMP(3);
 
     write_cr3((dword_t)pKernelPageDir);
-    DBG_DUMP(4);
+    //DBG_DUMP(4);
     return (uint_t)pTaskPageDir;
 }
 
