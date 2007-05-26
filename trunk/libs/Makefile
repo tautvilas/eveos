@@ -30,19 +30,18 @@ E := @
 SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
-LIB_DIR := ../libs/obj
 
 # directories with trailing directory separator
 SRC := $(SRC_DIR)$(DS)
 OBJ := $(OBJ_DIR)$(DS)
 BIN := $(BIN_DIR)$(DS)
 
-VPATH := $(SRC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)$(PS)$(LIB_DIR)
+VPATH := $(SRC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 
 # C compiler flags
 CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
-        $(SYS_CFLAGS) -c -x c -I ../libs/src
+        $(SYS_CFLAGS) -c -x c
 
 # nasm flags
 # on nix nasm requires include directory with trailing slash
@@ -55,25 +54,16 @@ define C_COMPILE
         $(E)$(CC) $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
-esh.bin: entry.o main.o
-	@echo ~~~ Linking $(^F) $(LIB_DIR)$(DS)*.o
-	$(E)ld $(LDFLAGS) -o $(BIN)esh.bin $(addprefix $(OBJ), $(^F)) $(LIB_DIR)$(DS)*.o
-	@echo ~~~ Done
-
-entry.o: entry.asm
-	@echo ~~~ Compiling entry
-	$(E)nasm $(ASFLAGS) $(SRC)entry.asm -o $(OBJ)entry.o
+all: stdio.o mem.o
 
 # default rule for compiling C source files
 # used only if no rule is defined explictly
 %.o: %.c %.h
 	$(C_COMPILE)
 
-
-
 .PHONY: clean vars
 clean:
-	@echo ~~~ Cleaning esh
+	@echo ~~~ Cleaning libs
 	-$(E)$(RM) $(OBJ)*.o > $(NUL)
 	-$(E)$(RM) $(BIN)*.bin > $(NUL)
 	@echo ~~~ Done

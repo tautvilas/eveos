@@ -717,14 +717,15 @@ mm_duplicate_page_dir(void)
 uint_t KERNEL_CALL
 mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t aAccess)
 {
-    // map kernel tables */
+    // map kernel tables
     mm_page_dir_t pTaskPageDir = mm_duplicate_page_dir();
     mm_page_dir_t pKernelPageDir = mm_page_dir_phys_addr();
-    // DBG_DUMP(((dword_t*)TMP_PAGE_FRAME)[-1]);
+
+    // set page dir to the task page dir
     write_cr3((dword_t)pTaskPageDir);
 
     size_t task_start_page = apMem->start / MM_PAGE_SIZE;
-    size_t task_size = apMem->text_size + apMem->data_size + apMem->bss_size;
+    size_t task_size = apMem->header_size + apMem->text_size + apMem->data_size + apMem->bss_size;
     size_t task_page_count = task_size / MM_PAGE_SIZE;
     if (task_size % MM_PAGE_SIZE)
     {

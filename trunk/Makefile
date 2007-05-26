@@ -27,6 +27,7 @@ E := @
 
 # setting directories
 KERNEL_DIR  := kernel
+LIBS_DIR    := libs
 LOADER_DIR  := loader
 IMAGE_DIR   := image
 ESH_DIR     := esh
@@ -42,6 +43,7 @@ VPATH   := $(IMAGE_DIR)$(PS)$(LOADER_DIR)$(DS)bin$(PS)$(KERNEL_DIR)$(DS)bin
 all:
 	$(E)(cd $(LOADER_DIR) && $(MAKE))
 	$(E)(cd $(KERNEL_DIR) && $(MAKE))
+	$(E)(cd $(LIBS_DIR) && $(MAKE))
 	$(E)(cd $(ESH_DIR) && $(MAKE))
 	@echo ~~~ Building EveOS image
 ifeq ($(SYS),win)
@@ -60,6 +62,7 @@ clean:
 	-$E$(RM) $(IMAGE) > $(NUL)
 	@echo ~~~ Done
 	-$(E)(cd $(KERNEL_DIR) && $(MAKE) clean)
+	-$(E)(cd $(LIBS_DIR) && $(MAKE) clean)
 	-$(E)(cd $(LOADER_DIR) && $(MAKE) clean)
 	-$(E)(cd $(ESH_DIR) && $(MAKE) clean)
 
