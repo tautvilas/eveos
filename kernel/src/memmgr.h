@@ -19,7 +19,9 @@
 typedef uint_t              mm_access_t;
 
 typedef struct {
-    dword_t start;
+    dword_t start;          // task must be loaded at this point in memory
+    dword_t entry;
+    size_t header_size;
     size_t text_size;
     size_t data_size;
     size_t bss_size;

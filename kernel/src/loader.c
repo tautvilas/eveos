@@ -70,10 +70,12 @@ load_task(void* apOffset, mm_access_t aAccess)
 
     task_t* pTask = sbrk(sizeof(task_t));
     pTask->parent = 0;
-    pTask->vm_info.start = 0x00000000;
-    pTask->vm_info.text_size = header.text + 32;
+    pTask->vm_info.start = 0;
+    pTask->vm_info.entry = 0 + sizeof(aout_exec_t);
+    pTask->vm_info.text_size = header.text;
     pTask->vm_info.data_size = header.data;
     pTask->vm_info.bss_size = header.bss;
+    pTask->vm_info.header_size = sizeof(aout_exec_t);
 
     pTask->page_dir = mm_alloc_task(&pTask->vm_info, apOffset, aAccess);
     DUMP(pTask->page_dir);
@@ -83,7 +85,7 @@ load_task(void* apOffset, mm_access_t aAccess)
     dword_t* stack = sbrk(100 * sizeof(dword_t*));
     stack[99] = 0x0202;
     stack[98] = gGdtCsSel;
-    stack[97] = pTask->vm_info.start + 32;
+    stack[97] = pTask->vm_info.entry;
     stack[96] = 0x00;
     stack[95] = 0x00;
     stack[94] = 0x00;

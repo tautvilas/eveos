@@ -12,7 +12,7 @@ _gBssSize       = _gBssEnd      - _gBssStart;
 /* this instructs the linker how to lay out sections in the output */
 SECTIONS
 {
-    .header : AT(_gAppStart)
+    .header _gAppStart : AT(_gAppStart)
     {
         _gHeaderStart = .;
         *(.header)
