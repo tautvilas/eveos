@@ -36,7 +36,7 @@
 
 ; sizes
     ; TODO:zv 2007 05 22: load at runtime
-    KERNEL_SIZE                 equ 34      ; kernel size in sectors
+    KERNEL_SIZE                 equ 50      ; kernel size in sectors
     PAGE_SIZE                   equ 1000h   ; page size in bytes
     STACK_SIZE                  equ 8192    ; stack size in bytes
     NUM_PAGE_ENTRIES            equ 1024

@@ -1,7 +1,5 @@
 #include "main.h"
 
-char* gTestString = "### Kernel sys_write welcomes you! ###\n";
-
 extern void gKernelEnd;
 
 //TODO:zv:move this function the fuck out of this fucken file
@@ -103,9 +101,9 @@ os_main()
 	printf("> ");
     */
 
-    multitasking_install();
-    print_process_tree();
-    load_task(&gKernelEnd, PROC_MODE_USER);
+    //multitasking_install();
+    //print_process_tree();
+    load_task(&gKernelEnd, ACC_USER);
 
     for (;;);
     return;

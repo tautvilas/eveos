@@ -15,14 +15,6 @@
 
 
 /**
- *  Values to build access_t value by or'ing
- */
-#define ACC_SUPER           0
-#define ACC_USER            4   // 0100b
-#define ACC_READ            0
-#define ACC_RW              2   // 0010b
-
-/**
  *  Bit mask to mask out bits not used by access_t by and'ing
  */
 #define ACC_MASK            6   // 0110b
@@ -46,7 +38,6 @@
 #define MM_SYSTEM_LO_MEM    MEGABYTE
 
 
-typedef uint_t              mm_access_t;
 typedef pointer_t*          mm_page_tbl_t;
 typedef mm_page_tbl_t*      mm_page_dir_t;
 
@@ -311,7 +302,6 @@ mm_free_page(const pointer_t aPage)
 
 }
 
-
 /**
  *  Allocates a page of memory.
  *
@@ -410,7 +400,7 @@ mm_paging_free_pages(size_t aIndex, size_t aCount)
     return count;
 }
 
-
+//TODO:zv early morning 3:42: fix the fucking bugs (about page tables)
 size_t KERNEL_CALL
 mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
 {
@@ -720,3 +710,55 @@ mm_is_page_free(const pointer_t aPage)
             return TRUE;
     return FALSE;
 }
+
+mm_page_dir_t KERNEL_CALL
+mm_duplicate_page_dir(void)
+{
+    const pointer_t TMP_PAGE_FRAME = (pointer_t)((size_t)-1 - 2 * MM_PAGE_SIZE + 1);
+
+    mm_page_dir_t pKernelPageDir = mm_page_dir_addr();
+    mm_page_dir_t pTaskPageDir;
+
+    pTaskPageDir = mm_alloc_page();
+    pKernelPageDir[MM_PAGE_DIR_SIZE - 2] = (mm_page_tbl_t)((uint_t)pTaskPageDir | ACC_SUPER | ACC_RW | ENTRY_PRESENT);
+
+    memcpy((byte_t*)TMP_PAGE_FRAME, (byte_t*)pKernelPageDir, MM_PAGE_DIR_SIZE * sizeof(mm_page_tbl_t));
+    ((mm_page_dir_t)TMP_PAGE_FRAME)[MM_PAGE_DIR_SIZE - 1] = (mm_page_tbl_t)((uint_t)pTaskPageDir | ACC_SUPER | ACC_RW |
+        ENTRY_PRESENT);
+    pKernelPageDir[MM_PAGE_DIR_SIZE - 2] = NULL;
+    return pTaskPageDir;
+}
+
+uint_t KERNEL_CALL
+mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t aAccess)
+{
+    // map kernel tables */
+    mm_page_dir_t pTaskPageDir = mm_duplicate_page_dir();
+    mm_page_dir_t pKernelPageDir = mm_page_dir_phys_addr();
+    // DBG_DUMP(((dword_t*)TMP_PAGE_FRAME)[-1]);
+    write_cr3((dword_t)pTaskPageDir);
+
+    size_t task_start_page = apMem->start / MM_PAGE_SIZE;
+    size_t task_size = apMem->text_size + apMem->data_size + apMem->bss_size;
+    size_t task_page_count = task_size / MM_PAGE_SIZE;
+    if (task_size % MM_PAGE_SIZE)
+    {
+        task_page_count++;
+    }
+
+    mm_paging_alloc_pages(task_start_page, task_page_count, aAccess | ACC_RW);
+    // map & alloc stack
+    mm_paging_alloc_pages((2U * GIGABYTE - 4 * MEGABYTE) / MM_PAGE_SIZE, MM_PAGE_TBL_SIZE, aAccess | ACC_RW);
+    DBG_DUMP(2U * GIGABYTE / MM_PAGE_SIZE - 1);
+
+    memcpy((byte_t*)apMem->start, apOffset, task_size - apMem->bss_size);
+    DBG_DUMP(2);
+    // bss memset 0
+    memset((byte_t*)(apMem->start + task_size - apMem->bss_size), apMem->bss_size, 0x0);
+    DBG_DUMP(3);
+
+    write_cr3((dword_t)pKernelPageDir);
+    DBG_DUMP(4);
+    return (uint_t)pTaskPageDir;
+}
+
