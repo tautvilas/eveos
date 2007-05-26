@@ -13,11 +13,11 @@
 #ifdef EVE_DEBUG
 #define DUMP(expr)          (printf(#expr ": "), printf("%x\n", (uint_t)(expr)))
 #define MARK(expr)          (printf(#expr "\n"), (expr))
-#define SEPERATE             (printf("---------\n"))
+#define SEPARATE             (printf("---------\n"))
 #else
 #define DUMP(expr)
 #define MARK(expr)
-#define SEPERATE
+#define SEPARATE
 #endif
 
 #ifdef EVE_DEMO

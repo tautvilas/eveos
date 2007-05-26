@@ -83,7 +83,7 @@ os_main()
 
     /*{
         char* p;
-        SEPERATE;
+        SEPARATE;
         DUMP(sbrk(0));
         DUMP(p = malloc(2));
         DUMP(sbrk(0));
@@ -93,7 +93,7 @@ os_main()
         //DUMP(p[4096]); // page fault for sure
 
         char* q;
-        SEPERATE;
+        SEPARATE;
         DUMP(q = malloc(4 * MEGABYTE));
         DUMP(sbrk(0));
         DUMP(q[0]);
@@ -101,7 +101,7 @@ os_main()
         DUMP(q[4 * MEGABYTE]); // possable page fault
         //DUMP(p[5 * MEGABYTE]); // page fault for sure
 
-        SEPERATE;
+        SEPARATE;
         MARK(free(q));
         DUMP(sbrk(0));
         //DUMP(q[0]);     // possable page fault
