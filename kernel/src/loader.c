@@ -126,7 +126,7 @@ load_task(void* apOffset, mm_access_t aAccess)
     stack[86] = 0x10;
     stack[85] = 0x10;
     write_cr3(pTask->page_dir);
-    DBG_DUMP(*(dword_t*)0x0);
+    //DBG_DUMP(*(dword_t*)0x0);
     //__asm__ __volatile__ ("movl %0, %%esp;" :: "r"(stack + 85) : "%esp"); //string offset
     __asm__ __volatile__ ("call 32");
 }

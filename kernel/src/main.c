@@ -1,4 +1,5 @@
 #include "main.h"
+#include "malloc.h"
 
 extern void gKernelEnd;
 
@@ -78,6 +79,37 @@ os_main()
         DBG_DUMP(sbrk(-2));
         DBG_DUMP(p = sbrk(0));
         //DBG_DUMP(p[0]); // page fault for sure
+    }*/
+
+    /*{
+        char* p;
+        SEPERATE;
+        DUMP(sbrk(0));
+        DUMP(p = malloc(2));
+        DUMP(sbrk(0));
+        DUMP(*p);
+        DUMP(p[1]);
+        //DUMP(p[4095]); // possable page fault
+        //DUMP(p[4096]); // page fault for sure
+
+        char* q;
+        SEPERATE;
+        DUMP(q = malloc(4 * MEGABYTE));
+        DUMP(sbrk(0));
+        DUMP(q[0]);
+        DUMP(q[MEGABYTE]);
+        DUMP(q[4 * MEGABYTE]); // possable page fault
+        //DUMP(p[5 * MEGABYTE]); // page fault for sure
+
+        SEPERATE;
+        MARK(free(q));
+        DUMP(sbrk(0));
+        //DUMP(q[0]);     // possable page fault
+        //DUMP(p[MEGABYTE]);  // page fault for sure
+
+        MARK(free(p));
+        DUMP(sbrk(0));
+        //DUMP(p[0]); // page fault for sure
     }*/
 
     /* kernel call demonstration */

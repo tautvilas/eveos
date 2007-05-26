@@ -54,7 +54,7 @@ endef
 
 #paging.o
 kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o stdio.o logo.o timer.o \
-	keyboard.o memmgr.o sys_write.o loader.o
+	keyboard.o memmgr.o sys_write.o loader.o malloc.o errno.o
 	@echo ~~~ Linking $(^F)
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
@@ -63,9 +63,12 @@ kentry.o: kentry.asm isr.asm utils.asm
 	@echo ~~~ Compiling entry
 	$Enasm $(ASFLAGS) $(SRC)kentry.asm -o $(OBJ)kentry.o
 
+malloc.o: malloc.c mallocdefs.h
+	$(C_COMPILE)
+
 # default rule for compiling C source files
 # used only if no rule is defined explictly
-%.o: %.c %.h global.h
+%.o: %.c %.h global.h malloc.h
 	$(C_COMPILE)
 
 

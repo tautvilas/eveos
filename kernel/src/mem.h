@@ -12,8 +12,8 @@
  *  @param  aCount  Number of bytes to copy.
  *  @return         Destination address.
  */
-extern byte_t* KERNEL_CALL
-memcpy(byte_t* apDest, const byte_t* apSrc, size_t aCount);
+extern pointer_t KERNEL_CALL
+memcpy(pointer_t apDest, const pointer_t apSrc, size_t aCount);
 
 /**
  *  Fills memory bytes with specified value.
@@ -23,8 +23,8 @@ memcpy(byte_t* apDest, const byte_t* apSrc, size_t aCount);
  *  @param  aCount  Number of bytes to fill.
  *  @return         Destination address.
  */
-extern byte_t* KERNEL_CALL
-memset(byte_t* apDest, byte_t aVal, size_t aCount);
+extern pointer_t KERNEL_CALL
+memset(pointer_t apDest, byte_t aVal, size_t aCount);
 
 
 /**
