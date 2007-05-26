@@ -1,19 +1,15 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 
-//#define DUMP(expr)          (printf(#expr ": "), printf("%x\n", (uint_t)(expr)))
-//#define MARK(expr)          (printf(#expr "\n"))
-
 // compile time options
 #define EVE_DEBUG
 #define EVE_DEMO
-
 
 // some useful macros
 #ifdef EVE_DEBUG
 #define DUMP(expr)          (printf(#expr ": "), printf("%x\n", (uint_t)(expr)))
 #define MARK(expr)          (printf(#expr "\n"), (expr))
-#define SEPARATE             (printf("---------\n"))
+#define SEPARATE            (printf("---------\n"))
 #else
 #define DUMP(expr)
 #define MARK(expr)
@@ -25,9 +21,6 @@
 #else
 #define BRAG(f, ...)
 #endif
-
-
-
 
 #define KERNEL_CALL         //__attribute__((cdecl))
 
@@ -50,8 +43,5 @@ typedef enum {
         FALSE,
         TRUE
     }   bool_t;
-
-//
-
 
 #endif  // _GLOBAL_H_

@@ -3,7 +3,6 @@
 
 #include "global.h"
 
-
 typedef enum {
         VGA_CL_BLACK                        = 0,
         VGA_CL_BLUE	                        = 1,
@@ -23,12 +22,10 @@ typedef enum {
         VGA_CL_WHITE                        = 15,
     }   color_t;
 
-
 typedef struct {
         byte_t  mX;
         byte_t  mY;
     }   vga_pos_t;
-
 
 extern void KERNEL_CALL
 vga_print(const char* apStr);
@@ -66,5 +63,7 @@ vga_set_cursor_pos(byte_t aX, byte_t aY);
 extern vga_pos_t KERNEL_CALL
 vga_get_cursor_pos();
 
+extern void KERNEL_CALL
+vga_install();
 
 #endif // _VGA_H_

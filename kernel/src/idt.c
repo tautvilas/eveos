@@ -294,6 +294,8 @@ idt_install()
 
     idt_load();
 
+    __asm__ __volatile__ ("sti");
+
     return;
 }
 
