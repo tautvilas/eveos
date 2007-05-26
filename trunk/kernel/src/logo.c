@@ -1,17 +1,18 @@
 #include "logo.h"
+#include "vga.h"
 
-#define _ VGA_CL_BLACK
-#define X VGA_CL_WHITE
-#define Y VGA_CL_RED
+#define ___ VGA_CL_BLACK
+#define XXX VGA_CL_WHITE
+#define YYY VGA_CL_RED
 
 int gLogoImage[_LOGO_HEIGHT][_LOGO_WIDTH] = {
-    {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
-    {_, X, X, X, _, Y, _, _, _, Y, _, X, X, X, _},
-    {_, X, _, _, _, Y, Y, _, Y, Y, _, X, _, _, _},
-    {_, X, X, X, _, _, Y, _, Y, _, _, X, X, X, _},
-    {_, X, _, _, _, _, Y, Y, Y, _, _, X, _, _, _},
-    {_, X, X, X, _, _, _, Y, _, _, _, X, X, X, _},
-    {_, _, _, _, _, _, _, _, _, _, _, _, _, _, _},
+    {___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___},
+    {___, XXX, XXX, XXX, ___, YYY, ___, ___, ___, YYY, ___, XXX, XXX, XXX, ___},
+    {___, XXX, ___, ___, ___, YYY, YYY, ___, YYY, YYY, ___, XXX, ___, ___, ___},
+    {___, XXX, XXX, XXX, ___, ___, YYY, ___, YYY, ___, ___, XXX, XXX, XXX, ___},
+    {___, XXX, ___, ___, ___, ___, YYY, YYY, YYY, ___, ___, XXX, ___, ___, ___},
+    {___, XXX, XXX, XXX, ___, ___, ___, YYY, ___, ___, ___, XXX, XXX, XXX, ___},
+    {___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___},
 };
 
 /*
@@ -31,3 +32,26 @@ char* gpLogoBig =
         "ллллллллБ лллллллллл лллллллллл БлВлллллл\n"
         "лллллллп млллллллллллллллллллллм пллллллл\n";
 */
+
+void KERNEL_CALL
+put_logo()
+{
+    int i, j;
+    for(i = 0; i < _LOGO_HEIGHT; i++) {
+        for(j = 0; j < _LOGO_WIDTH; j++) {
+            vga_set_bg_color(gLogoImage[i][j]);
+            vga_print_char(' ');
+        }
+        vga_print_char('\n');
+    }
+    /* explicit content :> */
+    /*
+        vga_set_bg_color(VGA_CL_BLACK);
+        vga_set_fg_color(VGA_CL_LIGHT_GRAY);
+        vga_print(gpLogoBig);
+        vga_print("\n");
+    */
+    vga_set_bg_color(VGA_CL_BLACK);
+    vga_set_fg_color(VGA_CL_LIGHT_GRAY);
+}
+

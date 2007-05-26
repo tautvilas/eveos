@@ -5,10 +5,10 @@
 
 #define KERNEL_TASK_NAME "kernel"
 
-extern dword_t read_cr3();
-extern void gKernelBase;
-extern dword_t gGdtCsSel;
-extern void write_cr3(dword_t);
+extern dword_t      read_cr3();
+extern void         gKernelBase;
+extern dword_t      gGdtCsSel;
+extern void         write_cr3(dword_t);
 
 typedef struct {
     dword_t         esp;    //actual position of esp
@@ -50,36 +50,6 @@ size_t gTaskIdCounter = 0;
 
 task_tree_node_t* gpTaskTreeTop;
 
-/*void KERNEL_CALL
-alloc_process_memory(task_t* apTask)
-{
-    size_t table_id;
-    dword_t* pKernelPageDir = (void*) read_cr3();
-    dword_t* pTaskPageDir = mm_alloc_page();
-
-    printf("task page dir: %x\n", pTaskPageDir);
-
-    pTaskPageDir[0] = 0;
-
-    //for (table_id = 0; table_id < MM_PAGE_SIZE / 4; table_id++)
-    //{
-    //    pTaskPageDir[table_id] = 0;
-    //}
-
-    //for (
-    //        table_id = (dword_t)&gKernelBase / MEGABYTE / 4;
-    //        table_id < MM_PAGE_SIZE / 4;
-    //        table_id++
-    //    )
-    //{
-    //    pTaskPageDir[table_id] = pKernelPageDir[table_id];
-    //}
-
-    ///mm_task_mem_t* vm_info = apTask->vm_info;
-    //size_t static_mem_size = vm_info->data + pVmInfo->text + pVmInfo->bss;
-    // allocate stack below 2GB and update process esp
-}*/
-
 void KERNEL_CALL
 load_task(void* apOffset, mm_access_t aAccess)
 {
@@ -95,8 +65,8 @@ load_task(void* apOffset, mm_access_t aAccess)
     header.trsize = (dword_t) (*pOffset++);
     header.drsize = (dword_t) (*pOffset);
 
-    printf("Loading task...\n");
-    printf("Binary start: %x, text size: %d, data size: %d, bss size: %d\n", apOffset, header.text, header.data, header.bss);
+    BRAG("\n*** Kernel is loading task... ***\n");
+    BRAG("Task binary start: %x, text size: %d, data size: %d, bss size: %d\n", apOffset, header.text, header.data, header.bss);
 
     task_t* pTask = sbrk(sizeof(task_t));
     pTask->parent = 0;
@@ -106,8 +76,9 @@ load_task(void* apOffset, mm_access_t aAccess)
     pTask->vm_info.bss_size = header.bss;
 
     pTask->page_dir = mm_alloc_task(&pTask->vm_info, apOffset, aAccess);
-    printf("Task page directory: %x\n", pTask->page_dir);
+    DUMP(pTask->page_dir);
     pTask->esp = 2U * GIGABYTE - sizeof(uint_t);
+    DUMP(pTask->esp);
 
     dword_t* stack = sbrk(100 * sizeof(dword_t*));
     stack[99] = 0x0202;

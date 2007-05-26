@@ -238,3 +238,12 @@ vga_cl_print(const char* apStr, color_t aFgColor, color_t aBgColor)
     vga_set_bg_color(bg);
     vga_set_fg_color(fg);
 }
+
+void KERNEL_CALL
+vga_install(void)
+{
+    //vga_clear();
+    vga_show_cursor(TRUE);
+    vga_set_cursor_pos(0, 5); // for not overwriting loader messages
+    return;
+}
