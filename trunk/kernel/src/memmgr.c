@@ -53,6 +53,7 @@ extern void write_cr0(dword_t);
 extern void write_cr3(dword_t);
 extern dword_t read_cr0();
 extern dword_t read_cr3();
+extern dword_t read_cr2();
 
 
 /**
@@ -185,34 +186,14 @@ mm_install()
 }
 
 
-/*void KERNEL_CALL
-mm_load_kernel_process(process_t& arProcess)
+static void KERNEL_CALL
+page_fault_handler(regs_t * apRegs)
 {
-    arProcess.mMem.mCode    = &gKernelStart;
-    arProcess.mMem.mData    = 0;
-    arProcess.mMem.mStack   = 0;
-
-    if ((size_t)&gKernelEnd > 1024 * 1024)
-    {
-        arProcess.mMem.mHeap    = &gKernelEnd;
-    }
-    else
-    {
-        arProcess.mMem.mHeap    = 1024 * 1024;
-    }
-
-    arProcess.mMem.mHeapEnd = arProcess.mMem.mHeap;
-
-    arProcess.mMem.mPageDir = mm_page_dir(ACC_SUPER | ACC_RW);
-
+    dword_t invalid_address = read_cr2();
+    printf("\nPage fault exception caught at %x\n", invalid_address);
+    kernel_panic();
+    return;
 }
-
-
-void KERNEL_CALL
-mm_load_process()
-{
-
-} */
 
 
 size_t KERNEL_CALL
@@ -275,6 +256,10 @@ mm_install_paging(size_t aPagesPresent)
 
     write_cr3((size_t)gpPageDirectory);   // put that page directory address into CR3
     gpPageDirectory = (pointer_t)((size_t)gpPageDirectory + (size_t)&gKernelBase);
+
+    //install the page fault handler
+
+    isr_install_handler(ISR_PAGE_FAULT, page_fault_handler);
 
     return pages_present;
 }
@@ -761,4 +746,3 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
     //DBG_DUMP(4);
     return (uint_t)pTaskPageDir;
 }
-

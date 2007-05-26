@@ -83,7 +83,7 @@ load_task(void* apOffset, mm_access_t aAccess)
     dword_t* stack = sbrk(100 * sizeof(dword_t*));
     stack[99] = 0x0202;
     stack[98] = gGdtCsSel;
-    stack[97] = pTask->vm_info.start;
+    stack[97] = pTask->vm_info.start + 32;
     stack[96] = 0x00;
     stack[95] = 0x00;
     stack[94] = 0x00;
@@ -96,10 +96,14 @@ load_task(void* apOffset, mm_access_t aAccess)
     stack[87] = 0x10;
     stack[86] = 0x10;
     stack[85] = 0x10;
+    DUMP(&stack[97]);
     write_cr3(pTask->page_dir);
-    //DBG_DUMP(*(dword_t*)0x0);
-    //__asm__ __volatile__ ("movl %0, %%esp;" :: "r"(stack + 85) : "%esp"); //string offset
-    __asm__ __volatile__ ("call 32");
+    __asm__ __volatile__ ("movl %0, %%esp;" :: "r"(&stack[97]) : "%esp"); //string offset
+    //__asm__ __volatile__ ("push $0202");
+    //__asm__ __volatile__ ("push $0x100");
+    //__asm__ __volatile__ ("push $32");
+    __asm__ __volatile__ ("iret");
+    //__asm__ __volatile__ ("call 32");
 }
 
 void KERNEL_CALL

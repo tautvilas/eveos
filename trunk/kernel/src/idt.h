@@ -3,6 +3,8 @@
 
 #include "global.h"
 
+#define ISR_PAGE_FAULT 14
+
 /**
   * This defines what the stack looks like after an ISR was running
   */

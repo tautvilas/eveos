@@ -7,7 +7,8 @@
 #define NUM_ISRS            32
 
 extern gGdtCsSel;
-extern dword_t read_cr2();
+extern void idt_load(); /* assembler fuction with 'lidt' instruction */
+
 #define KERNEL_CODE_SEGMENT gGdtCsSel
 #define IDT_FLAGS           0x8E /* entry is present, ring 0 */
 
@@ -24,8 +25,6 @@ extern dword_t read_cr2();
 
 /* number of system calls */
 #define NUM_SYS_CALLS       20
-
-extern void idt_load(); /* assembler fuction with 'lidt' instruction */
 
 /* ISR entries, see kentry.asm for more info */
 
@@ -343,10 +342,10 @@ kernel_panic()
         __asm__ __volatile__ ("movl %%gs, %0\n" :"=r" (regs.gs));
         __asm__ __volatile__ ("movl %%ss, %0\n" :"=r" (regs.ss));
         __asm__ __volatile__ ("movl %%cs, %0\n" :"=r" (regs.cs));
-        printf("eax = %x\t ebx = %x\t ecx = %x\t edx = %x\t\n", regs.eax, regs.ebx, regs.ecx, regs.edx);
-        printf("esp = %x\t ebp = %x\t edi = %x\t esi = %x\t\n", regs.esp, regs.ebp, regs.edi, regs.esi);
-        printf("ds = %x\t es = %x\t fs = %x\t gs = %x\t\n", regs.ds, regs.es, regs.fs, regs.gs);
-        printf("cs = %x\t ss = %x\t\n", regs.cs, regs.ss);
+        printf("eax = %x\t ebx = %x\t ecx = %x\t edx = %x\n", regs.eax, regs.ebx, regs.ecx, regs.edx);
+        printf("esp = %x\t ebp = %x\t edi = %x\t esi = %x\n", regs.esp, regs.ebp, regs.edi, regs.esi);
+        printf("ds = %x\t es = %x\t fs = %x\t gs = %x\n", regs.ds, regs.es, regs.fs, regs.gs);
+        printf("cs = %x\t ss = %x\n", regs.cs, regs.ss);
         printf("Kernel panic!");
         for(;;);
 }
@@ -371,13 +370,11 @@ exception_handler(regs_t * apRegs)
     {
         printf(gpExceptionMessages[apRegs->int_no]);
         printf(" Exception caught\n");
-        printf("%x\n", read_cr2());
         kernel_panic();
     }
     else
     {
         printf("Unhadled interrupt caught - %d\n", apRegs->int_no);
-        printf(" Exception caught\n");
     }
     return;
 }
