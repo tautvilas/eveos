@@ -429,8 +429,8 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
         pPage   = mm_alloc_page();
         if (NULL == pPage)
         {
-            // :TODO: gx 2007-05-23: rollback
-            return count;
+            mm_paging_free_pages(aIndex, count);
+            return 0;
         }
 
         if (0 == page_c)
@@ -438,7 +438,7 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
             pTbl    = mm_paging_alloc_tbl(tbl_c, aAccess);
             if (NULL == pTbl)
             {
-                // :TODO: gx 2007-05-23: rollback
+                mm_paging_free_pages(aIndex, count);
                 return 0;
             }
             tbl_c++;
@@ -529,7 +529,7 @@ sbrk(int aIncrement)
     if (0 == brk((pointer_t)(gsKernelVmSize + aIncrement)))
         return addr;
 
-    return NULL;
+    return (pointer_t)-1;
 }
 
 pointer_t KERNEL_CALL

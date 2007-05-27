@@ -94,6 +94,11 @@ os_main()
         //DUMP(p[0]); // page fault for sure
     }*/
 
+    /*{
+        DUMP(malloc(GIGABYTE));
+        mm_print_info();
+    }*/
+
     //multitasking_install();
     //print_process_tree();
     load_task(&gKernelEnd, ACC_USER);
