@@ -4,6 +4,7 @@
 #include "global.h"
 #include "memmgr.h"
 
+/* WARNING!!! if YOU change this struct you also mus change common interrupt handlers */
 typedef struct {
     dword_t         esp;    //actual position of esp
     size_t          id;

@@ -7,11 +7,11 @@
 #define KERNEL_TASK_NAME "kernel"
 
 extern dword_t      read_cr3();
+extern void         write_cr3(dword_t);
 extern void         gKernelBase;
 extern dword_t      gGdtCsSel;
 extern dword_t      gGdtUserCsSel;
 extern dword_t      gGdtUserDataSel;
-extern void         write_cr3(dword_t);
 extern dword_t      gKernelEnd;
 
 typedef struct {
@@ -64,12 +64,13 @@ load_task(void* apOffset, mm_access_t aAccess)
     }
 
     BRAG("*** Kernel is loading task... ***\n");
-    BRAG("Task binary start: %x, text size: %d, data size: %d, bss size: %d\n", apOffset, header.text, header.data, header.bss);
+    BRAG("Bin start: %x, entry: %d, text size: %d, data size: %d, bss size: %d\n", apOffset, header.entry,
+            header.text, header.data, header.bss);
 
     task_t* pTask = sbrk(sizeof(task_t));
     pTask->parent = 0;
     pTask->vm_info.start = 0;
-    pTask->vm_info.entry = 0 + sizeof(aout_exec_t);
+    pTask->vm_info.entry = header.entry;
     pTask->vm_info.text_size = header.text;
     pTask->vm_info.data_size = header.data;
     pTask->vm_info.bss_size = header.bss;
@@ -79,26 +80,43 @@ load_task(void* apOffset, mm_access_t aAccess)
     gsTaskIdCounter++;
     gsTaskCounter++;
 
+
     // alloc task memory
     pTask->page_dir = mm_alloc_task(&pTask->vm_info, apOffset, aAccess);
     DUMP(pTask->page_dir);
+    // swapping page dirs might be dangerous
+    dword_t kernel_page_dir = read_cr3();
+    __asm__ __volatile__ ("cli");
+
+    write_cr3(pTask->page_dir);
+    // prepare RING 0 task stack
     pTask->ustack = 2U * GIGABYTE - sizeof(uint_t);
 
+    // tribute to infinity
+    dword_t* pStack = (dword_t*)pTask->ustack;
+    pStack--;
+    *(pStack)-- = 0x202;    //eflags: enable interrupts and set reserved bit to 1
+    *(pStack)-- = gGdtCsSel;
+    *(pStack)-- = pTask->vm_info.entry;
+    *(pStack)-- = 0x00;     // error code
+    *(pStack)-- = 0x00;     // isr num
+    *(pStack)-- = 0x00;
+    *(pStack)-- = 0x00;
+    *(pStack)-- = 0x00;
+    *(pStack)-- = 0x00;
+    *(pStack)-- = 0x00;
+    *(pStack)-- = 0x00;
+    *(pStack)-- = 0x00;
+    *(pStack)-- = 0x00;
+    *(pStack)-- = 0x10;
+    *(pStack)-- = 0x10;
+    *(pStack)-- = 0x10;
+    *(pStack)   = 0x10;
+
+    write_cr3(kernel_page_dir);
+    __asm__ __volatile__ ("sti");
+
     // configure app kernel level stack
-    regs_t* pStack = malloc(sizeof(regs_t));
-    memset(pStack, 0, sizeof(regs_t));
-    pStack->gs      = 0x10;
-    pStack->fs      = 0x10;
-    pStack->es      = 0x10;
-    pStack->ds      = 0x10;
-    pStack->eip     = pTask->vm_info.entry;
-    if (aAccess == ACC_USER)
-    {
-        pStack->cs = gGdtCsSel;
-    }
-    pStack->eflags  = 0x0202;
-    pStack->ss      = 0x10;
-    pStack->useresp = pTask->ustack;
 
     pTask->esp = (dword_t)pStack;
 

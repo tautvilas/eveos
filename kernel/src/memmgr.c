@@ -761,6 +761,8 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
     mm_page_dir_t   pKernelPageDir  = mm_page_dir_phys_addr();
 
     // set page dir to the task page dir
+    // swapping page dirs might be dangerous
+    __asm__ __volatile__ ("cli");
     write_cr3((dword_t)pTaskPageDir);
 
     size_t task_start_page = apMem->start / MM_PAGE_SIZE;
@@ -788,5 +790,6 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
         );
 
     write_cr3((dword_t)pKernelPageDir);
+    __asm__ __volatile__ ("sti");
     return (uint_t)pTaskPageDir;
 }
