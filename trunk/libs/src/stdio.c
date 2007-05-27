@@ -10,25 +10,29 @@ static char number[256];
 static void
 sys_print_string(char* apString)
 {
+    __asm__ __volatile__ ("pusha");
     __asm__ __volatile__ ("movl $4, %eax");                                     // syscall id (sys_write)
     __asm__ __volatile__ ("movl $1, %ebx");                                     // stdio
     __asm__ __volatile__ ("movl %0, %%ecx;" :: "m"(apString) : "%ecx");         // string offset
     __asm__ __volatile__ ("movl %0, %%edx;" :: "D"(strlen(apString)) : "edx");  // string length
     __asm__ __volatile__ ("int $69");
+    __asm__ __volatile__ ("popa");
     return;
 }
 
 static void
 sys_print_char(char c)
 {
+    __asm__ __volatile__ ("pusha");
     __asm__ __volatile__ ("movl $4, %eax");
     __asm__ __volatile__ ("movl $1, %ebx");
     __asm__ __volatile__ ("movl %0, %%ecx;" :: "D"(&c) : "%ecx");
     __asm__ __volatile__ ("movl $1, %edx;");
     __asm__ __volatile__ ("int $69");
+    __asm__ __volatile__ ("popa");
 }
 
-static void
+void
 print_int_dec(const int aInt)
 {
     int x = aInt;

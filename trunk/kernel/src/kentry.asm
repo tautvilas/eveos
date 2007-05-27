@@ -18,6 +18,7 @@ global _gGdtCsSel           ; gdt cs selector
 global _gGdtUserCsSel       ; gdt user cs selector
 global _gGdtUserDataSel     ; gdt user data selector
 global _gKernelEsp
+global _gLastTaskEsp
 
 extern _gKernelStart        ; kernel vm start
 extern _gBssStart           ; kernel bss section start
@@ -236,16 +237,50 @@ isr_common:
     push es
     push fs
     push gs
+
+    ;;;;;;;; mtasking stuff start ;;;;;;;;;;;
+    mov eax, [_gpActiveTask]
+    cmp eax, 0
+    je isr_no_multitasking1
+
+    mov eax, [_gpActiveTask]
+    mov [eax], esp
+    mov ebx, [eax + 4]
+    cmp ebx, 0 ;kernel task
+    jne isr_not_kernel
+    mov [_gKernelEsp], esp
+
+isr_not_kernel:
+    mov [_gLastTaskEsp], esp
+    ; not compulsory
+    mov esp, [_gKernelEsp]
+
+isr_no_multitasking1:
+    ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
+
     mov ax, DATA_SEL
     mov ds, ax
     mov fs, ax
     mov es, ax
     mov gs, ax
     mov eax, esp
-    push eax    ; pointer to regs struct
+    push dword [_gLastTaskEsp]    ; pointer to regs struct
     mov eax, _exception_handler
     call eax    ; a special call, preserves 'eip' register
     pop eax
+
+    ;;;;;;;; mtasking stuff start ;;;;;;;;;;;
+    mov eax, [_gpActiveTask]
+    cmp eax, 0
+    je isr_no_multitasking2
+
+    mov esp, [eax]
+    mov ebx, [eax + 8]
+    mov cr3, ebx ; task cr3
+
+isr_no_multitasking2:
+    ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
+
     pop gs
     pop fs
     pop es
@@ -268,15 +303,18 @@ irq_common:
 
     mov eax, [_gpActiveTask]
     mov [eax], esp
-    mov eax, [eax + 4]
-    cmp eax, 0 ;kernel task
+    mov ebx, [eax + 4]
+    cmp ebx, 0 ;kernel task
     jne not_kernel
     mov [_gKernelEsp], esp
 
 not_kernel:
+    mov [_gLastTaskEsp], esp
+    ; not compulsory
     mov esp, [_gKernelEsp]
-    mov eax, dword [_gKernelCr3]
-    mov cr3, eax
+    ; no need to switch cr3 cause kernel will not be able to access porgram memory
+    ; mov eax, dword [_gKernelCr3]
+    ; mov cr3, eax
 
 no_multitasking1:
     ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
@@ -287,7 +325,13 @@ no_multitasking1:
     mov fs, ax
     mov gs, ax
     mov eax, esp
+    cmp dword [_gpActiveTask], 0
+    je no_multitasking_3
+    push dword [_gLastTaskEsp]
+    jmp multitasking
+no_multitasking_3
     push eax    ; pointer to regs struct
+multitasking:
     mov eax, _irq_handler
     call eax    ; a special call, preserves 'eip' register
     pop eax
@@ -327,7 +371,8 @@ _gGdtUserCsSel   dd 0
 _gGdtUserDataSel dd 0
 
 ; kernel stack top
-_gKernelEsp dd 0x00000000
+_gKernelEsp     dd 0
+_gLastTaskEsp   dd 0
 
 ; main pointer to gdt
 gdtptr :

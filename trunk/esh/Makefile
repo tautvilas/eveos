@@ -56,8 +56,8 @@ define C_COMPILE
 endef
 
 esh.bin: entry.o main.o
-	@echo ~~~ Linking $(^F) $(LIB_DIR)$(DS)*.o
-	$(E)ld $(LDFLAGS) -o $(BIN)esh.bin $(addprefix $(OBJ), $(^F)) $(LIB_DIR)$(DS)*.o
+	@echo ~~~ Linking $(^F) # $(LIB_DIR)$(DS)*.o
+	$(E)ld $(LDFLAGS) -o $(BIN)esh.bin $(addprefix $(OBJ), $(^F)) # $(LIB_DIR)$(DS)*.o
 	@echo ~~~ Done
 
 entry.o: entry.asm

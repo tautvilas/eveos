@@ -3,16 +3,18 @@
 #include "vga.h"
 #include "stdio.h"
 #include "sys_write.h"
+#include "mem.h"
 
 #define STDOUT 1
 
 void KERNEL_CALL
 sys_write(regs_t* apRegs)
 {
-    //DBG_DUMP(1000);
     dword_t file_descriptor = apRegs->ebx;
     char * offset = (char*) apRegs->ecx;
     dword_t length = apRegs->edx;
+
+    //memdump((byte_t*)offset, 10);
 
     if (file_descriptor == STDOUT)
     {

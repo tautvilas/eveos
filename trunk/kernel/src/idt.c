@@ -358,15 +358,18 @@ kernel_panic()
 void KERNEL_CALL
 exception_handler(regs_t * apRegs)
 {
+    BRAG("exception_handler\n");
     /* This is a blank function pointer */
     void (*handler)(regs_t *r);
 
-    handler = gpIsrRoutines[apRegs->int_no];
-    if (handler)
+    uint_t int_no = apRegs->int_no;
+    DUMP(int_no);
+    handler = gpIsrRoutines[int_no];
+    if ((int_no < 32 || int_no == 69) && handler)
     {
         handler(apRegs);
     }
-    else if (apRegs->int_no < 32)
+    else if (int_no < 32)
     {
         printf(gpExceptionMessages[apRegs->int_no]);
         printf(" Exception caught\n");
@@ -374,7 +377,7 @@ exception_handler(regs_t * apRegs)
     }
     else
     {
-        printf("Unhadled interrupt caught - %d\n", apRegs->int_no);
+        printf("Unhandled interrupt caught - %d\n", apRegs->int_no);
     }
     return;
 }

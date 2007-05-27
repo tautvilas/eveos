@@ -61,4 +61,7 @@ memsetd(dword_t* apDest, dword_t aVal, size_t aCount);
 extern size_t KERNEL_CALL
 strlen(const char *apStr);
 
+extern void KERNEL_CALL
+memdump(byte_t* apSource, size_t aCount);
+
 #endif // _MEM_H_

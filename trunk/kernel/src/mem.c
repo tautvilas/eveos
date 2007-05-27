@@ -1,5 +1,5 @@
-
 #include "mem.h"
+#include "stdio.h"
 
 
 pointer_t KERNEL_CALL
@@ -50,6 +50,18 @@ memsetd(dword_t* apDest, dword_t aVal, size_t aCount)
     return apDest;
 }
 
+extern void KERNEL_CALL
+memdump(byte_t* apSource, size_t aCount)
+{
+    printf("Memory dump start: %x\n", apSource);
+    for(; aCount; aCount--)
+    {
+        printf("%x ", *apSource);
+        apSource++;
+    }
+    printf("\n");
+    return;
+}
 
 size_t KERNEL_CALL
 strlen(const char *apStr)

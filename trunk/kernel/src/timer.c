@@ -12,6 +12,7 @@
 #define PIT_RATE     1193180 /* Hz if divided by 1 (default rate = 18.222Hz) */
 
 extern dword_t gKernelEsp;
+extern dword_t gLastTaskEsp;
 
 /**
   * PIT IRQ0 handler
@@ -54,7 +55,8 @@ timer_handler(regs_t * apRegs)
     {
         printf("Runing task %x (parent =  %d, id = %d, esp = %x)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id, 
                 gpActiveTask->esp);
-        DUMP(gKernelEsp);
+        DUMP(gLastTaskEsp);
+        //DUMP(apRegs->useresp);
     }
     if(gTimerTicks % (_TIMER_RATE * 5) == 0 && gpActiveTask != NULL)
     {
