@@ -6,6 +6,7 @@
 #define EVE_DEMO
 
 // some useful macros
+#define STOP                for(;;)
 #ifdef EVE_DEBUG
 #define DUMP(expr)          (printf(#expr ": "), printf("%x\n", (uint_t)(expr)))
 #define MARK(expr)          (printf(#expr "\n"), (expr))
