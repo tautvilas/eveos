@@ -94,19 +94,20 @@ os_main()
         //DUMP(p[0]); // page fault for sure
     }*/
 
-    /*{
-        DUMP(malloc(10 * MEGABYTE));
-        mm_print_info();
-    }*/
-
-    //multitasking_install();
-    //print_process_tree();
-    load_task(&gKernelEnd, ACC_USER);
-
     /*
 	keyboard_install();
     BRAG("Keyboard is on-line (US layout)\n");
     */
+    multitasking_install();
+    BRAG("Multitasking is enabled\n");
+    //load_task(&gKernelEnd, ACC_USER);
+    //load_task(&gKernelEnd, ACC_USER);
+    //load_task(&gKernelEnd, ACC_USER);
+    //DUMP(&gKernelEnd);
+    //load_task((dword_t*)gNextTaskOffset, ACC_USER);
+    //DUMP(gNextTaskOffset);
+    //DUMP(*((dword_t*)gNextTaskOffset));
+    //DUMP(*((dword_t*)gNextTaskOffset+1));
 
     for (;;);
     return;

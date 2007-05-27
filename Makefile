@@ -23,7 +23,7 @@ endif
 # this hides commands
 # set E to empty string if you want to see commands used
 # it may by done from command line: make E=
-E := @
+# E := @
 
 # setting directories
 KERNEL_DIR  := kernel
@@ -35,23 +35,19 @@ ESH_DIR     := esh
 KERNEL      := $(KERNEL_DIR)$(DS)bin$(DS)kernel.bin
 LOADER      := $(LOADER_DIR)$(DS)bin$(DS)loader.bin
 IMAGE       := $(IMAGE_DIR)$(DS)eveos.img
-ESH         := $(ESH_DIR)$(DS)bin$(DS)esh.bin
-
-VPATH   := $(IMAGE_DIR)$(PS)$(LOADER_DIR)$(DS)bin$(PS)$(KERNEL_DIR)$(DS)bin
-
 
 all:
+	$(E)(cd $(LIBS_DIR) && $(MAKE))
 	$(E)(cd $(LOADER_DIR) && $(MAKE))
 	$(E)(cd $(KERNEL_DIR) && $(MAKE))
-	$(E)(cd $(LIBS_DIR) && $(MAKE))
 	$(E)(cd $(ESH_DIR) && $(MAKE))
 	@echo ~~~ Building EveOS image
 ifeq ($(SYS),win)
-	$Ecopy /Y $(LOADER) /B + $(KERNEL) /B $(IMAGE) /B > $(NUL)
+	$(E)copy /Y $(LOADER) /B + $(KERNEL) /B $(IMAGE) /B > $(NUL)
 else
-	$(E)cat $(LOADER) > $(IMAGE)
-	$(E)cat $(KERNEL) >> $(IMAGE)
-	$(E)cat $(ESH) >> $(IMAGE)
+	cat $(LOADER) > $(IMAGE)
+	cat $(KERNEL) >> $(IMAGE)
+	cat $(ESH) >> $(IMAGE)
 endif
 	@echo ~~~ Done
 
@@ -59,7 +55,7 @@ endif
 .PHONY: clean vars
 clean:
 	@echo ~~~ Cleaning image
-	-$E$(RM) $(IMAGE) > $(NUL)
+	-$(E)$(RM) $(IMAGE) > $(NUL)
 	@echo ~~~ Done
 	-$(E)(cd $(KERNEL_DIR) && $(MAKE) clean)
 	-$(E)(cd $(LIBS_DIR) && $(MAKE) clean)
@@ -67,4 +63,4 @@ clean:
 	-$(E)(cd $(ESH_DIR) && $(MAKE) clean)
 
 vars:
-	@echo OS=$(OS) DS=$(DS) PS=$(PS) RM=$(RM) E=$E
+	@echo OS=$(OS) DS=$(DS) PS=$(PS) RM=$(RM) E=$(E)

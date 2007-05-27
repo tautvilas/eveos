@@ -1,5 +1,6 @@
 #include "loader.h"
 #include "memmgr.h"
+#include "malloc.h"
 #include "stdio.h"
 #include "mem.h"
 
@@ -8,23 +9,10 @@
 extern dword_t      read_cr3();
 extern void         gKernelBase;
 extern dword_t      gGdtCsSel;
+extern dword_t      gGdtUserCsSel;
+extern dword_t      gGdtUserDataSel;
 extern void         write_cr3(dword_t);
-
-typedef struct {
-    dword_t         esp;    //actual position of esp
-    dword_t         ss;     //actual stack segment.
-    dword_t         kstack; //stacktop of kernel stack
-    dword_t         ustack; //stacktop of user stack
-    dword_t         page_dir;
-    bool_t          locked;
-    size_t          id;
-    size_t          parent;
-    size_t          timetorun;
-    size_t          sleep;
-    size_t          priority;
-    mm_task_mem_t   vm_info;
-    char            name[32];
-} task_t;
+extern dword_t      gKernelEnd;
 
 typedef struct {
     dword_t midmag;
@@ -38,17 +26,22 @@ typedef struct {
 } aout_exec_t;
 
 typedef struct task_tree_node_t {
-    task_t*              pTask;
+    task_t*                     pTask;
     struct task_tree_node_t*    pNext;
     struct task_tree_node_t*    pPrev;
     struct task_tree_node_t*    pParent;
     struct task_tree_node_t*    pFirstChild;
 } task_tree_node_t;
 
-size_t gTaskCounter = 0;
-size_t gTaskIdCounter = 0;
+task_t* gpActiveTask = NULL;
+task_ring_node_t* gpActiveTaskRingNode = NULL;
+
+static size_t gsTaskCounter = 0;
+static size_t gsTaskIdCounter = 0;
 
 task_tree_node_t* gpTaskTreeTop;
+dword_t gNextTaskOffset = 0;
+dword_t gKernelCr3 = 0;
 
 void KERNEL_CALL
 load_task(void* apOffset, mm_access_t aAccess)
@@ -65,7 +58,12 @@ load_task(void* apOffset, mm_access_t aAccess)
     header.trsize = (dword_t) (*pOffset++);
     header.drsize = (dword_t) (*pOffset);
 
-    BRAG("\n*** Kernel is loading task... ***\n");
+    if(gNextTaskOffset == (dword_t) apOffset)
+    {
+        gNextTaskOffset += header.data + header.text + sizeof(aout_exec_t);
+    }
+
+    BRAG("*** Kernel is loading task... ***\n");
     BRAG("Task binary start: %x, text size: %d, data size: %d, bss size: %d\n", apOffset, header.text, header.data, header.bss);
 
     task_t* pTask = sbrk(sizeof(task_t));
@@ -76,56 +74,71 @@ load_task(void* apOffset, mm_access_t aAccess)
     pTask->vm_info.data_size = header.data;
     pTask->vm_info.bss_size = header.bss;
     pTask->vm_info.header_size = sizeof(aout_exec_t);
+    pTask->id = gsTaskIdCounter;
 
+    gsTaskIdCounter++;
+    gsTaskCounter++;
+
+    // alloc task memory
     pTask->page_dir = mm_alloc_task(&pTask->vm_info, apOffset, aAccess);
     DUMP(pTask->page_dir);
-    pTask->esp = 2U * GIGABYTE - sizeof(uint_t);
-    DUMP(pTask->esp);
+    pTask->ustack = 2U * GIGABYTE - sizeof(uint_t);
 
-    dword_t* stack = sbrk(100 * sizeof(dword_t*));
-    stack[99] = 0x0202;
-    stack[98] = gGdtCsSel;
-    stack[97] = pTask->vm_info.entry;
-    stack[96] = 0x00;
-    stack[95] = 0x00;
-    stack[94] = 0x00;
-    stack[93] = 0x00;
-    stack[92] = 0x00;
-    stack[91] = 0x00;
-    stack[90] = 0x00;
-    stack[89] = 0x00;
-    stack[88] = 0x10;
-    stack[87] = 0x10;
-    stack[86] = 0x10;
-    stack[85] = 0x10;
-    DUMP(&stack[97]);
-    write_cr3(pTask->page_dir);
-    __asm__ __volatile__ ("movl %0, %%esp;" :: "r"(&stack[97]) : "%esp"); //string offset
-    //__asm__ __volatile__ ("push $0202");
-    //__asm__ __volatile__ ("push $0x100");
-    //__asm__ __volatile__ ("push $32");
-    __asm__ __volatile__ ("iret");
-    //__asm__ __volatile__ ("call 32");
+    // configure app kernel level stack
+    regs_t* pStack = malloc(sizeof(regs_t));
+    memset(pStack, 0, sizeof(regs_t));
+    pStack->gs      = 0x10;
+    pStack->fs      = 0x10;
+    pStack->es      = 0x10;
+    pStack->ds      = 0x10;
+    pStack->eip     = pTask->vm_info.entry;
+    if (aAccess == ACC_USER)
+    {
+        pStack->cs = gGdtCsSel;
+    }
+    pStack->eflags  = 0x0202;
+    pStack->ss      = 0x10;
+    pStack->useresp = pTask->ustack;
+
+    pTask->esp = (dword_t)pStack;
+
+    // put the task into task ring
+    task_ring_node_t* pNode = malloc(sizeof(task_ring_node_t));
+    pNode->pTask = pTask;
+    pNode->pNext = gpActiveTaskRingNode->pNext;
+    pNode->pNext->pPrev = pNode;
+    pNode->pPrev = gpActiveTaskRingNode;
+    gpActiveTaskRingNode->pNext = pNode;
+    //mm_print_info();
+    BRAG("*** Kernel has ended loading task... Number of tasks running: %d ***\n", gsTaskCounter);
 }
 
 void KERNEL_CALL
 multitasking_install(void)
 {
-    task_t* kernel = sbrk(sizeof(task_t));
-    kernel->locked = TRUE;
-    kernel->id = gTaskIdCounter;
-    kernel->parent = 0;
-    char* name = KERNEL_TASK_NAME;
-    memcpy((byte_t*) kernel->name,(byte_t*) name, strlen(name) + 1);
+    task_t* pKernel = malloc(sizeof(task_t));
+    pKernel->locked = FALSE;
+    pKernel->id = gsTaskIdCounter;
+    pKernel->parent = 0;
+    pKernel->page_dir = read_cr3();
 
-    gTaskIdCounter++;
+    gsTaskIdCounter++;
+    gsTaskCounter++;
 
-    gpTaskTreeTop = sbrk(sizeof(task_tree_node_t));
-    gpTaskTreeTop->pParent = NULL;
-    //gTaskTreeTop->children = NULL;
-    gpTaskTreeTop->pTask = kernel;
+    gKernelCr3 = pKernel->page_dir;
+    // from here multitasking starts
+    gpActiveTask = pKernel;
 
-    printf("Multitasking is initialised (just joking;)) \n");
+    task_ring_node_t* pNode = malloc(sizeof(task_ring_node_t));
+    pNode->pTask = pKernel;
+    pNode->pNext = pNode;
+    pNode->pPrev = pNode;
+
+    gpActiveTaskRingNode = pNode;
+
+    gNextTaskOffset = (dword_t) &gKernelEnd;
+
+    return;
 }
 
 void KERNEL_CALL
