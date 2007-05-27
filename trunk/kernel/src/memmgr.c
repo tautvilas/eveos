@@ -775,8 +775,6 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
 
     // allocate task stack
     mm_paging_alloc_pages(
-            //(2U * GIGABYTE - 4 * MEGABYTE) / MM_PAGE_SIZE,
-            //MM_PAGE_TBL_SIZE,
             (2U * GIGABYTE - 2 * MM_PAGE_SIZE) / MM_PAGE_SIZE,
             2,
             aAccess | ACC_RW

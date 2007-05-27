@@ -15,6 +15,9 @@ global _start       ; entry symbol for linker
 global _idt_load    ; function for loading IDT
 
 global _gGdtCsSel           ; gdt cs selector
+global _gGdtUserCsSel       ; gdt user cs selector
+global _gGdtUserDataSel     ; gdt user data selector
+global _gKernelEsp
 
 extern _gKernelStart        ; kernel vm start
 extern _gBssStart           ; kernel bss section start
@@ -24,6 +27,8 @@ extern _os_main             ; OS main C function
 extern _gIdtp               ; Pointer to IDT
 extern _exception_handler   ; ISRs handler
 extern _irq_handler         ; IRQs handler
+extern _gpActiveTask        ; active task
+extern _gKernelCr3          ; kernel page dir
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -163,6 +168,10 @@ paging_enabled:
 
     mov eax, CODE_SEL
     mov [_gGdtCsSel], eax
+    mov eax, USER_CODE_SEL
+    mov [_gGdtUserCsSel], eax
+    mov eax, USER_DATA_SEL
+    mov [_gGdtUserDataSel], eax
 
     ; seting stack to use virual address
     mov eax, esp
@@ -222,8 +231,7 @@ _idt_load:
     ret
 
 isr_common:
-    cld
-    pushad
+    pusha
     push ds
     push es
     push fs
@@ -242,16 +250,37 @@ isr_common:
     pop fs
     pop es
     pop ds
-    popad
+    popa
     add esp, 8  ; cleans up pushed error code and ISR number
     iret        ; pops cs, eip, eflags, ss and esp
 
 irq_common:
-    pushad
+    pusha
     push ds
-    push fs
     push es
+    push fs
     push gs
+
+    ;;;;;;;; mtasking stuff start ;;;;;;;;;;;
+    mov eax, [_gpActiveTask]
+    cmp eax, 0
+    je no_multitasking1
+
+    mov eax, [_gpActiveTask]
+    mov [eax], esp
+    mov eax, [eax + 4]
+    cmp eax, 0 ;kernel task
+    jne not_kernel
+    mov [_gKernelEsp], esp
+
+not_kernel:
+    mov esp, [_gKernelEsp]
+    mov eax, dword [_gKernelCr3]
+    mov cr3, eax
+
+no_multitasking1:
+    ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
+
     mov ax, DATA_SEL
     mov ds, ax
     mov es, ax
@@ -262,11 +291,23 @@ irq_common:
     mov eax, _irq_handler
     call eax    ; a special call, preserves 'eip' register
     pop eax
+
+    ;;;;;;;; mtasking stuff start ;;;;;;;;;;;
+    mov eax, [_gpActiveTask]
+    cmp eax, 0
+    je no_multitasking2
+
+    mov esp, [eax]
+    mov ebx, [eax + 8]
+    mov cr3, ebx ; task cr3
+
+no_multitasking2:
+    ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
     pop gs
     pop fs
     pop es
     pop ds
-    popad
+    popa
     add esp, 8  ; cleans up pushed error code and ISR number
     iret        ; pops cs, eip, eflags, ss and esp
 
@@ -280,8 +321,13 @@ title db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts"
 a20_success_msg db "A20 gate enabled", 13, 10, 0
 a20_failure_msg db "Failded to enable A20 gate! Halting.", 13, 10, 0
 
-; code selector
-_gGdtCsSel dd 0x00000000
+; code selectors
+_gGdtCsSel       dd 0
+_gGdtUserCsSel   dd 0
+_gGdtUserDataSel dd 0
+
+; kernel stack top
+_gKernelEsp dd 0x00000000
 
 ; main pointer to gdt
 gdtptr :
@@ -321,6 +367,27 @@ data_gd                ; Data descriptor 4Gb flat seg at 0000:0000h
     dw 0x0000          ; BASE 0000:0000h
     db 0x00            ; Descriptor format same as above
     db 10010010b
+    db 11001111b
+    db 0x00
+USER_CODE_SEL equ $-gdt
+code_user_gd           ; Code descriptor 4Gb flat segment at 0000:0000h
+    dw 0xffff          ; Limit 4Gb  bits 0-15 of segment descriptor
+    dw 0x0000          ; BASE 0h bits 16-31 of segment descriptor (sd)
+    db 0x00            ; BASE addr of seg 16-23 of 32bit addr,32-39 of sd
+    db 11111010b       ; P,DPL(2),S,TYPE(3),A->Present bit 1,Descriptor
+                       ; privilege level 0-3,Segment descriptor 1 ie code
+                       ; or data seg descriptor,Type of seg,Accessed bit
+    db 11001111b       ; Upper 4 bits G,D,0,AVL ->1 segment len is page
+                       ; granular, 1 default operation size is 32bit seg
+                       ; AVL : Available field for user or OS
+                       ; Lower nibble bits 16-19 of segment limit
+    db 0x00            ; BASE addr of seg 24-31 of 32bit addr,56-63 of sd
+USER_DATA_SEL equ $-gdt
+data_user_gd           ; Data descriptor 4Gb flat seg at 0000:0000h
+    dw 0xffff          ; Limit 4Gb
+    dw 0x0000          ; BASE 0000:0000h
+    db 0x00            ; Descriptor format same as above
+    db 11110010b
     db 11001111b
     db 0x00
 gdt_end
