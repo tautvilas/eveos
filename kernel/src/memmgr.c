@@ -101,29 +101,6 @@ mm_free_page(const pointer_t aPage);
 void KERNEL_CALL
 mm_install()
 {
-/*
-    pointer_t page;
-    pointer_t ram_top;
-    size_t ram_top_page = MM_KERNEL_START + MM_KERNEL_SIZE;
-
-    gpFreePageStack     = mm_page_to_pointer(ram_top_page);
-    gpFreePageStackTop  = gpFreePageStack;
-    gPageCount          = MM_RAM_SIZE; // in the future this should be calculated at run-time
-
-    // TODO: 2007-05-14 gx: better calc
-    ram_top_page        += gPageCount * sizeof(pointer_t) / MM_PAGE_SIZE + 1;
-
-    for (
-            page    = mm_page_to_pointer(gPageCount - 1),
-            ram_top = mm_page_to_pointer(ram_top_page);
-            page >= ram_top;
-            page -= MM_PAGE_SIZE
-        )
-    {
-        mm_free_page(page);
-    }
-*/
-
     size_t      used_pages  = 0;
     size_t      stack_size;
     pointer_t   page_addr;          // used in loop
@@ -385,7 +362,7 @@ mm_paging_free_pages(size_t aIndex, size_t aCount)
     return count;
 }
 
-//TODO:zv early morning 3:42: fix the fucking bugs (about page tables)
+
 size_t KERNEL_CALL
 mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
 {
@@ -403,8 +380,25 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
 
     page_c  = aIndex % MM_PAGE_TBL_SIZE;
 
-    pTbl        = mm_page_tbl_addr(tbl_c - 1);
     pPageDir    = mm_page_dir_addr();
+    if (FALSE == ((uint_t)pPageDir[tbl_c - 1] & ENTRY_PRESENT))
+    {
+        // creating new page table
+        mm_page_tbl_t pNewTbl   = mm_alloc_page();
+        if (NULL == pNewTbl)
+        {
+            // :TODO: gx 2007-05-23: rollback
+            return 0;
+        }
+        pPageDir[tbl_c - 1] = (mm_page_tbl_t)((size_t)pNewTbl | ENTRY_FLAGS);
+        pTbl                = mm_page_tbl_addr(tbl_c - 1);
+        memsetd((dword_t*)pTbl, MM_PAGE_TBL_SIZE, 0);
+
+    }
+    else
+    {
+        pTbl        = mm_page_tbl_addr(tbl_c - 1);
+    }
 
     for (count = 0; count < aCount; ++count)
     {
