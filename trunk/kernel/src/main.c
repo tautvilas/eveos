@@ -95,7 +95,7 @@ os_main()
     }*/
 
     /*{
-        DUMP(malloc(GIGABYTE));
+        DUMP(malloc(10 * MEGABYTE));
         mm_print_info();
     }*/
 

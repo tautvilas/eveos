@@ -252,10 +252,11 @@ mm_install_paging(size_t aPagesPresent)
  *  @param  aPage   Pointer of page to be freed.
  */
 void KERNEL_CALL
-mm_free_page(const pointer_t aPage)
+mm_free_page(const pointer_t apPage)
 {
     // NOTE: gx 2007-05-13: should memory be freed if page address is not valid?
-    pointer_t page  = mm_containing_page(aPage);
+    pointer_t page  = mm_containing_page(apPage);
+
     if (mm_is_page_free(page))
         return;
 
@@ -330,6 +331,8 @@ mm_paging_free_pages(size_t aIndex, size_t aCount)
     mm_page_dir_t   pPageDir;
     mm_page_tbl_t   pTbl;
 
+    BRAG("Freeing %d pages\n", aCount);
+
     tbl_i   = aIndex / MM_PAGE_TBL_SIZE;
     if (0 == aIndex % MM_PAGE_TBL_SIZE)
         tbl_i--;
@@ -362,6 +365,7 @@ mm_paging_free_pages(size_t aIndex, size_t aCount)
 
     write_cr3((size_t)mm_page_dir_phys_addr());
 
+    BRAG("\tdone");
     return count;
 }
 
@@ -404,6 +408,19 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
 
     const size_t    ENTRY_FLAGS = (aAccess & ACC_MASK) | ENTRY_PRESENT;
 
+    BRAG("Allocating %d pages\n", aCount);
+    if (0 == aCount)
+    {
+        BRAG("\tnothing to do\n");
+        return 0;
+    }
+
+    if (aCount > mm_get_free_pages())
+    {
+        BRAG("\taborting only %d pages free\n", mm_get_free_pages());
+        return 0;
+    }
+
     tbl_c   = aIndex / MM_PAGE_TBL_SIZE;
     if (aIndex % MM_PAGE_TBL_SIZE)
         tbl_c++;
@@ -429,7 +446,7 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
         pPage   = mm_alloc_page();
         if (NULL == pPage)
         {
-            mm_paging_free_pages(aIndex, count);
+            mm_paging_free_pages(aIndex + count, count);
             return 0;
         }
 
@@ -438,7 +455,7 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
             pTbl    = mm_paging_alloc_tbl(tbl_c, aAccess);
             if (NULL == pTbl)
             {
-                mm_paging_free_pages(aIndex, count);
+                mm_paging_free_pages(aIndex + count, count);
                 return 0;
             }
             tbl_c++;
@@ -452,6 +469,7 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
 
     write_cr3((size_t)mm_page_dir_phys_addr());
 
+    BRAG("\tdone\n");
     return count;
 }
 
@@ -704,8 +722,10 @@ mm_is_page_free(const pointer_t aPage)
     // TODO: gx 2007-05-13: optimize this! (may be using bitmap of free pages)
     pointer_t* page;
     for (page = gspFreePageStackTop - 1; page >= gspFreePageStack; --page)
+    {
         if (aPage == *page)
             return TRUE;
+    }
     return FALSE;
 }
 
