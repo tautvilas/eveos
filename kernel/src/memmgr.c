@@ -273,7 +273,10 @@ pointer_t KERNEL_CALL
 mm_alloc_page()
 {
     if (gspFreePageStackTop == gspFreePageStack)
+    {
+        BRAG("Huston. We have a problem. We are out of memory!\n");
         return NULL;
+    }
 
     gspFreePageStackTop--;
     return *gspFreePageStackTop;
@@ -363,6 +366,33 @@ mm_paging_free_pages(size_t aIndex, size_t aCount)
 }
 
 
+mm_page_tbl_t KERNEL_CALL
+mm_paging_put_tbl(size_t aIndex, const pointer_t apTable, mm_access_t aAccess)
+{
+    mm_page_dir_addr()[aIndex] = (mm_page_tbl_t)(
+            (size_t)apTable | (aAccess && ACC_MASK) | ENTRY_PRESENT
+        );
+    return mm_page_tbl_addr(aIndex);
+}
+
+
+mm_page_tbl_t KERNEL_CALL
+mm_paging_alloc_tbl(size_t aIndex, mm_access_t aAccess)
+{
+    pointer_t   pPage   = mm_alloc_page();
+    if (NULL == pPage)
+    {
+        return NULL;
+    }
+    else
+    {
+        mm_page_tbl_t   pTbl    = mm_paging_put_tbl(aIndex, pPage, aAccess);
+        memsetd((dword_t*)pTbl, MM_PAGE_TBL_SIZE, 0);
+        return pTbl;
+    }
+}
+
+
 size_t KERNEL_CALL
 mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
 {
@@ -381,23 +411,15 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
     page_c  = aIndex % MM_PAGE_TBL_SIZE;
 
     pPageDir    = mm_page_dir_addr();
-    if (FALSE == ((uint_t)pPageDir[tbl_c - 1] & ENTRY_PRESENT))
+    if ((0 != page_c) && FALSE == ((uint_t)pPageDir[tbl_c - 1] & ENTRY_PRESENT))
     {
-        // creating new page table
-        mm_page_tbl_t pNewTbl   = mm_alloc_page();
-        if (NULL == pNewTbl)
-        {
-            // :TODO: gx 2007-05-23: rollback
+        pTbl    = mm_paging_alloc_tbl(tbl_c - 1, aAccess);
+        if (NULL == pTbl)
             return 0;
-        }
-        pPageDir[tbl_c - 1] = (mm_page_tbl_t)((size_t)pNewTbl | ENTRY_FLAGS);
-        pTbl                = mm_page_tbl_addr(tbl_c - 1);
-        memsetd((dword_t*)pTbl, MM_PAGE_TBL_SIZE, 0);
-
     }
     else
     {
-        pTbl        = mm_page_tbl_addr(tbl_c - 1);
+        pTbl    = mm_page_tbl_addr(tbl_c - 1);
     }
 
     for (count = 0; count < aCount; ++count)
@@ -413,20 +435,17 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
 
         if (0 == page_c)
         {
-            // creating new page table
-            mm_page_tbl_t pNewTbl   = mm_alloc_page();
-            if (NULL == pNewTbl)
+            pTbl    = mm_paging_alloc_tbl(tbl_c, aAccess);
+            if (NULL == pTbl)
             {
                 // :TODO: gx 2007-05-23: rollback
-                return count;
+                return 0;
             }
-            pPageDir[tbl_c] = (mm_page_tbl_t)((size_t)pNewTbl | ENTRY_FLAGS);
-            pTbl            = mm_page_tbl_addr(tbl_c);
             tbl_c++;
         }
 
         pTbl[page_c]    = (pointer_t)((size_t)pPage | ENTRY_FLAGS);
-        // TODO: gx 2007-05-24: would by nice to fill new memory with zeros but
+        // TODO: gx 2007-05-24: would be nice to fill new memory with zeros but
         //      we can not access it beacause page dir is not up to date
         page_c          = (page_c + 1) % MM_PAGE_TBL_SIZE;
     }
@@ -699,11 +718,18 @@ mm_duplicate_page_dir(void)
     mm_page_dir_t pTaskPageDir;
 
     pTaskPageDir = mm_alloc_page();
-    pKernelPageDir[MM_PAGE_DIR_SIZE - 2] = (mm_page_tbl_t)((uint_t)pTaskPageDir | ACC_SUPER | ACC_RW | ENTRY_PRESENT);
+    pKernelPageDir[MM_PAGE_DIR_SIZE - 2] = (mm_page_tbl_t)(
+            (uint_t)pTaskPageDir | ACC_SUPER | ACC_RW | ENTRY_PRESENT
+        );
 
-    memcpy((byte_t*)TMP_PAGE_FRAME, (byte_t*)pKernelPageDir, MM_PAGE_DIR_SIZE * sizeof(mm_page_tbl_t));
-    ((mm_page_dir_t)TMP_PAGE_FRAME)[MM_PAGE_DIR_SIZE - 1] = (mm_page_tbl_t)((uint_t)pTaskPageDir | ACC_SUPER | ACC_RW |
-        ENTRY_PRESENT);
+    memcpy(
+            (byte_t*)TMP_PAGE_FRAME,
+            (byte_t*)pKernelPageDir,
+            MM_PAGE_DIR_SIZE * sizeof(mm_page_tbl_t)
+        );
+    ((mm_page_dir_t)TMP_PAGE_FRAME)[MM_PAGE_DIR_SIZE - 1] = (mm_page_tbl_t)(
+            (uint_t)pTaskPageDir | ACC_SUPER | ACC_RW | ENTRY_PRESENT
+        );
     pKernelPageDir[MM_PAGE_DIR_SIZE - 2] = NULL;
     return pTaskPageDir;
 }
@@ -711,33 +737,38 @@ mm_duplicate_page_dir(void)
 uint_t KERNEL_CALL
 mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t aAccess)
 {
-    // map kernel tables
-    mm_page_dir_t pTaskPageDir = mm_duplicate_page_dir();
-    mm_page_dir_t pKernelPageDir = mm_page_dir_phys_addr();
+    mm_page_dir_t   pTaskPageDir    = mm_duplicate_page_dir();
+    mm_page_dir_t   pKernelPageDir  = mm_page_dir_phys_addr();
 
     // set page dir to the task page dir
     write_cr3((dword_t)pTaskPageDir);
 
     size_t task_start_page = apMem->start / MM_PAGE_SIZE;
-    size_t task_size = apMem->header_size + apMem->text_size + apMem->data_size + apMem->bss_size;
+    size_t task_size = apMem->header_size + apMem->text_size + apMem->data_size
+            + apMem->bss_size;
     size_t task_page_count = task_size / MM_PAGE_SIZE;
     if (task_size % MM_PAGE_SIZE)
-    {
         task_page_count++;
-    }
 
+    // allocate task code and data
     mm_paging_alloc_pages(task_start_page, task_page_count, aAccess | ACC_RW);
-    // map & alloc stack
-    mm_paging_alloc_pages((2U * GIGABYTE - 4 * MEGABYTE) / MM_PAGE_SIZE, MM_PAGE_TBL_SIZE, aAccess | ACC_RW);
-    //DBG_DUMP(2U * GIGABYTE / MM_PAGE_SIZE - 1);
 
+    // allocate task stack
+    mm_paging_alloc_pages(
+            //(2U * GIGABYTE - 4 * MEGABYTE) / MM_PAGE_SIZE,
+            //MM_PAGE_TBL_SIZE,
+            (2U * GIGABYTE - 2 * MM_PAGE_SIZE) / MM_PAGE_SIZE,
+            2,
+            aAccess | ACC_RW
+        );
     memcpy((byte_t*)apMem->start, apOffset, task_size - apMem->bss_size);
-    //DBG_DUMP(2);
+
     // bss memset 0
-    memset((byte_t*)(apMem->start + task_size - apMem->bss_size), apMem->bss_size, 0x0);
-    //DBG_DUMP(3);
+    memset((byte_t*)(
+            apMem->start + task_size - apMem->bss_size),
+            apMem->bss_size, 0
+        );
 
     write_cr3((dword_t)pKernelPageDir);
-    //DBG_DUMP(4);
     return (uint_t)pTaskPageDir;
 }
