@@ -125,7 +125,7 @@ mm_install()
     gspFreePageStack    = (pointer_t)(
             (size_t)mm_page_to_pointer(used_pages) + (size_t)&gKernelBase
         );
-    printf("stack top: %x\n", gspFreePageStack);
+    DUMP(gspFreePageStack);
     gspFreePageStackTop = gspFreePageStack;
 
     // calculating total number of pages that can fit in RAM

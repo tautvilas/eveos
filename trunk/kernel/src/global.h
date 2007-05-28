@@ -2,8 +2,8 @@
 #define _GLOBAL_H_
 
 // compile time options
-#define EVE_DEBUG
-#define EVE_DEMO
+// #define EVE_DEBUG
+// #define EVE_DEMO
 
 // some useful macros
 #define STOP                for(;;)
@@ -44,5 +44,16 @@ typedef enum {
         FALSE,
         TRUE
     }   bool_t;
+
+/**
+  * This defines what the stack looks like after an ISR was running
+  */
+typedef struct
+{
+    dword_t gs, fs, es, ds;                          /* pushed the segs last */
+    dword_t edi, esi, ebp, esp, ebx, edx, ecx, eax;  /* pushed by 'pusha' */
+    dword_t int_no, err_code;                        /* push byteX and push ecode */
+    dword_t eip, cs, eflags, useresp, ss;            /* pushed by the processor automatically */
+} regs_t;
 
 #endif  // _GLOBAL_H_

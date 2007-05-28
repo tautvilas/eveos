@@ -23,7 +23,7 @@ endif
 # this hides commands
 # set E to empty string if you want to see commands used
 # it may by done from command line: make E=
-# E := @
+E := @
 
 # setting directories
 KERNEL_DIR  := kernel
@@ -50,10 +50,10 @@ all:
 ifeq ($(SYS),win)
 	$(E)copy /Y $(LOADER) /B + $(KERNEL) /B $(IMAGE) /B > $(NUL)
 else
-	$(E)cat $(LOADER) > $(IMAGE)
-	$(E)cat $(KERNEL) >> $(IMAGE)
-	$(E)cat $(ESH) >> $(IMAGE)
-	$(E)cat $(PONG) >> $(IMAGE)
+	$(E)(cat $(LOADER) > $(IMAGE))
+	$(E)(cat $(KERNEL) >> $(IMAGE))
+	$(E)(cat $(ESH) >> $(IMAGE))
+	$(E)(cat $(PONG) >> $(IMAGE))
 endif
 	@echo ~~~ Done
 

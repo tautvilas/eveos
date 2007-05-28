@@ -3,6 +3,8 @@
 #include "ports.h"
 #include "idt.h"
 
+#define KEYBOARD_BUFFER_SIZE 256
+
 #define KEYBOARD_COMMAND 0x64
 #define KEYBOARD_DATA    0x60
 
@@ -21,6 +23,10 @@ static bool_t gNumPressed = FALSE;
 static bool_t gScrollPressed = FALSE;
 
 static byte_t lights = 0;
+
+static char gKeyboardBuffer[KEYBOARD_BUFFER_SIZE];
+static uint_t gKeyboardBufferPos = 0;
+static size_t gKeyboardBufferSize = 0;     //how much kbd buffer is filled?
 
 /* KBDUS means US Keyboard Layout. This is a scancode table
 *  used to layout a standard US keyboard. */
@@ -145,6 +151,8 @@ static void KERNEL_CALL
 keyboard_handler(regs_t * apRegs)
 {
 	unsigned char scancode;
+    char c = 0;
+
 	scancode = inportb(KEYBOARD_DATA);
     /* If the top bit of the byte we read from the keyboard is
     *  set, that means that a key has just been released */
@@ -241,9 +249,26 @@ keyboard_handler(regs_t * apRegs)
             break;
 
             default:
-                if(gKbdLayoutUs[0][scancode] == 0) printf("\nUnrecognized scancode - %d\n", scancode);
-                else if(gShiftPressed) putc(gKbdLayoutUs[1][scancode]);
-                else putc(gKbdLayoutUs[0][scancode]);
+                if(gKbdLayoutUs[0][scancode] == 0)
+                {
+                    printf("\nUnrecognized scancode - %d\n", scancode);
+                    break;
+                }
+                else if(gShiftPressed)
+                {
+                    c = gKbdLayoutUs[1][scancode];
+                }
+                else
+                {
+                    c = gKbdLayoutUs[0][scancode];
+                }
+                gKeyboardBufferPos %= KEYBOARD_BUFFER_SIZE;
+                gKeyboardBuffer[gKeyboardBufferPos] = c;
+                gKeyboardBufferPos++;
+                if(gKeyboardBufferSize < KEYBOARD_BUFFER_SIZE)
+                {
+                    gKeyboardBufferSize++;
+                }
             break;
         }
     }
@@ -254,6 +279,31 @@ keyboard_install(void)
 {
 	irq_install_handler(1, keyboard_handler);
 	return;
+}
+
+char KERNEL_CALL
+keyboard_getchar(void)
+{
+    int size = gKeyboardBufferSize;
+    if(!size) return 0;
+    gKeyboardBufferPos--;
+    gKeyboardBufferSize--;
+    gKeyboardBufferPos %= KEYBOARD_BUFFER_SIZE;
+    char c = gKeyboardBuffer[gKeyboardBufferPos];
+    return c;
+}
+
+bool_t KERNEL_CALL
+keyboard_had_input(void)
+{
+    if(gKeyboardBufferSize) return TRUE;
+    else return FALSE;
+}
+
+void KERNEL_CALL
+keyboard_flush_buffer(void)
+{
+    gKeyboardBufferSize = 0;
 }
 
 void KERNEL_CALL

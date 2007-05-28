@@ -21,4 +21,7 @@ printf(const char* apFormatStr, ...);
 extern void
 putc(char aC);
 
+extern char
+getchar(void);
+
 #endif // _STDIO_H_

@@ -12,5 +12,6 @@
 #include "memmgr.h"     // mm_install
 #include "loader.h"     // multitasking_install
 #include "malloc.h"
+#include "resmgr.h"     // md_start
 
 #endif // _MAIN_H_

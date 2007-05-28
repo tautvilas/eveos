@@ -18,7 +18,6 @@ global _gGdtCsSel           ; gdt cs selector
 global _gGdtUserCsSel       ; gdt user cs selector
 global _gGdtUserDataSel     ; gdt user data selector
 global _gKernelEsp
-global _gLastTaskEsp
 
 extern _gKernelStart        ; kernel vm start
 extern _gBssStart           ; kernel bss section start
@@ -238,25 +237,29 @@ isr_common:
     push fs
     push gs
 
-    ;;;;;;;; mtasking stuff start ;;;;;;;;;;;
+    ;;;;;;;;
     mov eax, [_gpActiveTask]
-    cmp eax, 0
+    cmp eax, 0          ; is mtasking enabled?
     je isr_no_multitasking1
 
     mov eax, [_gpActiveTask]
-    mov [eax], esp
-    mov ebx, [eax + 4]
-    cmp ebx, 0 ;kernel task
+    mov [eax], esp      ; save active task esp
+    mov ebx, [eax + 4]  ; load active task id
+    cmp ebx, 0          ; is this task a root kernel task?
     jne isr_not_kernel
-    mov [_gKernelEsp], esp
+    mov [_gKernelEsp], esp   ; if this task is a kernel svave its esp in global
 
 isr_not_kernel:
-    mov [_gLastTaskEsp], esp
-    ; not compulsory
-    mov esp, [_gKernelEsp]
+    mov eax, esp            ; prepare for pushinng pointer to regs
+    mov esp, [_gKernelEsp]  ; change esp from task esp to kernel esp
+    jmp isr_multitasking_init_end
 
 isr_no_multitasking1:
-    ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
+    mov eax, esp
+isr_multitasking_init_end:
+    ;;;;;;;;
+
+    push eax        ; pointer to regs struct
 
     mov ax, DATA_SEL
     mov ds, ax
@@ -264,22 +267,22 @@ isr_no_multitasking1:
     mov es, ax
     mov gs, ax
     mov eax, esp
-    push dword [_gLastTaskEsp]    ; pointer to regs struct
     mov eax, _exception_handler
     call eax    ; a special call, preserves 'eip' register
     pop eax
 
-    ;;;;;;;; mtasking stuff start ;;;;;;;;;;;
-    mov eax, [_gpActiveTask]
+    ;;;;;;;;
+    mov eax, [_gpActiveTask]      ; is mtasking enabled?
     cmp eax, 0
     je isr_no_multitasking2
 
+    ; load task page dir
     mov esp, [eax]
     mov ebx, [eax + 8]
-    mov cr3, ebx ; task cr3
+    mov cr3, ebx
 
 isr_no_multitasking2:
-    ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
+    ;;;;;;;;
 
     pop gs
     pop fs
@@ -287,7 +290,7 @@ isr_no_multitasking2:
     pop ds
     popa
     add esp, 8  ; cleans up pushed error code and ISR number
-    iret        ; pops cs, eip, eflags, ss and esp
+    iret        ; pops cs, eip, eflags (+ss and esp if interrupt was called at privilege lvl 3)
 
 irq_common:
     pusha
@@ -296,28 +299,29 @@ irq_common:
     push fs
     push gs
 
-    ;;;;;;;; mtasking stuff start ;;;;;;;;;;;
+    ;;;;;;;;;
     mov eax, [_gpActiveTask]
-    cmp eax, 0
-    je no_multitasking1
+    cmp eax, 0          ; is mtasking enabled?
+    je irq_no_multitasking1
 
     mov eax, [_gpActiveTask]
-    mov [eax], esp
-    mov ebx, [eax + 4]
-    cmp ebx, 0 ;kernel task
-    jne not_kernel
-    mov [_gKernelEsp], esp
+    mov [eax], esp      ; save active task esp
+    mov ebx, [eax + 4]  ; load active task id
+    cmp ebx, 0          ; is this task a root kernel task?
+    jne irq_not_kernel
+    mov [_gKernelEsp], esp      ; if this task is a kernel svave its esp in global
 
-not_kernel:
-    mov [_gLastTaskEsp], esp
-    ; not compulsory
-    mov esp, [_gKernelEsp]
-    ; no need to switch cr3 cause kernel will not be able to access porgram memory
-    ; mov eax, dword [_gKernelCr3]
-    ; mov cr3, eax
+irq_not_kernel:
+    mov eax, esp            ; prepare for pushinng pointer to regs
+    mov esp, [_gKernelEsp]  ; change esp from task esp to kernel esp
+    jmp irq_multitasking_init_end
 
-no_multitasking1:
-    ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
+irq_no_multitasking1:
+    mov eax, esp
+irq_multitasking_init_end
+    ;;;;;;;;;
+
+    push eax                ; pointer to regs struct
 
     mov ax, DATA_SEL
     mov ds, ax
@@ -325,28 +329,24 @@ no_multitasking1:
     mov fs, ax
     mov gs, ax
     mov eax, esp
-    cmp dword [_gpActiveTask], 0
-    je no_multitasking_3
-    push dword [_gLastTaskEsp]
-    jmp multitasking
-no_multitasking_3
-    push eax    ; pointer to regs struct
-multitasking:
+
     mov eax, _irq_handler
     call eax    ; a special call, preserves 'eip' register
     pop eax
 
-    ;;;;;;;; mtasking stuff start ;;;;;;;;;;;
-    mov eax, [_gpActiveTask]
+    ;;;;;;;;;
+    mov eax, [_gpActiveTask]      ; is mtasking enabled?
     cmp eax, 0
-    je no_multitasking2
+    je irq_no_multitasking2
 
+    ; load task page dir
     mov esp, [eax]
     mov ebx, [eax + 8]
-    mov cr3, ebx ; task cr3
+    mov cr3, ebx
 
-no_multitasking2:
-    ;;;;;;;; mtasking stuff end ;;;;;;;;;;;
+irq_no_multitasking2:
+    ;;;;;;;;;
+
     pop gs
     pop fs
     pop es
@@ -372,7 +372,6 @@ _gGdtUserDataSel dd 0
 
 ; kernel stack top
 _gKernelEsp     dd 0
-_gLastTaskEsp   dd 0
 
 ; main pointer to gdt
 gdtptr :

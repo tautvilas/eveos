@@ -13,4 +13,10 @@ keyboard_install(void);
 extern void KERNEL_CALL
 a20_enable(void);
 
+extern char KERNEL_CALL
+keyboard_getchar(void);
+
+extern bool_t KERNEL_CALL
+keyboard_had_input(void);
+
 #endif // _KEYBOARD_H_

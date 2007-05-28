@@ -12,7 +12,21 @@
 #define PIT_RATE     1193180 /* Hz if divided by 1 (default rate = 18.222Hz) */
 
 extern dword_t gKernelEsp;
-extern dword_t gLastTaskEsp;
+
+void KERNEL_CALL
+timer_schedule(void)
+{
+    do
+    {
+        gpActiveTaskRingNode = gpActiveTaskRingNode->pNext;
+        gpActiveTask = gpActiveTaskRingNode->pTask;
+        //DUMP(gpActiveTaskRingNode);
+        //DUMP(gpActiveTaskRingNode->pTask);
+        //DUMP(gpActiveTaskRingNode->pNext);
+        //DUMP(gpActiveTaskRingNode->pPrev);
+        //printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
+    } while(gpActiveTask->locked == TRUE);
+}
 
 /**
   * PIT IRQ0 handler
@@ -51,22 +65,9 @@ timer_handler(regs_t * apRegs)
     vga_set_bg_color(bg);
     vga_set_fg_color(fg);
 
-    if(gTimerTicks % (_TIMER_RATE * 1) == 0 && gpActiveTask != NULL)
+    if(gpActiveTask != NULL && gTimerTicks % 10 == 0)
     {
-        //printf("Runing task %x (parent =  %d, id = %d, esp = %x)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id, 
-        //        gpActiveTask->esp);
-        //DUMP(gLastTaskEsp);
-        //DUMP(apRegs->useresp);
-    }
-    if(gTimerTicks % 100 == 0 && gpActiveTask != NULL)
-    {
-        //DUMP(gpActiveTaskRingNode);
-        //DUMP(gpActiveTaskRingNode->pTask);
-        //DUMP(gpActiveTaskRingNode->pNext);
-        //DUMP(gpActiveTaskRingNode->pPrev);
-        gpActiveTaskRingNode = gpActiveTaskRingNode->pNext;
-        gpActiveTask = gpActiveTaskRingNode->pTask;
-        //printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
+        timer_schedule();
     }
     return;
 }
