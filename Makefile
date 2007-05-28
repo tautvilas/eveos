@@ -36,6 +36,7 @@ ESH_DIR     := esh
 KERNEL      := $(KERNEL_DIR)$(DS)bin$(DS)kernel.bin
 LOADER      := $(LOADER_DIR)$(DS)bin$(DS)loader.bin
 IMAGE       := $(IMAGE_DIR)$(DS)eveos.img
+
 ESH         := $(ESH_DIR)$(DS)bin$(DS)esh.bin
 #PONG        := $(PONG_DIR)$(DS)bin$(DS)pong.bin
 

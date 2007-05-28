@@ -100,9 +100,11 @@ os_main()
     */
     multitasking_install();
     BRAG("Multitasking is enabled\n");
+
     load_task(&gKernelEnd, ACC_USER);
     load_task(&gKernelEnd, ACC_USER);
-    load_task(&gKernelEnd, ACC_USER);
+    //load_task(&gKernelEnd, ACC_USER);
+
     //DUMP(&gKernelEnd);
     //load_task((dword_t*)gNextTaskOffset, ACC_USER);
     //DUMP(gNextTaskOffset);
