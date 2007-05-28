@@ -15,6 +15,9 @@ sys_write(regs_t* apRegs)
     dword_t length = apRegs->edx;
 
     //memdump((byte_t*)offset, 10);
+    //DUMP(length);
+    //DUMP(offset);
+    //STOP;
 
     if (file_descriptor == STDOUT)
     {

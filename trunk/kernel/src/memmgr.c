@@ -765,9 +765,9 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
     __asm__ __volatile__ ("cli");
     write_cr3((dword_t)pTaskPageDir);
 
-    size_t task_start_page = apMem->start / MM_PAGE_SIZE;
-    size_t task_size = apMem->header_size + apMem->text_size + apMem->data_size
-            + apMem->bss_size;
+    size_t  task_start_page = apMem->start / MM_PAGE_SIZE;
+    size_t  task_size       = apMem->header_size + apMem->text_size
+            + apMem->data_size + apMem->bss_size;
     size_t task_page_count = task_size / MM_PAGE_SIZE;
     if (task_size % MM_PAGE_SIZE)
         task_page_count++;
@@ -775,18 +775,20 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
     // allocate task code and data
     mm_paging_alloc_pages(task_start_page, task_page_count, aAccess | ACC_RW);
 
+    // copy task code and data
+    memcpy((byte_t*)apMem->start, apOffset, task_size - apMem->bss_size);
+
+    // bss memset 0
+    memset(
+            (byte_t*)(apMem->start + task_size - apMem->bss_size),
+            apMem->bss_size, 0
+        );
+
     // allocate task stack
     mm_paging_alloc_pages(
             (2U * GIGABYTE - 2 * MM_PAGE_SIZE) / MM_PAGE_SIZE,
             2,
-            aAccess | ACC_RW
-        );
-    memcpy((byte_t*)apMem->start, apOffset, task_size - apMem->bss_size);
-
-    // bss memset 0
-    memset((byte_t*)(
-            apMem->start + task_size - apMem->bss_size),
-            apMem->bss_size, 0
+            (aAccess & ACC_MASK) | ACC_RW
         );
 
     write_cr3((dword_t)pKernelPageDir);

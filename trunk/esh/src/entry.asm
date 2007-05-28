@@ -12,6 +12,8 @@ extern _gBssSize    ; bss segment size (obtained from linker)
 
 extern _main
 
+global _sys_write
+
 SECTION .header
 
 _start:
@@ -24,3 +26,15 @@ h_syms      dd  00000000h   ; symbol table size in bytes
 h_entry     dd  _main       ; executable entry point (loaded at runtime)
 h_trsize    dd  00000000h   ; text relocation table size in bytes
 h_drsize    dd  00000000h   ; data relocation table size in bytes
+
+section .text
+_sys_write:
+    ;pusha
+
+    mov     eax, 4  ; syscall id (sys_write)
+    mov     ebx, 1  ;                                 // stdio
+    mov     edx, [esp + 8]      ;// string length
+    mov     ecx, [esp + 4]     ;// string offset
+    int 69
+    ;popa
+    ret
