@@ -55,9 +55,9 @@ define C_COMPILE
         $(E)$(CC) $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
-esh.bin: entry.o main.o
+pong.bin: entry.o main.o
 	@echo ~~~ Linking $(^F) $(LIB_DIR)$(DS)*.o
-	$(E)ld $(LDFLAGS) -o $(BIN)esh.bin $(addprefix $(OBJ), $(^F)) $(LIB_DIR)$(DS)*.o
+	$(E)ld $(LDFLAGS) -o $(BIN)pong.bin $(addprefix $(OBJ), $(^F)) $(LIB_DIR)$(DS)*.o
 	@echo ~~~ Done
 
 entry.o: entry.asm
@@ -73,7 +73,7 @@ entry.o: entry.asm
 
 .PHONY: clean vars
 clean:
-	@echo ~~~ Cleaning esh
+	@echo ~~~ Cleaning pong
 	-$(E)$(RM) $(OBJ)*.o > $(NUL)
 	-$(E)$(RM) $(BIN)*.bin > $(NUL)
 	@echo ~~~ Done

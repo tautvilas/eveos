@@ -53,20 +53,20 @@ timer_handler(regs_t * apRegs)
 
     if(gTimerTicks % (_TIMER_RATE * 1) == 0 && gpActiveTask != NULL)
     {
-        printf("Runing task %x (parent =  %d, id = %d, esp = %x)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id, 
-                gpActiveTask->esp);
-        DUMP(gLastTaskEsp);
+        //printf("Runing task %x (parent =  %d, id = %d, esp = %x)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id, 
+        //        gpActiveTask->esp);
+        //DUMP(gLastTaskEsp);
         //DUMP(apRegs->useresp);
     }
-    if(gTimerTicks % (_TIMER_RATE * 5) == 0 && gpActiveTask != NULL)
+    if(gTimerTicks % 100 == 0 && gpActiveTask != NULL)
     {
-        DUMP(gpActiveTaskRingNode);
-        DUMP(gpActiveTaskRingNode->pTask);
-        DUMP(gpActiveTaskRingNode->pNext);
-        DUMP(gpActiveTaskRingNode->pPrev);
+        //DUMP(gpActiveTaskRingNode);
+        //DUMP(gpActiveTaskRingNode->pTask);
+        //DUMP(gpActiveTaskRingNode->pNext);
+        //DUMP(gpActiveTaskRingNode->pPrev);
         gpActiveTaskRingNode = gpActiveTaskRingNode->pNext;
         gpActiveTask = gpActiveTaskRingNode->pTask;
-        printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
+        //printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
     }
     return;
 }
@@ -77,8 +77,6 @@ static void KERNEL_CALL
 timer_set_rate(int aHz)
 {
     int divisor = PIT_RATE / aHz;            /* Calculate our divisor */
-    DUMP(divisor);
-    DUMP(PIT_RATE);
     outportb(PIT_COMMAND, 0x36);             /* Set our command byte 0x36 */
     outportb(PIT_CHANNEL1, divisor & 0xFF);  /* Set low byte of divisor */
     outportb(PIT_CHANNEL1, divisor >> 8);    /* Set high byte of divisor */

@@ -31,21 +31,21 @@ LIBS_DIR    := libs
 LOADER_DIR  := loader
 IMAGE_DIR   := image
 ESH_DIR     := esh
-#PONG_DIR    := pong
+PONG_DIR    := pong
 
 KERNEL      := $(KERNEL_DIR)$(DS)bin$(DS)kernel.bin
 LOADER      := $(LOADER_DIR)$(DS)bin$(DS)loader.bin
 IMAGE       := $(IMAGE_DIR)$(DS)eveos.img
 
 ESH         := $(ESH_DIR)$(DS)bin$(DS)esh.bin
-#PONG        := $(PONG_DIR)$(DS)bin$(DS)pong.bin
+PONG        := $(PONG_DIR)$(DS)bin$(DS)pong.bin
 
 all:
 	$(E)(cd $(LIBS_DIR) && $(MAKE))
 	$(E)(cd $(LOADER_DIR) && $(MAKE))
 	$(E)(cd $(KERNEL_DIR) && $(MAKE))
 	$(E)(cd $(ESH_DIR) && $(MAKE))
-#$(E)(cd $(PONG_DIR) && $(MAKE))
+	$(E)(cd $(PONG_DIR) && $(MAKE))
 	@echo ~~~ Building EveOS image
 ifeq ($(SYS),win)
 	$(E)copy /Y $(LOADER) /B + $(KERNEL) /B $(IMAGE) /B > $(NUL)
@@ -53,7 +53,7 @@ else
 	$(E)cat $(LOADER) > $(IMAGE)
 	$(E)cat $(KERNEL) >> $(IMAGE)
 	$(E)cat $(ESH) >> $(IMAGE)
-#$(E)cat $(PONG) >> $(IMAGE)
+	$(E)cat $(PONG) >> $(IMAGE)
 endif
 	@echo ~~~ Done
 
@@ -67,7 +67,7 @@ clean:
 	-$(E)(cd $(LIBS_DIR) && $(MAKE) clean)
 	-$(E)(cd $(LOADER_DIR) && $(MAKE) clean)
 	-$(E)(cd $(ESH_DIR) && $(MAKE) clean)
-#-$(E)(cd $(PONG_DIR) && $(MAKE) clean)
+	-$(E)(cd $(PONG_DIR) && $(MAKE) clean)
 
 vars:
 	@echo OS=$(OS) DS=$(DS) PS=$(PS) RM=$(RM) E=$(E)

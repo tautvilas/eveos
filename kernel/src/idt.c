@@ -358,12 +358,12 @@ kernel_panic()
 void KERNEL_CALL
 exception_handler(regs_t * apRegs)
 {
-    BRAG("exception_handler\n");
+    //BRAG("exception_handler\n");
     /* This is a blank function pointer */
     void (*handler)(regs_t *r);
 
     uint_t int_no = apRegs->int_no;
-    DUMP(int_no);
+    //DUMP(int_no);
     handler = gpIsrRoutines[int_no];
     if ((int_no < 32 || int_no == 69) && handler)
     {

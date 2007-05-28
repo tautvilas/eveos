@@ -7,6 +7,6 @@ void main(void) {
     {
         int i;
         for (i = 0; i < 100000000U; i++);
-        printf("########## PING! ##########\n");
+        printf("@@@@@@@@@@ pong! @@@@@@@@@@\n");
     }
 }

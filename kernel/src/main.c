@@ -101,8 +101,10 @@ os_main()
     multitasking_install();
     BRAG("Multitasking is enabled\n");
 
+    // ACC_USER not functional
     load_task(&gKernelEnd, ACC_USER);
-    load_task(&gKernelEnd, ACC_USER);
+    load_task((dword_t*)gNextTaskOffset, ACC_USER);
+    //load_task(&gKernelEnd, ACC_USER);
     //load_task(&gKernelEnd, ACC_USER);
 
     //DUMP(&gKernelEnd);

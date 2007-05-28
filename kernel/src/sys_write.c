@@ -19,6 +19,10 @@ sys_write(regs_t* apRegs)
     //DUMP(offset);
     //STOP;
 
+    //DUMP(apRegs->ecx);
+    //DUMP(apRegs->ebp);
+    //DUMP(apRegs->esp);
+
     if (file_descriptor == STDOUT)
     {
         int i;

@@ -1,5 +1,6 @@
 #include "global.h"
 #include "mem.h"
+#include "syscalls.h"
 
 #define PRINT_STRING    sys_print_string
 #define PRINT_CHAR      sys_print_char
@@ -10,26 +11,15 @@ static char number[256];
 static void
 sys_print_string(char* apString)
 {
-    __asm__ __volatile__ ("pusha");
-    __asm__ __volatile__ ("movl $4, %eax");                                     // syscall id (sys_write)
-    __asm__ __volatile__ ("movl $1, %ebx");                                     // stdio
-    __asm__ __volatile__ ("movl %0, %%ecx;" :: "m"(apString) : "%ecx");         // string offset
-    __asm__ __volatile__ ("movl %0, %%edx;" :: "D"(strlen(apString)) : "edx");  // string length
-    __asm__ __volatile__ ("int $69");
-    __asm__ __volatile__ ("popa");
+    sys_write(apString, strlen(apString));
     return;
 }
 
 static void
-sys_print_char(char c)
+sys_print_char(char aC)
 {
-    __asm__ __volatile__ ("pusha");
-    __asm__ __volatile__ ("movl $4, %eax");
-    __asm__ __volatile__ ("movl $1, %ebx");
-    __asm__ __volatile__ ("movl %0, %%ecx;" :: "D"(&c) : "%ecx");
-    __asm__ __volatile__ ("movl $1, %edx;");
-    __asm__ __volatile__ ("int $69");
-    __asm__ __volatile__ ("popa");
+    sys_write(&aC, 1);
+    return;
 }
 
 void
