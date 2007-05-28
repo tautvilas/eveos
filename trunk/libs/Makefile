@@ -54,7 +54,11 @@ define C_COMPILE
         $(E)$(CC) $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
-all: stdio.o mem.o
+all: stdio.o mem.o syscalls.o
+
+syscalls.o: syscalls.asm
+	@echo ~~~ Compiling syscalls
+	$Enasm $(ASFLAGS) $(SRC)syscalls.asm -o $(OBJ)kentry.o
 
 # default rule for compiling C source files
 # used only if no rule is defined explictly

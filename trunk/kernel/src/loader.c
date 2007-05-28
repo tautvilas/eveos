@@ -101,6 +101,7 @@ load_task(void* apOffset, mm_access_t aAccess)
     *(pStack)-- = 0x00;     // error code
     *(pStack)-- = 0x00;     // isr num
     *(pStack)-- = 0x00;
+    //*(pStack)-- = (dword_t)((dword_t*) pTask->ustack) - 17;
     *(pStack)-- = 0x00;
     *(pStack)-- = 0x00;
     *(pStack)-- = 0x00;
