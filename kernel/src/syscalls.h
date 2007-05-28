@@ -1,7 +1,13 @@
 #ifndef _SYSCALLS_H_
 #define _SYSCALLS_H_
 
-#include "sys_write.h"
+#include "global.h"
+
+extern void KERNEL_CALL
+sys_read(regs_t* apRegs);
+
+extern void KERNEL_CALL
+sys_write(regs_t* apRegs);
 
 enum syscalls_t {
     SYS_EXIT = 1,
@@ -10,6 +16,6 @@ enum syscalls_t {
     SYS_WRITE,
     SYS_OPEN,
     SYS_CLOSE
-}
+};
 
 #endif // _SYSCALLS_H_

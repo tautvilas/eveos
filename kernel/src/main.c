@@ -94,25 +94,30 @@ os_main()
         //DUMP(p[0]); // page fault for sure
     }*/
 
-    /*
 	keyboard_install();
     BRAG("Keyboard is on-line (US layout)\n");
-    */
+
+    // install resource manager before starting multitasking
+    rm_install();
     multitasking_install();
     BRAG("Multitasking is enabled\n");
 
     // ACC_USER not functional
     load_task(&gKernelEnd, ACC_USER);
-    load_task((dword_t*)gNextTaskOffset, ACC_USER);
-    //load_task(&gKernelEnd, ACC_USER);
-    //load_task(&gKernelEnd, ACC_USER);
 
     //DUMP(&gKernelEnd);
     //load_task((dword_t*)gNextTaskOffset, ACC_USER);
+
     //DUMP(gNextTaskOffset);
     //DUMP(*((dword_t*)gNextTaskOffset));
     //DUMP(*((dword_t*)gNextTaskOffset+1));
 
+    // TODO:zv: checkout why this does not work properly, when looping in keyboard_getchar while
+    // there is no input
+    //vga_print_char(keyboard_getchar());
+
+    /* from this point on Kernel process will serve as a resources manager */
+    rm_start();
+
     for (;;);
-    return;
 }

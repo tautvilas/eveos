@@ -6,7 +6,7 @@
 
 #define NUM_ISRS            32
 
-extern gGdtCsSel;
+extern dword_t gGdtCsSel;
 extern void idt_load(); /* assembler fuction with 'lidt' instruction */
 
 #define KERNEL_CODE_SEGMENT gGdtCsSel
@@ -118,7 +118,7 @@ static void *gpIsrRoutines[70] =
 /* pointers to kernel services handling functions */
 static void *gpSysCallRoutines[NUM_SYS_CALLS] =
 {
-    0, 0, 0, 0, sys_write, 0, 0, 0, 0, 0,
+    0, 0, 0, sys_read, sys_write, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 

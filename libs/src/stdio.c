@@ -22,6 +22,14 @@ sys_print_char(char aC)
     return;
 }
 
+char
+getchar()
+{
+    char buffer[1];
+    sys_read(0, buffer, 1);
+    return buffer[0];
+}
+
 void
 print_int_dec(const int aInt)
 {

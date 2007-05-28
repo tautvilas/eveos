@@ -15,4 +15,9 @@ timer_install(void);
 extern unsigned int KERNEL_CALL
 timer_get_num_ticks(void);
 
+/* change the running task */
+
+extern void KERNEL_CALL
+timer_schedule();
+
 #endif // _TIMER_H_

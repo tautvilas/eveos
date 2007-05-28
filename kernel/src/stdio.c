@@ -1,8 +1,10 @@
 #include "vga.h"
+#include "keyboard.h"
 #include "global.h"
 
 #define PRINT vga_print
 #define PRINT_CHAR vga_print_char
+#define GET_CHAR keyboard_getchar
 
 static char gHexTable[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 static char number[256];
@@ -101,4 +103,10 @@ putc(char aChar)
 {
 	PRINT_CHAR(aChar);
 	return;
+}
+
+char KERNEL_CALL
+getchar(void)
+{
+    return GET_CHAR();
 }
