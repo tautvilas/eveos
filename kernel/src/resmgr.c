@@ -7,6 +7,9 @@
 #include "vga.h"
 #include "sem.h"
 
+// 2 is good enough for now as we have only STDIN and STDOUT
+#define RESOURCE_LIST_SIZE    2
+
 extern dword_t read_cr3();
 extern dword_t write_cr3();
 
@@ -15,6 +18,44 @@ typedef struct {
     regs_t* pRegs;
     uint_t resource;
 } waiting_task_t;
+
+typedef size_t rm_descr_t;
+
+typedef enum {
+        READ,
+        WRITE
+    } rm_oper_t;
+
+typedef struct {
+        task_t*     mpTask;
+        regs_t*     mpRegs;
+        rm_descr_t  mDescr;
+        rm_oper_t   mOper;
+    } rm_waiting_task_t;
+
+typedef bool_t  (*(rm_handler_t KERNEL_CALL))(task_t* apTask, regs_t* apRegs);
+
+typedef struct {
+        size_t          mLimit;
+        size_t          mFree;
+        rm_handler_t    mpRead;
+        rm_handler_t    mpWrite;
+    } rm_res_t;
+
+
+    /*
+bool_t KERNEL_CALL
+rm_read_kbd(task_t* apTask, regs_t* apRegs);
+
+bool_t KERNEL_CALL
+rm_write_screen(task_t* apTask, regs_t* apRegs);
+
+
+rm_res_t gspResourceList[RESOURCE_LIST_SIZE]    = {
+        {   1,  1,  &rm_read_kbd,             NULL },
+        {   1,  1,  NULL,                     rm_write_screen }
+    };
+    */
 
 #define MAX_NUM_WAITING_TASKS 32
 // can not use malloc here :-|

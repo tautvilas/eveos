@@ -6,7 +6,7 @@ void main(void) {
     for (;;)
     {
         int i;
-        for (i = 0; i < 100000000U; i++);
+        for (i = 0; i != -1; i++);
         //printf("@@@@@@@@@@ pong! @@@@@@@@@@\n");
     }
 }

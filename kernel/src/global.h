@@ -3,7 +3,7 @@
 
 // compile time options
 // #define EVE_DEBUG
-// #define EVE_DEMO
+ //#define EVE_DEMO
 
 // some useful macros
 #define STOP                for(;;)
