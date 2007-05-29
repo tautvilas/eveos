@@ -105,6 +105,9 @@ os_main()
     // ACC_USER not functional
     load_task(&gKernelEnd, ACC_USER);
 
+    extern dword_t gNextTaskOffset;
+    load_task((pointer_t)gNextTaskOffset, ACC_USER);
+
     //DUMP(&gKernelEnd);
     //load_task((dword_t*)gNextTaskOffset, ACC_USER);
 
