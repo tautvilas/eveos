@@ -86,7 +86,6 @@ rm_start(void)
                     semaphore_p(KEYBOARD_SEMAPHORE);
                     task_t* pTask = gWaitingTasksList[id].pTask;
                     regs_t* pRegs = gWaitingTasksList[id].pRegs;
-                    semaphore_v(KEYBOARD_SEMAPHORE);
                     if (keyboard_had_input())
                     {
                         dword_t kernelPageDir = read_cr3();
@@ -124,6 +123,7 @@ rm_start(void)
                         }
                         write_cr3(kernelPageDir);
                     }
+                    semaphore_v(KEYBOARD_SEMAPHORE);
                 }
             }
         }

@@ -54,7 +54,7 @@ endef
 
 #paging.o
 kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o stdio.o logo.o timer.o \
-	keyboard.o memmgr.o syscalls.o loader.o malloc.o errno.o sem.o resmgr.o
+	keyboard.o memmgr.o syscalls.o loader.o malloc.o errno.o sem.o resmgr.o gdt.o
 	@echo ~~~ Linking $(^F)
 	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done

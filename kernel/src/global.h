@@ -2,7 +2,7 @@
 #define _GLOBAL_H_
 
 // compile time options
-// #define EVE_DEBUG
+ #define EVE_DEBUG
  //#define EVE_DEMO
 
 // some useful macros

@@ -20,11 +20,11 @@ timer_schedule(void)
     {
         gpActiveTaskRingNode = gpActiveTaskRingNode->pNext;
         gpActiveTask = gpActiveTaskRingNode->pTask;
-        //DUMP(gpActiveTaskRingNode);
-        //DUMP(gpActiveTaskRingNode->pTask);
-        //DUMP(gpActiveTaskRingNode->pNext);
-        //DUMP(gpActiveTaskRingNode->pPrev);
-        //printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
+        // DUMP(gpActiveTaskRingNode);
+        // DUMP(gpActiveTaskRingNode->pTask);
+        // DUMP(gpActiveTaskRingNode->pNext);
+        // DUMP(gpActiveTaskRingNode->pPrev);
+        printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
     } while(gpActiveTask->locked == TRUE);
 }
 
@@ -65,7 +65,22 @@ timer_handler(regs_t * apRegs)
     vga_set_bg_color(bg);
     vga_set_fg_color(fg);
 
-    if(gpActiveTask != NULL && gTimerTicks % 10 == 0)
+    if(gpActiveTask != NULL && gpActiveTask->id != 0)
+    {
+        BRAG("!!!\n");
+    }
+
+    if(gpActiveTask != NULL && gTimerTicks % 1000 == 0)
+    {
+
+        printf("Active task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
+        // gpActiveTaskRingNode = gpActiveTaskRingNode;
+        // DUMP(gpActiveTaskRingNode);
+        // DUMP(gpActiveTaskRingNode->pTask);
+        // DUMP(gpActiveTaskRingNode->pNext);
+        // DUMP(gpActiveTaskRingNode->pPrev);
+    }
+    if(gpActiveTask != NULL && gTimerTicks % 5000 == 0)
     {
         timer_schedule();
     }

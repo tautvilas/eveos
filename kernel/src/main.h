@@ -13,5 +13,6 @@
 #include "loader.h"     // multitasking_install
 #include "malloc.h"
 #include "resmgr.h"     // md_start
+#include "gdt.h"
 
 #endif // _MAIN_H_
