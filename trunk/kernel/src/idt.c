@@ -7,10 +7,12 @@
 #define NUM_ISRS            32
 
 extern dword_t gGdtCsSel;
+extern dword_t gGdtUserCsSel;
 extern void idt_load(); /* assembler fuction with 'lidt' instruction */
 
 #define KERNEL_CODE_SEGMENT gGdtCsSel
-#define IDT_FLAGS           0x8E /* entry is present, ring 0 */
+// #define IDT_FLAGS           0x8E /* entry is present, ring 0 */
+#define IDT_FLAGS           0xEE /* entry is present, ring 3 */
 
 #define PIC1                0x20
 #define PIC2                0xA0
