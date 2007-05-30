@@ -11,6 +11,7 @@ global _read_edx;
 
 global _load_tr;
 global _read_tr;
+global _read_tss_limit;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Paging                                                ;
@@ -56,4 +57,12 @@ _load_tr:
 _read_tr:
     xor eax, eax
     str ax
+    retn
+
+_read_tss_limit:
+    mov ebx, TSS_SEL
+    lsl eax, ebx
+    jz read_tss_limit_success
+    mov eax, 0
+read_tss_limit_success:
     retn

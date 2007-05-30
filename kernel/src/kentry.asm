@@ -269,11 +269,11 @@ isr_multitasking_init_end:
 
     push eax        ; pointer to regs struct
 
-    ;mov ax, DATA_SEL
-    ;mov ds, ax
-    ;mov fs, ax
-    ;mov es, ax
-    ;mov gs, ax
+    mov ax, DATA_SEL
+    mov ds, ax
+    mov fs, ax
+    mov es, ax
+    mov gs, ax
 
     mov eax, _exception_handler
     call eax    ; a special call, preserves 'eip' register
@@ -324,7 +324,10 @@ irq_common:
     jne irq_not_kernel
     mov [_gKernelEsp], esp      ; if this task is a kernel svave its esp in global
 
+    jmp sss
 irq_not_kernel:
+    mov [0x800B8000], word 0x3030
+sss:
     mov eax, esp            ; prepare for pushinng pointer to regs
     mov esp, [_gKernelEsp]  ; change esp from task esp to kernel esp
     jmp irq_multitasking_init_end

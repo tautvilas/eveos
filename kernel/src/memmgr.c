@@ -374,7 +374,7 @@ mm_page_tbl_t KERNEL_CALL
 mm_paging_put_tbl(size_t aIndex, const pointer_t apTable, mm_access_t aAccess)
 {
     mm_page_dir_addr()[aIndex] = (mm_page_tbl_t)(
-            (size_t)apTable | (aAccess && ACC_MASK) | ENTRY_PRESENT
+            (size_t)apTable | (aAccess & ACC_MASK) | ENTRY_PRESENT
         );
     return mm_page_tbl_addr(aIndex);
 }

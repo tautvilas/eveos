@@ -129,8 +129,8 @@ load_task(void* apOffset, mm_access_t aAccess)
 
         pStack->eip     =   pTask->vm_info.entry;
         pStack->eflags  =   0x202;
-        pStack->cs      =   gGdtUserCsSel;
-        pStack->ss      =   gGdtUserDataSel;
+        pStack->cs      =   gGdtUserCsSel   | 3;
+        pStack->ss      =   gGdtUserDataSel | 3;
         pStack->useresp =   pTask->ustack;
 
         pStack->es      =   gGdtUserDataSel;
@@ -141,8 +141,7 @@ load_task(void* apOffset, mm_access_t aAccess)
         pTask->esp      = (dword_t)pStack;
         pTask->kstack   = (dword_t)pStack + sizeof(regs_t);
         pTask->ss       = gGdtUserDataSel;
-        DUMP(pTask->ss);
-        DUMP(pStack->cs);
+        //DUMP(pStack->cs);
     }
 
     // put the task into task ring

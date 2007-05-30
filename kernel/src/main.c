@@ -93,13 +93,13 @@ os_main()
     BRAG("Multitasking is enabled\n");
 
     // ACC_USER not functional
-    load_task(&gKernelEnd, ACC_SUPER);
+    load_task(&gKernelEnd, ACC_USER);
 
     extern dword_t gNextTaskOffset;
     load_task((pointer_t)gNextTaskOffset, ACC_USER);
 
     //DUMP(&gKernelEnd);
-    load_task((dword_t*)gNextTaskOffset, ACC_USER);
+    //load_task((dword_t*)gNextTaskOffset, ACC_USER);
 
     /* from this point on Kernel process will serve as a resources manager */
     rm_start();
