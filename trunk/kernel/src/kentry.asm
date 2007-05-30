@@ -324,10 +324,7 @@ irq_common:
     jne irq_not_kernel
     mov [_gKernelEsp], esp      ; if this task is a kernel svave its esp in global
 
-    jmp sss
 irq_not_kernel:
-    mov [0x800B8000], word 0x3030
-sss:
     mov eax, esp            ; prepare for pushinng pointer to regs
     mov esp, [_gKernelEsp]  ; change esp from task esp to kernel esp
     jmp irq_multitasking_init_end
@@ -360,9 +357,6 @@ irq_multitasking_init_end
     mov ebx, [eax + 16]
     ; update tss
     mov [_gTss + 4], ebx
-    ; TODO find out what is this
-    ; mov al,0x20
-    ; out 0x20,al
     ; load task stack pointer
     mov esp, [eax]
     ; load task page dir
