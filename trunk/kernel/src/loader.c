@@ -13,6 +13,7 @@ extern dword_t      gGdtCsSel;
 extern dword_t      gGdtUserCsSel;
 extern dword_t      gGdtUserDataSel;
 extern dword_t      gKernelEnd;
+extern dword_t      gGdtKernelDataSel;
 
 typedef struct {
     dword_t midmag;
@@ -84,42 +85,65 @@ load_task(void* apOffset, mm_access_t aAccess)
     // alloc task memory
     pTask->page_dir = mm_alloc_task(&pTask->vm_info, apOffset, aAccess);
     DUMP(pTask->page_dir);
+
+    pTask->ustack = 2U * GIGABYTE - 20 * sizeof(uint_t);
     // swapping page dirs might be dangerous
-    dword_t kernel_page_dir = read_cr3();
-    __asm__ __volatile__ ("cli");
+    if(aAccess == ACC_SUPER)
+    {
+        dword_t kernel_page_dir = read_cr3();
+        __asm__ __volatile__ ("cli");
 
-    write_cr3(pTask->page_dir);
-    // prepare RING 0 task stack
-    pTask->ustack = 2U * GIGABYTE - sizeof(uint_t);
+        write_cr3(pTask->page_dir);
 
-    // tribute to infinity
-    dword_t* pStack = (dword_t*)pTask->ustack;
-    pStack--;
-    *(pStack)-- = 0x202;    //eflags: enable interrupts and set reserved bit to 1
-    *(pStack)-- = gGdtCsSel;
-    *(pStack)-- = pTask->vm_info.entry;
-    *(pStack)-- = 0x00;     // error code
-    *(pStack)-- = 0x00;     // isr num
-    *(pStack)-- = 0x00;
-    //*(pStack)-- = (dword_t)((dword_t*) pTask->ustack) - 17;
-    *(pStack)-- = 0x00;
-    *(pStack)-- = 0x00;
-    *(pStack)-- = 0x00;
-    *(pStack)-- = 0x00;
-    *(pStack)-- = 0x00;
-    *(pStack)-- = 0x00;
-    *(pStack)-- = 0x00;
-    *(pStack)-- = 0x10;
-    *(pStack)-- = 0x10;
-    *(pStack)-- = 0x10;
-    *(pStack)   = 0x10;
+        // prepare RING 0 task stack
+        // tribute to infinity
+        dword_t* pStack = (dword_t*)pTask->ustack;
+        pStack--;
+        *(pStack)-- = 0x202;    //eflags: enable interrupts and set reserved bit to 1
+        *(pStack)-- = gGdtCsSel;
+        *(pStack)-- = pTask->vm_info.entry;
+        *(pStack)-- = 0x00;     // error code
+        *(pStack)-- = 0x00;     // isr num
+        *(pStack)-- = 0x00;
+        //*(pStack)-- = (dword_t)((dword_t*) pTask->ustack) - 17;
+        *(pStack)-- = 0x00;
+        *(pStack)-- = 0x00;
+        *(pStack)-- = 0x00;
+        *(pStack)-- = 0x00;
+        *(pStack)-- = 0x00;
+        *(pStack)-- = 0x00;
+        *(pStack)-- = 0x00;
+        *(pStack)-- = 0x10;
+        *(pStack)-- = 0x10;
+        *(pStack)-- = 0x10;
+        *(pStack)   = 0x10;
 
-    write_cr3(kernel_page_dir);
-    __asm__ __volatile__ ("sti");
+        write_cr3(kernel_page_dir);
+        __asm__ __volatile__ ("sti");
+        pTask->esp = (dword_t)pStack;
+    }
+    else    // user privilege app
+    {
+        regs_t* pStack = malloc(sizeof(regs_t));
+        memset(pStack, 0, sizeof(regs_t));
 
-    // configure app kernel level stack
+        pStack->eip     =   pTask->vm_info.entry;
+        pStack->eflags  =   0x202;
+        pStack->cs      =   gGdtUserCsSel;
+        pStack->ss      =   gGdtUserDataSel;
+        pStack->useresp =   pTask->ustack;
 
-    pTask->esp = (dword_t)pStack;
+        pStack->es      =   gGdtUserDataSel;
+        pStack->ds      =   gGdtUserDataSel;
+        pStack->fs      =   gGdtUserDataSel;
+        pStack->gs      =   gGdtUserDataSel;
+
+        pTask->esp      = (dword_t)pStack;
+        pTask->kstack   = (dword_t)pStack + sizeof(regs_t);
+        pTask->ss       = gGdtUserDataSel;
+        DUMP(pTask->ss);
+        DUMP(pStack->cs);
+    }
 
     // put the task into task ring
     task_ring_node_t* pNode = malloc(sizeof(task_ring_node_t));

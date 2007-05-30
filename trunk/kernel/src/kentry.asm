@@ -14,7 +14,9 @@ global _sys_stack
 global _start       ; entry symbol for linker
 global _idt_load    ; function for loading IDT
 
+global _gGdt
 global _gGdtCsSel           ; gdt cs selector
+global _gGdtKernelDataSel   ; gdt data selector
 global _gGdtUserCsSel       ; gdt user cs selector
 global _gGdtUserDataSel     ; gdt user data selector
 global _gKernelEsp
@@ -29,6 +31,8 @@ extern _exception_handler   ; ISRs handler
 extern _irq_handler         ; IRQs handler
 extern _gpActiveTask        ; active task
 extern _gKernelCr3          ; kernel page dir
+
+extern _gTss
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -168,10 +172,14 @@ paging_enabled:
 
     mov eax, CODE_SEL
     mov [_gGdtCsSel], eax
+    mov eax, DATA_SEL
+    mov [_gGdtKernelDataSel], eax
     mov eax, USER_CODE_SEL
     mov [_gGdtUserCsSel], eax
     mov eax, USER_DATA_SEL
     mov [_gGdtUserDataSel], eax
+    mov eax, TSS_SEL
+    mov [_gTssSel], eax
 
     ; seting stack to use virual address
     mov eax, esp
@@ -261,12 +269,12 @@ isr_multitasking_init_end:
 
     push eax        ; pointer to regs struct
 
-    mov ax, DATA_SEL
-    mov ds, ax
-    mov fs, ax
-    mov es, ax
-    mov gs, ax
-    mov eax, esp
+    ;mov ax, DATA_SEL
+    ;mov ds, ax
+    ;mov fs, ax
+    ;mov es, ax
+    ;mov gs, ax
+
     mov eax, _exception_handler
     call eax    ; a special call, preserves 'eip' register
     pop eax
@@ -276,8 +284,13 @@ isr_multitasking_init_end:
     cmp eax, 0
     je isr_no_multitasking2
 
-    ; load task page dir
+    ; read kstack top
+    mov ebx, [eax + 16]
+    ; update tss
+    mov [_gTss + 4], ebx
+    ; load stack pointer
     mov esp, [eax]
+    ; load task page dir
     mov ebx, [eax + 8]
     mov cr3, ebx
 
@@ -328,7 +341,6 @@ irq_multitasking_init_end
     mov es, ax
     mov fs, ax
     mov gs, ax
-    mov eax, esp
 
     mov eax, _irq_handler
     call eax    ; a special call, preserves 'eip' register
@@ -339,8 +351,18 @@ irq_multitasking_init_end
     cmp eax, 0
     je irq_no_multitasking2
 
-    ; load task page dir
+    ; patch tss
+
+    ; read kstack top
+    mov ebx, [eax + 16]
+    ; update tss
+    mov [_gTss + 4], ebx
+    ; TODO find out what is this
+    ; mov al,0x20
+    ; out 0x20,al
+    ; load task stack pointer
     mov esp, [eax]
+    ; load task page dir
     mov ebx, [eax + 8]
     mov cr3, ebx
 
@@ -366,25 +388,27 @@ a20_success_msg db "A20 gate enabled", 13, 10, 0
 a20_failure_msg db "Failded to enable A20 gate! Halting.", 13, 10, 0
 
 ; code selectors
-_gGdtCsSel       dd 0
-_gGdtUserCsSel   dd 0
-_gGdtUserDataSel dd 0
+_gGdtCsSel          dd 0
+_gGdtKernelDataSel  dd 0
+_gGdtUserCsSel      dd 0
+_gGdtUserDataSel    dd 0
+_gTssSel dd 0
 
 ; kernel stack top
 _gKernelEsp     dd 0
 
 ; main pointer to gdt
 gdtptr :
-    dw gdt_end-gdt-1   ; Length of the gdt - 1
-    dd gdt - KERNEL_BASE      ; physical address of gdt
+    dw gdt_end- _gGdt-1     ; Length of the gdt - 1
+    dd _gGdt - KERNEL_BASE  ; physical address of gdt
 
 vmgdtptr :
-    dw gdt_end-gdt-1    ; Length of the gdt - 1
-    dd gdt              ; virtual address of gdt
+    dw gdt_end-_gGdt-1      ; Length of the gdt - 1
+    dd _gGdt                ; virtual address of gdt
 
 ; the mighty gdt itself
-gdt
-NULL_SEL equ $-gdt     ; $->current location,so nullsel = 0h
+_gGdt
+NULL_SEL equ $-_gGdt  ; $->current location,so nullsel = 0h
 gdt0                   ; Null descriptor,as per convention gdt0 is 0
     dd 0               ; Each gdt entry is 8 bytes, so at 08h it is CS
     dd 0               ; In all the segment descriptor is 64 bits
@@ -392,7 +416,7 @@ gdt0                   ; Null descriptor,as per convention gdt0 is 0
 ; ATTENTION! If code segment position is about to be changed changes must be made to idt.c
 ; TODO externalize segment values
 
-CODE_SEL equ $-gdt     ; This is 8h,ie 2nd descriptor in gdt
+CODE_SEL equ $-_gGdt  ; This is 8h,ie 2nd descriptor in gdt
 code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
     dw 0xffff          ; Limit 4Gb  bits 0-15 of segment descriptor
     dw 0x0000          ; BASE 0h bits 16-31 of segment descriptor (sd)
@@ -405,7 +429,7 @@ code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
                        ; AVL : Available field for user or OS
                        ; Lower nibble bits 16-19 of segment limit
     db 0x00            ; BASE addr of seg 24-31 of 32bit addr,56-63 of sd
-DATA_SEL equ $-gdt     ; ie 10h, beginning of next 8 bytes for data sd
+DATA_SEL equ $-_gGdt  ; ie 10h, beginning of next 8 bytes for data sd
 data_gd                ; Data descriptor 4Gb flat seg at 0000:0000h
     dw 0xffff          ; Limit 4Gb
     dw 0x0000          ; BASE 0000:0000h
@@ -413,7 +437,7 @@ data_gd                ; Data descriptor 4Gb flat seg at 0000:0000h
     db 10010010b
     db 11001111b
     db 0x00
-USER_CODE_SEL equ $-gdt
+USER_CODE_SEL equ $-_gGdt
 code_user_gd           ; Code descriptor 4Gb flat segment at 0000:0000h
     dw 0xffff          ; Limit 4Gb  bits 0-15 of segment descriptor
     dw 0x0000          ; BASE 0h bits 16-31 of segment descriptor (sd)
@@ -426,7 +450,7 @@ code_user_gd           ; Code descriptor 4Gb flat segment at 0000:0000h
                        ; AVL : Available field for user or OS
                        ; Lower nibble bits 16-19 of segment limit
     db 0x00            ; BASE addr of seg 24-31 of 32bit addr,56-63 of sd
-USER_DATA_SEL equ $-gdt
+USER_DATA_SEL equ $-_gGdt
 data_user_gd           ; Data descriptor 4Gb flat seg at 0000:0000h
     dw 0xffff          ; Limit 4Gb
     dw 0x0000          ; BASE 0000:0000h
@@ -434,6 +458,10 @@ data_user_gd           ; Data descriptor 4Gb flat seg at 0000:0000h
     db 11110010b
     db 11001111b
     db 0x00
+TSS_SEL equ $-_gGdt
+tss_gd
+    dd 0
+    dd 0
 gdt_end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

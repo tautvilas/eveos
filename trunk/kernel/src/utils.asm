@@ -9,6 +9,9 @@ global _read_ebx;
 global _read_ecx;
 global _read_edx;
 
+global _load_tr;
+global _read_tr;
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Paging                                                ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -39,4 +42,18 @@ _write_cr3:
     mov eax, [ebp+8]
     mov cr3, eax
     pop ebp
+    retn
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Misc                                                  ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+_load_tr:
+    mov ax, TSS_SEL
+    ltr ax
+    retn
+
+_read_tr:
+    xor eax, eax
+    str ax
     retn
