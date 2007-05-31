@@ -77,6 +77,7 @@ load_task(void* apOffset, mm_access_t aAccess)
     pTask->vm_info.bss_size = header.bss;
     pTask->vm_info.header_size = sizeof(aout_exec_t);
     pTask->id = gsTaskIdCounter;
+    pTask->timetorun = 10;
 
     gsTaskIdCounter++;
     gsTaskCounter++;
