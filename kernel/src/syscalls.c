@@ -25,7 +25,7 @@ sys_read(regs_t* apRegs)
     {
         rm_add_waiting_task(gpActiveTask, apRegs, KEYBOARD_SEMAPHORE);
         gpActiveTask->locked = TRUE;
-        timer_schedule();
+        timer_schedule(TRUE);
     }
     return;
 }

@@ -14,18 +14,23 @@
 extern dword_t gKernelEsp;
 
 void KERNEL_CALL
-timer_schedule(void)
+timer_schedule(uint_t aSwapTaskNow)
 {
-    do
+    if (gpActiveTask->timetorun && !aSwapTaskNow) gpActiveTask->timetorun--;
+    else
     {
-        gpActiveTaskRingNode = gpActiveTaskRingNode->pNext;
-        gpActiveTask = gpActiveTaskRingNode->pTask;
-        // DUMP(gpActiveTaskRingNode);
-        // DUMP(gpActiveTaskRingNode->pTask);
-        // DUMP(gpActiveTaskRingNode->pNext);
-        // DUMP(gpActiveTaskRingNode->pPrev);
-        //printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
-    } while(gpActiveTask->locked == TRUE);
+        do
+        {
+            gpActiveTask->timetorun = 10;
+            gpActiveTaskRingNode = gpActiveTaskRingNode->pNext;
+            gpActiveTask = gpActiveTaskRingNode->pTask;
+            // DUMP(gpActiveTaskRingNode);
+            // DUMP(gpActiveTaskRingNode->pTask);
+            // DUMP(gpActiveTaskRingNode->pNext);
+            // DUMP(gpActiveTaskRingNode->pPrev);
+            //printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
+        } while(gpActiveTask->locked == TRUE);
+    }
 }
 
 /**
@@ -75,9 +80,9 @@ timer_handler(regs_t * apRegs)
         // DUMP(gpActiveTaskRingNode->pNext);
         // DUMP(gpActiveTaskRingNode->pPrev);
     //}
-    if(gpActiveTask != NULL && gTimerTicks % 10 == 0)
+    if(gpActiveTask != NULL)
     {
-        timer_schedule();
+        timer_schedule(0);
     }
     return;
 }

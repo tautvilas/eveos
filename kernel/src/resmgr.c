@@ -100,15 +100,15 @@ rm_start(void)
                         while (keyboard_had_input() && numbytes)
                         {
                             char c = keyboard_getchar();
-                            if (c >31 || c == '\n' || c == '\b')
-                            {
-                                vga_print_char(c);
-                                numbytes--;
-                                bytes_read++;
-                                *pBuffer = c;
-                                pBuffer++;
-                                c = keyboard_getchar();
-                            }
+                            //if (c >31 || c == '\n' || c == '\b')
+                            //{
+                            //    vga_print_char(c);
+                            numbytes--;
+                            bytes_read++;
+                            *pBuffer = c;
+                            pBuffer++;
+                            c = keyboard_getchar();
+                            //}
                         }
 
                         if (!numbytes)
