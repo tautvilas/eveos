@@ -6,7 +6,7 @@
 long
 atol(const char* apStr);
 
-long
+int
 atoi(const char* apStr);
 
 #endif // _STDLIB_H_

@@ -54,7 +54,7 @@ define C_COMPILE
         $(E)$(CC) $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
-all: stdio.o string.o syscalls.o
+all: stdio.o string.o stdlib.o exec.o syscalls.o
 	$(E)date +"%Y-%m-%d %H:%M:%S" > $(OBJ)version
 
 syscalls.o: syscalls.asm
