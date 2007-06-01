@@ -22,9 +22,9 @@
 #define BRAG(f, ...)
 #endif
 
-#define KERNEL_CALL         //__attribute__((cdecl))
+//#define KERNEL_CALL         //__attribute__((cdecl))
 
-#define NULL                0
+//#define NULL                0
 
 #define MEGABYTE            1048576
 #define GIGABYTE            (MEGABYTE * 1024)
@@ -36,7 +36,7 @@ typedef unsigned long long  qword_t;    // unsigned 64bit integer
 
 typedef int                 int_t;      // signed pointer width integer
 typedef unsigned int        uint_t;     // unsigned pointer width integer
-typedef uint_t              size_t;     // unsigned pointer width integer
+//typedef uint_t              size_t;     // unsigned pointer width integer
 typedef void*               pointer_t;  // void pointer
 
 typedef enum {

@@ -41,7 +41,7 @@ VPATH := $(SRC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 # C compiler flags
 CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
-        $(SYS_CFLAGS) -c -x c
+        -I$(SRC_DIR) $(SYS_CFLAGS) -c -x c
 
 # nasm flags
 # on nix nasm requires include directory with trailing slash
@@ -54,11 +54,12 @@ define C_COMPILE
         $(E)$(CC) $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
-all: stdio.o mem.o syscalls.o
+all: stdio.o string.o syscalls.o
+	$(E)date +"%Y-%m-%d %H:%M:%S" > $(OBJ)version
 
 syscalls.o: syscalls.asm
 	@echo ~~~ Compiling syscalls
-	$Enasm $(ASFLAGS) $(SRC)syscalls.asm -o $(OBJ)kentry.o
+	$Enasm $(ASFLAGS) $(SRC)syscalls.asm -o $(OBJ)syscalls.o
 
 # default rule for compiling C source files
 # used only if no rule is defined explictly

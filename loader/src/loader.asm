@@ -93,7 +93,7 @@ load_kernel:
 
     mov ah, F_READ_SECT_FROM_DRIVE
 ; al keeps how many sectors to read
-    mov al, KERNEL_SIZE
+    mov al, 62
     mov ch, 0 ;cylinder.
     mov cl, 2 ;sector.
     mov dh, 0 ;head.
@@ -104,6 +104,22 @@ load_kernel:
     mov bx, SEG_KERNEL
     mov es, bx
     mov bx, OFF_KERNEL
+; read!
+    int S_DISK
+
+    mov ah, F_READ_SECT_FROM_DRIVE
+; al keeps how many sectors to read
+    mov al, KERNEL_SIZE - 62
+    mov ch, 1 ;cylinder.
+    mov cl, 1 ;sector.
+    mov dh, 0 ;head.
+; dl not changed! - drive number
+
+; es:bx points to receiving
+; data buffer:
+    mov bx, SEG_KERNEL
+    mov es, bx
+    mov bx, OFF_KERNEL + 62 * 512
 ; read!
     int S_DISK
 
