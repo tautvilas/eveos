@@ -51,7 +51,7 @@ extern dword_t gPingTaskOffset;
 extern dword_t gKernelTaskOffset;
 
 task_ring_node_t* KERNEL_CALL
-load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPrior);
+load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPrior, bool_t aOnTop);
 
 extern task_t* gpActiveTask;
 extern task_t* gpForegroundTask;

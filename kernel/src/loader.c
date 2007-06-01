@@ -26,6 +26,7 @@ typedef struct {
     dword_t drsize;
 } aout_exec_t;
 
+task_t* gpTopTask = NULL;
 task_t* gpActiveTask = NULL;
 task_t* gpForegroundTask = NULL;
 task_ring_node_t* gpActiveTaskRingNode = NULL;
@@ -44,7 +45,7 @@ dword_t gKernelCr3 = 0;
 uint_t gpPriorityTimes[3] = {10, 20, 50};
 
 task_ring_node_t* KERNEL_CALL
-load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPriority)
+load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPriority, bool_t aOnTop)
 {
     write_cr3(gKernelCr3);
 
@@ -80,6 +81,10 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     pTask->id = gsTaskIdCounter;
     pTask->priority = aPriority;
     pTask->timetorun = gpPriorityTimes[aPriority];
+
+    DUMP(aOnTop);
+    if (aOnTop)
+        gpTopTask   = pTask;
 
     gsTaskIdCounter++;
     gsTaskCounter++;

@@ -57,7 +57,7 @@ _exec:
     mov     eax, SYS_EXEC       ; syscall id
     mov     ecx, [ebp + 4]     ; string offset
     mov     edx, [ebp + 8]      ; priority
-    mov     ebx, [ebp + 12]      ; async?
+    mov     ebx, [ebp + 12]      ; on top?
     int     SYS
 
     pop     ebx
