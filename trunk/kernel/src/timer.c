@@ -21,7 +21,7 @@ timer_schedule(uint_t aSwapTaskNow)
     {
         do
         {
-            gpActiveTask->timetorun = 10;
+            gpActiveTask->timetorun = gpPriorityTimes[gpActiveTask->priority];
             gpActiveTaskRingNode = gpActiveTaskRingNode->pNext;
             gpActiveTask = gpActiveTaskRingNode->pTask;
             // DUMP(gpActiveTaskRingNode);

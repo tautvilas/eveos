@@ -20,22 +20,39 @@ typedef struct {
     mm_task_mem_t   vm_info;
 } task_t;
 
+typedef enum {
+    PRIOR_LOW = 0,
+    PRIOR_NORMAL,
+    PRIOR_HIGH
+} priority_t;
+
+typedef struct task_tree_node_t {
+    task_t*                     pTask;
+    struct task_tree_node_t*    pNext;
+    struct task_tree_node_t*    pPrev;
+    struct task_tree_node_t*    pParent;
+    struct task_tree_node_t*    pFirstChild;
+} task_tree_node_t;
+
 typedef struct task_ring_node_t {
     task_t*                     pTask;
     struct task_ring_node_t*    pNext;
     struct task_ring_node_t*    pPrev;
+    struct task_tree_node_t*    pTreeNode;
 } task_ring_node_t;
 
-void KERNEL_CALL
+task_ring_node_t* KERNEL_CALL
 multitasking_install(void);
 
 void KERNEL_CALL
 print_task_tree(void);
 
-void KERNEL_CALL
-load_task(void* apOffset, mm_access_t aAccess);
+task_ring_node_t* KERNEL_CALL
+load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPrior);
 
 extern task_t* gpActiveTask;
+extern task_t* gpForegroundTask;
+extern uint_t gpPriorityTimes[];
 extern task_ring_node_t* gpActiveTaskRingNode;
 extern dword_t gNextTaskOffset;
 extern dword_t gKernelCr3;

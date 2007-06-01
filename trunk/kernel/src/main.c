@@ -89,17 +89,32 @@ os_main()
     tss_install();
     // install resource manager before starting multitasking
     rm_install();
-    multitasking_install();
+    task_ring_node_t* pKernelNode = multitasking_install();
     BRAG("Multitasking is enabled\n");
 
     // ACC_USER not functional
-    load_task(&gKernelEnd, ACC_USER);
+    load_task(&gKernelEnd, pKernelNode, ACC_USER, PRIOR_LOW);
 
+    //extern dword_t gNextTaskOffset;
+    //dword_t pingOffset = gNextTaskOffset;
+    //task_ring_node_t* pPingNode = load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
+    //load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
+    //load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
+    //task_ring_node_t* pPingNode2 = load_task((pointer_t)pingOffset, pPingNode, ACC_USER, PRIOR_LOW);
+    //load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
+    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
+    //load_task((pointer_t)pingOffset, pPingNode, ACC_USER, PRIOR_LOW);
+    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
+    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
+    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
+    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
     //extern dword_t gNextTaskOffset;
     //load_task((pointer_t)gNextTaskOffset, ACC_USER);
 
     //DUMP(&gKernelEnd);
     //load_task((dword_t*)gNextTaskOffset, ACC_USER);
+
+    //print_task_tree();
 
     /* from this point on Kernel process will serve as a resources manager */
     rm_start();
