@@ -792,6 +792,6 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
         );
 
     write_cr3((dword_t)pKernelPageDir);
-    __asm__ __volatile__ ("sti");
+    // __asm__ __volatile__ ("sti");
     return (uint_t)pTaskPageDir;
 }
