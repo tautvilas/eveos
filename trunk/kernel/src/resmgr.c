@@ -72,12 +72,14 @@ rm_install(void)
 void KERNEL_CALL
 rm_start(void)
 {
+    int id = 0;
     while(1)
     {
         __asm__ __volatile__ ("cli");
         if(gNumWaitingTasks)
         {
-            int id = gNumWaitingTasks - 1;
+            //int id = gNumWaitingTasks - 1;
+            id %= gNumWaitingTasks;
             uint_t resource = gWaitingTasksList[id].resource;
             task_t* pTask = gWaitingTasksList[id].pTask;
             extern task_t* gpTopTask;
@@ -111,6 +113,12 @@ rm_start(void)
                         {
                             pRegs->eax = bytes_read;
                             gNumWaitingTasks--;
+                            if (gNumWaitingTasks != id)
+                            {
+                                memcpy(&gWaitingTasksList[id], &gWaitingTasksList[id + 1],
+                                        (gNumWaitingTasks - id) * sizeof(waiting_task_t));
+                            }
+                            BRAG("task %d unlocked\n", pTask->id);
                             pTask->locked = FALSE;
                         }
                         else
@@ -122,6 +130,8 @@ rm_start(void)
                     semaphore_v(KEYBOARD_SEMAPHORE);
                 }
             }
+
+            ++id;
         }
         __asm__ __volatile__ ("sti");
     }

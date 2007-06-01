@@ -95,6 +95,7 @@ os_main()
     // ACC_USER not functional
     gEshTaskOffset = (dword_t)&gKernelEnd;
     load_task(&gKernelEnd, pKernelNode, ACC_USER, PRIOR_LOW, TRUE);
+    //load_task(&gKernelEnd, pKernelNode, ACC_USER, PRIOR_LOW, TRUE);
 
     extern dword_t gNextTaskOffset;
     gPingTaskOffset = gNextTaskOffset;
