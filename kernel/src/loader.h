@@ -47,6 +47,9 @@ multitasking_install(void);
 void KERNEL_CALL
 print_task_tree(void);
 
+extern dword_t gPingTaskOffset;
+extern dword_t gKernelTaskOffset;
+
 task_ring_node_t* KERNEL_CALL
 load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPrior);
 

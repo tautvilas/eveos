@@ -33,6 +33,10 @@ task_ring_node_t* gpActiveTaskRingNode = NULL;
 static size_t gsTaskCounter = 0;
 static size_t gsTaskIdCounter = 0;
 
+dword_t gPingTaskOffset;
+dword_t gKernelTaskOffset;
+dword_t gKernelPageDir;
+
 task_tree_node_t* gpTaskTreeTop;
 dword_t gNextTaskOffset = 0;
 dword_t gKernelCr3 = 0;
@@ -42,6 +46,8 @@ uint_t gpPriorityTimes[3] = {10, 20, 50};
 task_ring_node_t* KERNEL_CALL
 load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPriority)
 {
+    write_cr3(gKernelCr3);
+
     aout_exec_t header;
     dword_t* pOffset;
     pOffset = apOffset;
@@ -121,6 +127,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     }
     else    // user privilege app
     {
+
         regs_t* pStack = malloc(sizeof(regs_t));
         memset(pStack, 0, sizeof(regs_t));
 
@@ -138,7 +145,6 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
         pTask->esp      = (dword_t)pStack;
         pTask->kstack   = (dword_t)pStack + sizeof(regs_t);
         pTask->ss       = gGdtUserDataSel;
-        //DUMP(pStack->cs);
     }
 
     // put the task into task ring
@@ -151,7 +157,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
 
     // put task into task tree node
 
-    task_tree_node_t* pTreeNode = malloc(sizeof(task_tree_node_t));
+    /* task_tree_node_t* pTreeNode = malloc(sizeof(task_tree_node_t));
     task_tree_node_t* pPrevChild = NULL;
     task_tree_node_t* pParentTreeNode = apParent->pTreeNode;
     task_tree_node_t* pChild = pParentTreeNode->pFirstChild;
@@ -160,6 +166,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
         pPrevChild = pChild;
         pChild = pChild->pNext;
     }
+    DUMP(0x000);
     if(pPrevChild) pPrevChild->pNext = pTreeNode;
     else pParentTreeNode->pFirstChild = pTreeNode;
     pTreeNode->pPrev = pPrevChild;
@@ -168,7 +175,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     pTreeNode->pFirstChild = NULL;
     pTreeNode->pTask = pTask;
 
-    pNode->pTreeNode = pTreeNode;
+    pNode->pTreeNode = pTreeNode; */
 
     BRAG("*** Kernel has ended loading task... Number of tasks running: %d ***\n", gsTaskCounter);
 

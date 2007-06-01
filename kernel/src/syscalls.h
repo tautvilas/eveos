@@ -10,7 +10,7 @@ extern void KERNEL_CALL
 sys_write(regs_t* apRegs);
 
 extern void KERNEL_CALL
-sys_execve(regs_t* apRegs);
+sys_exec(regs_t* apRegs);
 
 enum syscalls_t {
     SYS_EXIT = 1,
@@ -23,7 +23,7 @@ enum syscalls_t {
     SYS_CREAT,
     SYS_LINK,
     SYS_UNLINK,
-    SYS_EXECVE
+    SYS_EXEC
 };
 
 #endif // _SYSCALLS_H_

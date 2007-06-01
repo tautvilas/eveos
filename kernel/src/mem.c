@@ -70,3 +70,27 @@ strlen(const char *apStr)
     for (; *pPos; ++pPos);    // NO BODY
 	return pPos - apStr;
 }
+
+int
+strncmp(const char* apStr1, const char* apStr2, size_t aCount)
+{
+    int diff;
+    int i;
+    for (i = 0; i < aCount && *apStr1 && *apStr2; ++i, ++apStr1, ++apStr2)
+    {
+        diff    = *apStr1 - *apStr2;
+        if (diff)
+            return diff;
+    }
+    if (i < aCount)
+        return *apStr1 - *apStr2;
+    else
+        return 0;
+}
+
+
+int
+strcmp(const char* apStr1, const char* apStr2)
+{
+    return strncmp(apStr1, apStr2, strlen(apStr1) + 1);
+}
