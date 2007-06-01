@@ -4,11 +4,6 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
-#define COMMAND_BUFFER_SIZE 256
-
-// char gCommandBuffer[COMMAND_BUFFER_SIZE];
-
-// static char gspDelims[] = " \n";
 
 void
 dump_mem(const void* apMem, size_t aSize);
@@ -42,20 +37,7 @@ void main(void) {
 
     while (1)
     {
-        printf("> ");
-        /*int i = 0;
-        char c = getchar();
-        while(c != '\n')
-        {
-            gCommandBuffer[i] = c;
-            if (i < COMMAND_BUFFER_SIZE - 1) i++;
-            c = getchar();
-        }
-        //DUMP(i);
-        gCommandBuffer[i] = 0;
-        printf("\n");
-        printf(gCommandBuffer);
-        printf("\n");*/
+        printf("%d> ", stdin->mFd);
 
         if (fgets(pLine, LINE_SIZE, stdin))
         {

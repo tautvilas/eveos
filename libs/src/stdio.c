@@ -47,6 +47,7 @@ getchar()
 int
 fgetc(FILE* apStream)
 {
+    printf("fgetC fd:%x\n", apStream->mFd);
     char c;
     if (1 == sys_read(apStream->mFd, &c, 1))
         return c;
@@ -58,6 +59,7 @@ fgetc(FILE* apStream)
 char*
 fgets(char* apBuffer, int aSize, FILE* apStream)
 {
+    //printf("fgetS fd:%x\n", apStream->mFd);
     int c;
     int i       = 0;
     int len     = aSize - 1;

@@ -23,6 +23,7 @@ timer_schedule(uint_t aSwapTaskNow)
     if (gpActiveTask->timetorun && !aSwapTaskNow) gpActiveTask->timetorun--;
     else
     {
+        int id = gpActiveTask->id;
         do
         {
             gpActiveTask->timetorun = gpPriorityTimes[gpActiveTask->priority];
@@ -34,6 +35,10 @@ timer_schedule(uint_t aSwapTaskNow)
             // DUMP(gpActiveTaskRingNode->pPrev);
             //printf("Switched to task %x (parent =  %d, id = %d)\n", gpActiveTask, gpActiveTask->parent, gpActiveTask->id);
         } while(gpActiveTask->locked == TRUE);
+        if (id != gpActiveTask->id)
+        {
+            BRAG("switch to %d\n", gpActiveTask->id);
+        }
     }
 }
 
