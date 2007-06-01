@@ -58,12 +58,16 @@ sys_exec(regs_t* apRegs)
     if (strcmp(name, "ping") == 0)
     {
         load_task((pointer_t)gPingTaskOffset, gpActiveTaskRingNode, ACC_USER, priority, on_top);
-        apRegs->eax = 0;
+        apRegs->eax = 0; // success
+    }
+    else if (strcmp(name, "esh") == 0)
+    {
+        load_task((pointer_t)gEshTaskOffset, gpActiveTaskRingNode, ACC_USER, priority, on_top);
+        apRegs->eax = 0; // success
     }
     else
     {
         apRegs->eax = -1;
-        BRAG("fuck a duck and try to fly\n");
     }
     //DUMP(apRegs->ebx);
     //DUMP(apRegs->ecx);

@@ -35,6 +35,7 @@ static size_t gsTaskCounter = 0;
 static size_t gsTaskIdCounter = 0;
 
 dword_t gPingTaskOffset;
+dword_t gEshTaskOffset;
 dword_t gKernelTaskOffset;
 dword_t gKernelPageDir;
 
