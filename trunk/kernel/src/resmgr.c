@@ -79,12 +79,13 @@ rm_start(void)
         {
             int id = gNumWaitingTasks - 1;
             uint_t resource = gWaitingTasksList[id].resource;
-            if(resource == KEYBOARD_SEMAPHORE)
+            task_t* pTask = gWaitingTasksList[id].pTask;
+            extern task_t* gpTopTask;
+            if(resource == KEYBOARD_SEMAPHORE && pTask == gpTopTask)
             {
                 if(semaphore_get(KEYBOARD_SEMAPHORE))
                 {
                     semaphore_p(KEYBOARD_SEMAPHORE);
-                    task_t* pTask = gWaitingTasksList[id].pTask;
                     regs_t* pRegs = gWaitingTasksList[id].pRegs;
                     if (keyboard_had_input())
                     {

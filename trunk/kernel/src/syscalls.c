@@ -52,12 +52,12 @@ sys_write(regs_t* apRegs)
 void KERNEL_CALL
 sys_exec(regs_t* apRegs)
 {
-    //bool_t background = apRegs->ebx; // sync
+    bool_t on_top = apRegs->ebx; //
     char * name = (char*) apRegs->ecx; // buffer
     priority_t priority = apRegs->edx;   // priviledge
     if (strcmp(name, "ping") == 0)
     {
-        load_task((pointer_t)gPingTaskOffset, gpActiveTaskRingNode, ACC_USER, priority);
+        load_task((pointer_t)gPingTaskOffset, gpActiveTaskRingNode, ACC_USER, priority, on_top);
         apRegs->eax = 0;
     }
     else

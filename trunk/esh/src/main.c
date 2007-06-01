@@ -2,7 +2,7 @@
 //#include <global.h>
 #include <string.h>
 #include <stdlib.h>
-#include <exec.h>
+#include <syscalls.h>
 
 #define COMMAND_BUFFER_SIZE 256
 
@@ -17,7 +17,7 @@ void
 dump_regs();
 
 void
-exec_program(const char* apFileName, priority_t aPriority, int aAsyc);
+exec_program(const char* apFileName, priority_t aPriority, int aOnTop);
 
 void
 show_help();
@@ -157,7 +157,7 @@ show_help()
             "Commands:\n"
             "\tmem <address> <size>\n"
             "\tregs\n"
-            "\texec <filename> <priority> <async?>\n"
+            "\texec <filename> <priority> <ontop?>\n"
             "\n"
         );
 }
@@ -216,19 +216,22 @@ dump_regs()
 
 
 void
-exec_program(const char* apFileName, priority_t aPriority, int aAsync)
+exec_program(const char* apFileName, priority_t aPriority, int aOnTop)
 {
     const char*    LEVELS[]  = { "low", "normal", "high" };
 
     aPriority   %= 3;
 
     printf("Executing program '%s' ", apFileName);
-    if (aAsync)
-        printf("in bacground ");
+    if (aOnTop)
+        printf("on top ");
     else
-        printf("in foreground ");
+        printf("in background ");
     printf("with %s priority level...\n", LEVELS[aPriority]);
 
-    exec(apFileName, aPriority, aAsync);
+    if (0 != exec(apFileName, aPriority, aOnTop))
+    {
+        printf("Error occured!\n");
+    }
 }
 
