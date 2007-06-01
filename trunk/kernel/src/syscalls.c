@@ -7,6 +7,7 @@
 #include "vga.h"
 #include "loader.h"
 #include "timer.h"
+#include "mem.h"
 
 #define STDIN  0
 #define STDOUT 1
@@ -51,11 +52,19 @@ sys_write(regs_t* apRegs)
 void KERNEL_CALL
 sys_exec(regs_t* apRegs)
 {
-    bool_t background = apRegs->ebx; // sync
+    //bool_t background = apRegs->ebx; // sync
     char * name = (char*) apRegs->ecx; // buffer
     priority_t priority = apRegs->edx;   // priviledge
-    DUMP(gPingTaskOffset);
-    load_task((pointer_t)gPingTaskOffset, gpActiveTaskRingNode, ACC_USER, priority);
+    if (strcmp(name, "ping") == 0)
+    {
+        load_task((pointer_t)gPingTaskOffset, gpActiveTaskRingNode, ACC_USER, priority);
+        apRegs->eax = 0;
+    }
+    else
+    {
+        apRegs->eax = -1;
+        BRAG("fuck a duck and try to fly\n");
+    }
     //DUMP(apRegs->ebx);
     //DUMP(apRegs->ecx);
     //DUMP(apRegs->edx);

@@ -6,10 +6,9 @@
 
 #define COMMAND_BUFFER_SIZE 256
 
-char gCommandBuffer[COMMAND_BUFFER_SIZE];
+// char gCommandBuffer[COMMAND_BUFFER_SIZE];
 
-static char gspDelims[] = " \n";
-
+// static char gspDelims[] = " \n";
 
 void
 dump_mem(const void* apMem, size_t aSize);
