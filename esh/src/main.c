@@ -158,6 +158,7 @@ show_help()
             "Commands:\n"
             "\tmem <address> <size>\n"
             "\tregs\n"
+            "\texec <filename> <priority> <async?>\n"
             "\n"
         );
 }
