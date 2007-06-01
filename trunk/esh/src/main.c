@@ -12,6 +12,8 @@ static char gspDelims[] = " \n";
 void
 dump_mem(const void* apMem, size_t aSize);
 
+char**
+parse_cmd(char* apCmd);
 
 void main(void) {
     printf("\nEveOS shell v.0.1 welcomes you\n");
@@ -53,6 +55,17 @@ void main(void) {
         printf("########## PING! ##########\n");
         */
     }
+}
+
+
+
+char**
+parse_cmd(char* apCmd)
+{
+    static char**   spArgs      = NULL;
+    static char     spDelims[]  = " \n";
+
+    spArgs[0]   = strtok(apCmd, )
 }
 
 
