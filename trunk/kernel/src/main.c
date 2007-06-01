@@ -93,6 +93,7 @@ os_main()
     BRAG("Multitasking is enabled\n");
 
     // ACC_USER not functional
+    gEshTaskOffset = (dword_t)&gKernelEnd;
     load_task(&gKernelEnd, pKernelNode, ACC_USER, PRIOR_LOW, TRUE);
 
     extern dword_t gNextTaskOffset;

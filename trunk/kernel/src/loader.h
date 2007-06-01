@@ -48,6 +48,7 @@ void KERNEL_CALL
 print_task_tree(void);
 
 extern dword_t gPingTaskOffset;
+extern dword_t gEshTaskOffset;
 extern dword_t gKernelTaskOffset;
 
 task_ring_node_t* KERNEL_CALL
