@@ -26,15 +26,8 @@ typedef struct {
     dword_t drsize;
 } aout_exec_t;
 
-typedef struct task_tree_node_t {
-    task_t*                     pTask;
-    struct task_tree_node_t*    pNext;
-    struct task_tree_node_t*    pPrev;
-    struct task_tree_node_t*    pParent;
-    struct task_tree_node_t*    pFirstChild;
-} task_tree_node_t;
-
 task_t* gpActiveTask = NULL;
+task_t* gpForegroundTask = NULL;
 task_ring_node_t* gpActiveTaskRingNode = NULL;
 
 static size_t gsTaskCounter = 0;
@@ -44,8 +37,10 @@ task_tree_node_t* gpTaskTreeTop;
 dword_t gNextTaskOffset = 0;
 dword_t gKernelCr3 = 0;
 
-void KERNEL_CALL
-load_task(void* apOffset, mm_access_t aAccess)
+uint_t gpPriorityTimes[3] = {10, 20, 50};
+
+task_ring_node_t* KERNEL_CALL
+load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPriority)
 {
     aout_exec_t header;
     dword_t* pOffset;
@@ -69,7 +64,7 @@ load_task(void* apOffset, mm_access_t aAccess)
             header.text, header.data, header.bss);
 
     task_t* pTask = sbrk(sizeof(task_t));
-    pTask->parent = 0;
+    pTask->parent = apParent->pTask->id;
     pTask->vm_info.start = 0;
     pTask->vm_info.entry = header.entry;
     pTask->vm_info.text_size = header.text;
@@ -77,7 +72,8 @@ load_task(void* apOffset, mm_access_t aAccess)
     pTask->vm_info.bss_size = header.bss;
     pTask->vm_info.header_size = sizeof(aout_exec_t);
     pTask->id = gsTaskIdCounter;
-    pTask->timetorun = 10;
+    pTask->priority = aPriority;
+    pTask->timetorun = gpPriorityTimes[aPriority];
 
     gsTaskIdCounter++;
     gsTaskCounter++;
@@ -152,11 +148,34 @@ load_task(void* apOffset, mm_access_t aAccess)
     pNode->pNext->pPrev = pNode;
     pNode->pPrev = gpActiveTaskRingNode;
     gpActiveTaskRingNode->pNext = pNode;
-    //mm_print_info();
+
+    // put task into task tree node
+
+    task_tree_node_t* pTreeNode = malloc(sizeof(task_tree_node_t));
+    task_tree_node_t* pPrevChild = NULL;
+    task_tree_node_t* pParentTreeNode = apParent->pTreeNode;
+    task_tree_node_t* pChild = pParentTreeNode->pFirstChild;
+    while (pChild != NULL)
+    {
+        pPrevChild = pChild;
+        pChild = pChild->pNext;
+    }
+    if(pPrevChild) pPrevChild->pNext = pTreeNode;
+    else pParentTreeNode->pFirstChild = pTreeNode;
+    pTreeNode->pPrev = pPrevChild;
+    pTreeNode->pNext = NULL;
+
+    pTreeNode->pFirstChild = NULL;
+    pTreeNode->pTask = pTask;
+
+    pNode->pTreeNode = pTreeNode;
+
     BRAG("*** Kernel has ended loading task... Number of tasks running: %d ***\n", gsTaskCounter);
+
+    return pNode;
 }
 
-void KERNEL_CALL
+task_ring_node_t* KERNEL_CALL
 multitasking_install(void)
 {
     task_t* pKernel = malloc(sizeof(task_t));
@@ -164,6 +183,7 @@ multitasking_install(void)
     pKernel->id = gsTaskIdCounter;
     pKernel->parent = 0;
     pKernel->page_dir = read_cr3();
+    pKernel->priority = PRIOR_HIGH;
 
     gsTaskIdCounter++;
     gsTaskCounter++;
@@ -171,6 +191,7 @@ multitasking_install(void)
     gKernelCr3 = pKernel->page_dir;
     // from here multitasking starts
     gpActiveTask = pKernel;
+    gpForegroundTask = pKernel;
 
     task_ring_node_t* pNode = malloc(sizeof(task_ring_node_t));
     pNode->pTask = pKernel;
@@ -181,7 +202,18 @@ multitasking_install(void)
 
     gNextTaskOffset = (dword_t) &gKernelEnd;
 
-    return;
+    // tree setup
+    task_tree_node_t* pTreeNode = malloc(sizeof(task_tree_node_t));
+    pTreeNode->pTask = pKernel;
+    pTreeNode->pNext = NULL;
+    pTreeNode->pPrev = NULL;
+    pTreeNode->pFirstChild = NULL;
+
+    pNode->pTreeNode = pTreeNode;
+
+    gpTaskTreeTop = pTreeNode;
+
+    return pNode;
 }
 
 void KERNEL_CALL
@@ -192,25 +224,22 @@ print_task_tree_node(int aDepth, task_tree_node_t* apNode)
     task_t* pTask = apNode->pTask;
     for (i = 0; i < aDepth; i++)
     {
-        printf("  ");
+        printf("--");
     }
     printf("| id = %d\n", pTask->id);
     task_tree_node_t* pChild = apNode->pFirstChild;
-    if (pChild != NULL)
+    while (pChild != NULL)
     {
-        do
-        {
-            print_task_tree_node(aDepth + 1, pChild);
-            pChild = pChild->pNext;
-        }
-        while(pChild != NULL);
+        print_task_tree_node(aDepth + 1, pChild);
+        //DUMP(pChild);
+        pChild = pChild->pNext;
     }
 }
 
 void KERNEL_CALL
 print_task_tree(void)
 {
-    printf("### PS tree ###\n\n");
+    printf("### PS tree start ###\n\n");
     print_task_tree_node(0, gpTaskTreeTop);
-    printf("\n");
+    printf("\n### PS tree end ###\n");
 }

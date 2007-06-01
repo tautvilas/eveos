@@ -47,3 +47,12 @@ sys_write(regs_t* apRegs)
     }
     return;
 }
+
+void KERNEL_CALL
+sys_execve(regs_t* apRegs)
+{
+    // priority_t priority = apRegs->ebx;
+    // char * name = (char*) apRegs->ecx;
+    // bool_t background = apRegs->edx;
+    return;
+}

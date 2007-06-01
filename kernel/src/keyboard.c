@@ -1,6 +1,7 @@
 #include "keyboard.h"
 #include "stdio.h"
 #include "ports.h"
+#include "vga.h"
 #include "idt.h"
 
 #define KEYBOARD_BUFFER_SIZE 256
@@ -25,8 +26,12 @@ static bool_t gScrollPressed = FALSE;
 static byte_t lights = 0;
 
 static char gKeyboardBuffer[KEYBOARD_BUFFER_SIZE];
+static char gNewlineBuffer[KEYBOARD_BUFFER_SIZE];
 static uint_t gKeyboardBufferPos = 0;
 static size_t gKeyboardBufferSize = 0;     //how much kbd buffer is filled?
+static uint_t gNewlineBufferPos = 0;
+static uint_t gNewlineBufferStart = 0;
+static uint_t gNewlineBufferSize = 0;
 
 /* KBDUS means US Keyboard Layout. This is a scancode table
 *  used to layout a standard US keyboard. */
@@ -145,6 +150,19 @@ keyboard_manage_lights(bool_t aState, byte_t aLight)
     return;
 }
 
+static void KERNEL_CALL
+newline_buf_pos_dec(void)
+{
+    if (gNewlineBufferPos)
+    {
+        gNewlineBufferPos--;
+    }
+    else
+    {
+        gNewlineBufferPos = KEYBOARD_BUFFER_SIZE - 1;
+    }
+}
+
 /* handler keyboard IRQ1 */
 
 static void KERNEL_CALL
@@ -251,7 +269,7 @@ keyboard_handler(regs_t * apRegs)
             default:
                 if(gKbdLayoutUs[0][scancode] == 0)
                 {
-                    printf("\nUnrecognized scancode - %d\n", scancode);
+                    BRAG("\nUnrecognized scancode - %d\n", scancode);
                     break;
                 }
                 else if(gShiftPressed)
@@ -262,12 +280,52 @@ keyboard_handler(regs_t * apRegs)
                 {
                     c = gKbdLayoutUs[0][scancode];
                 }
+
+                gNewlineBufferPos %= KEYBOARD_BUFFER_SIZE;
                 gKeyboardBufferPos %= KEYBOARD_BUFFER_SIZE;
-                gKeyboardBuffer[gKeyboardBufferPos] = c;
-                gKeyboardBufferPos++;
-                if(gKeyboardBufferSize < KEYBOARD_BUFFER_SIZE)
+
+                if (c == '\b')
                 {
-                    gKeyboardBufferSize++;
+                    if (gNewlineBufferSize)
+                    {
+                        gNewlineBufferSize--;
+                        vga_print_char(c);
+                        newline_buf_pos_dec();
+                    }
+                } else if (c == '\n') {
+                    int i;
+                    int keyboardCopyPos = gKeyboardBufferPos;
+                    //DUMP(gNewlineBufferSize);
+                    for (i = 0; i < gNewlineBufferSize; i++)
+                    {
+                        keyboardCopyPos = gKeyboardBufferPos + i;
+                        keyboardCopyPos %= KEYBOARD_BUFFER_SIZE;
+                        gKeyboardBuffer[keyboardCopyPos] = gNewlineBuffer[gNewlineBufferStart + i];
+                        if(gKeyboardBufferSize < KEYBOARD_BUFFER_SIZE)
+                        {
+                            gKeyboardBufferSize++;
+                        }
+                    }
+                    keyboardCopyPos++;
+                    keyboardCopyPos %= KEYBOARD_BUFFER_SIZE;
+                    gKeyboardBuffer[keyboardCopyPos] = '\n';
+                    if(gKeyboardBufferSize < KEYBOARD_BUFFER_SIZE)
+                    {
+                        gKeyboardBufferSize++;
+                    }
+                    // flush newline buf
+                    gNewlineBufferSize = 0;
+                    gNewlineBufferStart = gNewlineBufferPos;
+                    vga_print_char(c);
+                } else
+                {
+                    gNewlineBuffer[gNewlineBufferPos] = c;
+                    gNewlineBufferPos++;
+                    if(gNewlineBufferSize < KEYBOARD_BUFFER_SIZE)
+                    {
+                        gNewlineBufferSize++;
+                    }
+                    vga_print_char(c);
                 }
             break;
         }
@@ -286,10 +344,10 @@ keyboard_getchar(void)
 {
     int size = gKeyboardBufferSize;
     if(!size) return 0;
-    gKeyboardBufferPos--;
-    gKeyboardBufferSize--;
     gKeyboardBufferPos %= KEYBOARD_BUFFER_SIZE;
     char c = gKeyboardBuffer[gKeyboardBufferPos];
+    gKeyboardBufferPos++;
+    gKeyboardBufferSize--;
     return c;
 }
 
@@ -304,6 +362,7 @@ void KERNEL_CALL
 keyboard_flush_buffer(void)
 {
     gKeyboardBufferSize = 0;
+    gNewlineBufferSize = 0;
 }
 
 void KERNEL_CALL

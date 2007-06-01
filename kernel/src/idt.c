@@ -121,7 +121,7 @@ static void *gpIsrRoutines[70] =
 static void *gpSysCallRoutines[NUM_SYS_CALLS] =
 {
     0, 0, 0, sys_read, sys_write, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    0, sys_execve, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 static idt_entry_t gIdt[256];

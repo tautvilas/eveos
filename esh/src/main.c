@@ -4,7 +4,7 @@
 
 #define COMMAND_BUFFER_SIZE 256
 
-//char gCommandBuffer[COMMAND_BUFFER_SIZE];
+char gCommandBuffer[COMMAND_BUFFER_SIZE];
 
 static char gspDelims[] = " \n";
 
@@ -32,8 +32,12 @@ void main(void) {
             if (i < COMMAND_BUFFER_SIZE - 1) i++;
             c = getchar();
         }
+        //DUMP(i);
         gCommandBuffer[i] = 0;
-        */
+        printf("\n");
+        printf(gCommandBuffer);
+        printf("\n");*/
+
         if (fgets(pLine, LINE_SIZE, stdin))
         {
             printf(pLine);
@@ -65,7 +69,7 @@ parse_cmd(char* apCmd)
     static char**   spArgs      = NULL;
     static char     spDelims[]  = " \n";
 
-    spArgs[0]   = strtok(apCmd, )
+    //spArgs[0]   = strtok(apCmd, )
 }
 
 

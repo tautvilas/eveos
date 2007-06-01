@@ -72,9 +72,9 @@ tss_install()
     gTss.ss0 = gGdtKernelDataSel;
     gdt_set_gate(TSS_SEG, (dword_t) &gTss, 150, SEG_PRESENT | SEG_DPL_0 | SEG_TYPE_TSS , 0xCF);
     load_tr();
-    printf("%x\n", read_tr());
-    //dword_t tss_limit = read_tss_limit();
-    //DUMP(tss_limit);
+    // printf("%x\n", read_tr());
+    // dword_t tss_limit = read_tss_limit();
+    // DUMP(tss_limit);
     BRAG("TSS is loaded\n");
     return;
 }
