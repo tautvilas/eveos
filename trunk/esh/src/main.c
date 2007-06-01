@@ -1,18 +1,28 @@
 #include <stdio.h>
-#include <global.h>
-#include <mem.h>
+//#include <global.h>
+#include <string.h>
 
 #define COMMAND_BUFFER_SIZE 256
 
-char gCommandBuffer[COMMAND_BUFFER_SIZE];
+//char gCommandBuffer[COMMAND_BUFFER_SIZE];
+
+static char gspDelims[] = " \n";
+
+
+void
+dump_mem(const void* apMem, size_t aSize);
+
 
 void main(void) {
     printf("\nEveOS shell v.0.1 welcomes you\n");
 
+    const size_t LINE_SIZE  = 512;
+    char pLine[LINE_SIZE];
+
     while (1)
     {
         printf("> ");
-        int i = 0;
+        /*int i = 0;
         char c = getchar();
         while(c != '\n')
         {
@@ -21,8 +31,18 @@ void main(void) {
             c = getchar();
         }
         gCommandBuffer[i] = 0;
-        printf(gCommandBuffer);
-        printf("\n");
+        */
+        if (fgets(pLine, LINE_SIZE, stdin))
+        {
+            printf(pLine);
+            //printf("\n");
+
+            char* pCmd  = strtok(pLine, gspDelims);
+            if (0 == strcmp(pCmd, "dump"))
+            {
+
+            }
+        }
     }
 
     for (;;)
@@ -34,3 +54,25 @@ void main(void) {
         */
     }
 }
+
+
+void
+dump_mem(const void* apMem, size_t aSize)
+{
+    const size_t    GROUP_SIZE  = 4;
+    const size_t    LINE_SIZE   = 2;
+
+    size_t i;
+    for (i = 0; i < aSize; ++i)
+    {
+        if (i)
+        {
+            if (0 == i % (LINE_SIZE * GROUP_SIZE))
+                printf("\n");
+            else if (0 == i % GROUP_SIZE)
+                printf("- ");
+        }
+        printf("%x ", (*(unsigned char*)apMem++));
+    }
+}
+

@@ -53,7 +53,7 @@ else
 	$(E)(cat $(LOADER) > $(IMAGE))
 	$(E)(cat $(KERNEL) >> $(IMAGE))
 	$(E)(cat $(ESH) >> $(IMAGE))
-	$(E)(cat $(PONG) >> $(IMAGE))
+#	$(E)(cat $(PONG) >> $(IMAGE))
 endif
 	@echo ~~~ Done
 

@@ -3,6 +3,9 @@ bits 32
 global _sys_write
 global _sys_read
 
+SYS         equ 69
+SYS_READ    equ 3
+
 SECTION .text
 
 _sys_write:
@@ -16,11 +19,25 @@ _sys_write:
     ret
 
 _sys_read:
-    pusha
-    mov     eax, 3  ; syscall id (sys_read)
-    mov     edx, [esp + 44]     ; numbytes to read
-    mov     ecx, [esp + 40]     ; string offset
-    mov     ebx, [esp + 36]     ; file descriptor
-    int 69
-    popa
+    ; pusha
+    push    ebp
+    mov     ebp, esp
+    add     ebp, 4
+
+    push    edx
+    push    ecx
+    push    ebx
+
+    mov     eax, SYS_READ       ; syscall id (sys_read)
+    mov     ebx, [ebp + 4]     ; file descriptor
+    mov     ecx, [ebp + 8]     ; string offset
+    mov     edx, [ebp + 12]     ; numbytes to read
+    int     SYS
+
+    pop     ebx
+    pop     ecx
+    pop     edx
+
+    pop     ebp
+    ; popa
     ret

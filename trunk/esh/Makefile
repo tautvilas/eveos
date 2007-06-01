@@ -36,6 +36,7 @@ LIB_DIR := ../libs/obj
 SRC := $(SRC_DIR)$(DS)
 OBJ := $(OBJ_DIR)$(DS)
 BIN := $(BIN_DIR)$(DS)
+LIB := $(LIB_DIR)$(DS)
 
 VPATH := $(SRC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)$(PS)$(LIB_DIR)
 
