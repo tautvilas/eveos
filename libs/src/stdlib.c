@@ -23,7 +23,8 @@ atol(const char* apStr)
         return res;
 }
 
-int atoi(const char* apStr)
+int
+atoi(const char* apStr)
 {
     return (int)atol(apStr);
 }
