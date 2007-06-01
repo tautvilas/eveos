@@ -13,6 +13,10 @@
 
 extern dword_t gKernelEsp;
 
+extern dword_t gKernelCr3;
+
+extern void write_cr3();
+
 void KERNEL_CALL
 timer_schedule(uint_t aSwapTaskNow)
 {
@@ -82,6 +86,7 @@ timer_handler(regs_t * apRegs)
     //}
     if(gpActiveTask != NULL)
     {
+        write_cr3(gKernelCr3);
         timer_schedule(0);
     }
     return;

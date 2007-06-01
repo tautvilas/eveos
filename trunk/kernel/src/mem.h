@@ -64,4 +64,10 @@ strlen(const char *apStr);
 extern void KERNEL_CALL
 memdump(byte_t* apSource, size_t aCount);
 
+int
+strncmp(const char* apStr1, const char* apStr2, size_t aCount);
+
+int
+strcmp(const char* apStr1, const char* apStr2);
+
 #endif // _MEM_H_

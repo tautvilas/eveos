@@ -91,7 +91,7 @@ load_kernel:
     push cx
     push es
 
-    ;push dx
+    push dx
 
     mov ah, F_READ_SECT_FROM_DRIVE
 ; al keeps how many sectors to read
@@ -109,22 +109,24 @@ load_kernel:
 ; read!
     int S_DISK
 
-    ;pop dx
-    ;mov ah, F_READ_SECT_FROM_DRIVE
+    ; after 64 sectors appears segment overlap
+
+    pop dx
+    mov ah, F_READ_SECT_FROM_DRIVE
 ; al keeps how many sectors to read
-    ;mov al, 2
-    ;mov ch, 0 ;cylinder.
-    ;mov cl, 2  ;sector.
-    ;mov dh, 0 ;head.
+    mov al, KERNEL_SIZE % 64
+    mov ch, 1 ;cylinder.
+    mov cl, 12 ;sector.
+    mov dh, 1 ;head.
 ; dl not changed! - drive number
 
 ; es:bx points to receiving
 ; data buffer:
-    ;mov bx, SEG_KERNEL
-    ;mov es, bx
-    ;mov bx, OFF_KERNEL
+    mov bx, SEG_KERNEL2
+    mov es, bx
+    mov bx, 0000h
 ; read!
-    ;int S_DISK
+    int S_DISK
 
     ;mov ah, F_READ_SECT_FROM_DRIVE
 ; al keeps how many sectors to read

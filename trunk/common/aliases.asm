@@ -26,6 +26,7 @@
     SEG_BOOT                    equ 0000h
     OFF_BOOT                    equ 7C00h
     SEG_KERNEL                  equ 0000h
+    SEG_KERNEL2                 equ 1000h   ; segment for second section of kernel
     OFF_KERNEL                  equ 8000h
     SEG_REBOOT                  equ 0040h
     OFF_REBOOT                  equ 0072h
@@ -36,7 +37,7 @@
 
 ; sizes
     ; TODO:zv 2007 05 22: load at runtime
-    KERNEL_SIZE                 equ 67      ; kernel size in sectors
+    KERNEL_SIZE                 equ 80      ; kernel size in sectors
     PAGE_SIZE                   equ 1000h   ; page size in bytes
     STACK_SIZE                  equ 8192    ; stack size in bytes
     NUM_PAGE_ENTRIES            equ 1024

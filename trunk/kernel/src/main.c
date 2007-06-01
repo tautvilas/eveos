@@ -95,9 +95,10 @@ os_main()
     // ACC_USER not functional
     load_task(&gKernelEnd, pKernelNode, ACC_USER, PRIOR_LOW);
 
-    //extern dword_t gNextTaskOffset;
-    //dword_t pingOffset = gNextTaskOffset;
-    //task_ring_node_t* pPingNode = load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
+    extern dword_t gNextTaskOffset;
+    gPingTaskOffset = gNextTaskOffset;
+    //load_task((pointer_t)gPingTaskOffset, pKernelNode, ACC_USER, PRIOR_LOW);
+    //load_task((pointer_t)gNextTaskOffset, pKernelNode, ACC_USER, PRIOR_LOW);
     //load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
     //load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
     //task_ring_node_t* pPingNode2 = load_task((pointer_t)pingOffset, pPingNode, ACC_USER, PRIOR_LOW);

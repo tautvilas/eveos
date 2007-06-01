@@ -49,10 +49,15 @@ sys_write(regs_t* apRegs)
 }
 
 void KERNEL_CALL
-sys_execve(regs_t* apRegs)
+sys_exec(regs_t* apRegs)
 {
-    // priority_t priority = apRegs->ebx;
-    // char * name = (char*) apRegs->ecx;
-    // bool_t background = apRegs->edx;
+    bool_t background = apRegs->ebx; // sync
+    char * name = (char*) apRegs->ecx; // buffer
+    priority_t priority = apRegs->edx;   // priviledge
+    DUMP(gPingTaskOffset);
+    load_task((pointer_t)gPingTaskOffset, gpActiveTaskRingNode, ACC_USER, priority);
+    //DUMP(apRegs->ebx);
+    //DUMP(apRegs->ecx);
+    //DUMP(apRegs->edx);
     return;
 }
