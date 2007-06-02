@@ -37,11 +37,11 @@ void main(void) {
 
     while (1)
     {
-        if (stdin->mFd != 0)
+        /*if (stdin->mFd != 0)
         {
             printf("stdin %x %x %d\n", stdin, &stdin->mFd, stdin->mFd);
             for(;;);
-        }
+        }*/
         printf("%d> ", stdin->mFd);
 
         if (fgets(pLine, LINE_SIZE, stdin))
