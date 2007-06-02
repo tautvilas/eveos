@@ -408,7 +408,7 @@ mm_paging_alloc_pages(size_t aIndex, size_t aCount, mm_access_t aAccess)
 
     const size_t    ENTRY_FLAGS = (aAccess & ACC_MASK) | ENTRY_PRESENT;
 
-    BRAG("Allocating %d pages\n", aCount);
+    BRAG("Allocating %d pages.. ", aCount);
     if (0 == aCount)
     {
         BRAG("\tnothing to do\n");
@@ -777,22 +777,22 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
 
     // copy task code and data
     memcpy((byte_t*)apMem->start, apOffset, task_size - apMem->bss_size);
-    BRAG("Code, data %x-%x (%db)\n",
+    /*BRAG("Code, data %x-%x (%db)\n",
             apMem->start,
             apMem->start + task_size - apMem->bss_size,
             task_size - apMem->bss_size
-        );
+        );*/
 
     // bss memset 0
     memset(
             (byte_t*)(apMem->start + task_size - apMem->bss_size),
             apMem->bss_size, 0
         );
-    BRAG("Bss %x-%x (%db)\n",
+    /*BRAG("Bss %x-%x (%db)\n",
             apMem->start + task_size - apMem->bss_size,
             apMem->start + task_size - apMem->bss_size + apMem->bss_size,
             apMem->bss_size
-        );
+        );*/
 
     // allocate task stack
     mm_paging_alloc_pages(

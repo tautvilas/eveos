@@ -29,6 +29,12 @@ sys_read(regs_t* apRegs)
         BRAG("task %d locked\n", gpActiveTask->id);
         timer_schedule(TRUE);
     }
+    else
+    {
+        printf("bad file descriptor specified! (%x)\n", file_descriptor);
+        gpActiveTask->locked = TRUE;
+        timer_schedule(TRUE);
+    }
     return;
 }
 
