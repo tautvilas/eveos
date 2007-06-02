@@ -28,7 +28,6 @@ typedef struct {
 
 task_t* gpTopTask = NULL;
 task_t* gpActiveTask = NULL;
-task_t* gpForegroundTask = NULL;
 task_ring_node_t* gpActiveTaskRingNode = NULL;
 
 static size_t gsTaskCounter = 0;
@@ -68,8 +67,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     }
 
     BRAG("*** Kernel is loading task... ***\n");
-    BRAG("Bin start: %x, entry: %d, text size: %d, data size: %d, bss size: %d\n", apOffset, header.entry,
-            header.text, header.data, header.bss);
+    BRAG("Bin start: %x, text size: %d, data size: %d, bss size: %d\n", apOffset, header.text, header.data, header.bss);
 
     task_t* pTask = sbrk(sizeof(task_t));
     pTask->parent = apParent->pTask->id;
@@ -93,7 +91,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
 
     // alloc task memory
     pTask->page_dir = mm_alloc_task(&pTask->vm_info, apOffset, aAccess);
-    DUMP(pTask->page_dir);
+    //DUMP(pTask->page_dir);
 
     pTask->ustack = 2U * GIGABYTE - 20 * sizeof(uint_t);
     // swapping page dirs might be dangerous
@@ -163,7 +161,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
 
     // put task into task tree node
 
-    /* task_tree_node_t* pTreeNode = malloc(sizeof(task_tree_node_t));
+    task_tree_node_t* pTreeNode = malloc(sizeof(task_tree_node_t));
     task_tree_node_t* pPrevChild = NULL;
     task_tree_node_t* pParentTreeNode = apParent->pTreeNode;
     task_tree_node_t* pChild = pParentTreeNode->pFirstChild;
@@ -172,7 +170,6 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
         pPrevChild = pChild;
         pChild = pChild->pNext;
     }
-    DUMP(0x000);
     if(pPrevChild) pPrevChild->pNext = pTreeNode;
     else pParentTreeNode->pFirstChild = pTreeNode;
     pTreeNode->pPrev = pPrevChild;
@@ -181,9 +178,14 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     pTreeNode->pFirstChild = NULL;
     pTreeNode->pTask = pTask;
 
-    pNode->pTreeNode = pTreeNode; */
+    pNode->pTreeNode = pTreeNode;
 
     BRAG("*** Kernel has ended loading task... Number of tasks running: %d ***\n", gsTaskCounter);
+
+#ifdef EVE_DEBUG
+    print_task_tree();
+    mm_print_info();
+#endif
 
     return pNode;
 }
@@ -204,7 +206,7 @@ multitasking_install(void)
     gKernelCr3 = pKernel->page_dir;
     // from here multitasking starts
     gpActiveTask = pKernel;
-    gpForegroundTask = pKernel;
+    gpTopTask = pKernel;
 
     task_ring_node_t* pNode = malloc(sizeof(task_ring_node_t));
     pNode->pTask = pKernel;
@@ -235,16 +237,20 @@ print_task_tree_node(int aDepth, task_tree_node_t* apNode)
     int i;
 
     task_t* pTask = apNode->pTask;
+    printf("\t");
     for (i = 0; i < aDepth; i++)
     {
         printf("--");
     }
-    printf("| id = %d\n", pTask->id);
+    printf("| id = %d", pTask->id);
+    printf("\t");
+    if (pTask->locked) printf(" LOCKED");
+    if (pTask == gpTopTask) printf(" FG");
+    printf("\n");
     task_tree_node_t* pChild = apNode->pFirstChild;
     while (pChild != NULL)
     {
         print_task_tree_node(aDepth + 1, pChild);
-        //DUMP(pChild);
         pChild = pChild->pNext;
     }
 }
@@ -252,7 +258,7 @@ print_task_tree_node(int aDepth, task_tree_node_t* apNode)
 void KERNEL_CALL
 print_task_tree(void)
 {
-    printf("### PS tree start ###\n\n");
+    printf("PS tree\n");
     print_task_tree_node(0, gpTaskTreeTop);
-    printf("\n### PS tree end ###\n");
+    printf("\n");
 }

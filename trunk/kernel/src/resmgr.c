@@ -2,6 +2,7 @@
 #include "global.h"
 #include "stdio.h"
 #include "loader.h"
+#include "mem.h"
 #include "keyboard.h"
 #include "idt.h"
 #include "vga.h"
