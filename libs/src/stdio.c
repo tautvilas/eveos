@@ -47,7 +47,7 @@ getchar()
 int
 fgetc(FILE* apStream)
 {
-    printf("fgetC fd:%x\n", apStream->mFd);
+    //printf("fgetC fd:%x\n", apStream->mFd);
     char c;
     if (1 == sys_read(apStream->mFd, &c, 1))
         return c;
