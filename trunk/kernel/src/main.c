@@ -19,6 +19,7 @@ os_main()
     BRAG("PIT firing rate is %d Hz\n", _TIMER_RATE);
 
     mm_install();
+    BRAG("Memory manager is installed\n", _TIMER_RATE);
     mm_print_info();
 
     /*{
@@ -87,39 +88,22 @@ os_main()
 
     // prepare tss segment
     tss_install();
+    BRAG("TSS is loaded\n");
     // install resource manager before starting multitasking
     rm_install();
     task_ring_node_t* pKernelNode = multitasking_install();
     BRAG("Multitasking is enabled\n");
+    //print_task_tree();
 
-    // ACC_USER not functional
+    // load shell app
     gEshTaskOffset = (dword_t)&gKernelEnd;
-    load_task(&gKernelEnd, pKernelNode, ACC_USER, PRIOR_LOW, TRUE);
-    //load_task(&gKernelEnd, pKernelNode, ACC_USER, PRIOR_LOW, TRUE);
+    load_task((pointer_t) gEshTaskOffset, pKernelNode, ACC_USER, PRIOR_LOW, TRUE);
 
     extern dword_t gNextTaskOffset;
     gPingTaskOffset = gNextTaskOffset;
-    //load_task((pointer_t)gPingTaskOffset, pKernelNode, ACC_USER, PRIOR_LOW);
-    //load_task((pointer_t)gNextTaskOffset, pKernelNode, ACC_USER, PRIOR_LOW);
-    //load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
-    //load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
-    //task_ring_node_t* pPingNode2 = load_task((pointer_t)pingOffset, pPingNode, ACC_USER, PRIOR_LOW);
-    //load_task((pointer_t)pingOffset, pKernelNode, ACC_USER, PRIOR_LOW);
-    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
-    //load_task((pointer_t)pingOffset, pPingNode, ACC_USER, PRIOR_LOW);
-    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
-    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
-    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
-    // load_task((pointer_t)pingOffset, pPingNode2, ACC_USER, PRIOR_LOW);
-    //extern dword_t gNextTaskOffset;
-    //load_task((pointer_t)gNextTaskOffset, ACC_USER);
-
-    //DUMP(&gKernelEnd);
-    //load_task((dword_t*)gNextTaskOffset, ACC_USER);
-
-    //print_task_tree();
 
     /* from this point on Kernel process will serve as a resources manager */
+
     rm_start();
 
     for (;;);

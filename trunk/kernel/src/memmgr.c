@@ -783,16 +783,17 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
             task_size - apMem->bss_size
         );*/
 
-    // bss memset 0
-    memset(
-            (byte_t*)(apMem->start + task_size - apMem->bss_size),
-            apMem->bss_size, 0
-        );
     /*BRAG("Bss %x-%x (%db)\n",
             apMem->start + task_size - apMem->bss_size,
             apMem->start + task_size - apMem->bss_size + apMem->bss_size,
             apMem->bss_size
         );*/
+
+    // bss memset 0
+    memset(
+            (byte_t*)(apMem->start + task_size - apMem->bss_size), 0,
+            apMem->bss_size
+        );
 
     // allocate task stack
     mm_paging_alloc_pages(
@@ -800,6 +801,8 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
             2,
             (aAccess & ACC_MASK) | ACC_RW
         );
+
+    // memdump((pointer_t)(apMem->start + task_size - apMem->bss_size), apMem->bss_size);
 
     write_cr3((dword_t)pKernelPageDir);
     // __asm__ __volatile__ ("sti");

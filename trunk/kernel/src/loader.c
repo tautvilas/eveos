@@ -81,7 +81,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     pTask->priority = aPriority;
     pTask->timetorun = gpPriorityTimes[aPriority];
 
-    DUMP(aOnTop);
+    //DUMP(aOnTop);
     if (aOnTop)
         gpTopTask   = pTask;
 
@@ -240,9 +240,29 @@ print_task_tree_node(int aDepth, task_tree_node_t* apNode)
     printf("\t");
     for (i = 0; i < aDepth; i++)
     {
-        printf("--");
+        printf(" ");
     }
-    printf("| id = %d", pTask->id);
+    if (apNode->pNext)
+    {
+        char string[] = {195, 0};
+        printf(string);
+    }
+    else
+    {
+        char string[] = {192, 0};
+        printf(string);
+    }
+    if (apNode->pFirstChild)
+    {
+        char string2[] = {194, 0};
+        printf(string2);
+    }
+    else
+    {
+        char string2[] = {196, 0};
+        printf(string2);
+    }
+    printf(" id = %d", pTask->id);
     printf("\t");
     if (pTask->locked) printf(" LOCKED");
     if (pTask == gpTopTask) printf(" FG");

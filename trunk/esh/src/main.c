@@ -31,6 +31,7 @@ err_cmd();
 
 void main(void) {
     printf("\nEveOS shell v.0.1 welcomes you\n");
+    printf("Type 'help' for available commands list\n\n");
 
     const size_t LINE_SIZE  = 512;
     char pLine[LINE_SIZE];
@@ -44,7 +45,7 @@ void main(void) {
         /*}*/
         //printf("");
         //strcmp("", "");
-        printf("%d> ", stdin->mFd);
+        printf("$ ", stdin->mFd);
 
         if (fgets(pLine, LINE_SIZE, stdin))
         {
@@ -146,7 +147,7 @@ show_help()
             "Commands:\n"
             "\tmem <address> <size>\n"
             "\tregs\n"
-            "\texec <filename> <priority> <ontop?>\n"
+            "\texec <filename>(esh/ping) <priority>(0-2) <ontop?>(0/1)\n"
             "\n"
         );
 }
