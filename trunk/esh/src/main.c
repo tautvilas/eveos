@@ -37,6 +37,11 @@ void main(void) {
 
     while (1)
     {
+        if (stdin->mFd != 0)
+        {
+            printf("stdin %x %x %d\n", stdin, &stdin->mFd, stdin->mFd);
+            for(;;);
+        }
         printf("%d> ", stdin->mFd);
 
         if (fgets(pLine, LINE_SIZE, stdin))
@@ -215,5 +220,6 @@ exec_program(const char* apFileName, priority_t aPriority, int aOnTop)
     {
         printf("Error occured!\n");
     }
+    //printf("%x", (char*)20000);
 }
 

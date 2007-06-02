@@ -777,11 +777,21 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
 
     // copy task code and data
     memcpy((byte_t*)apMem->start, apOffset, task_size - apMem->bss_size);
+    BRAG("Code, data %x-%x (%db)\n",
+            apMem->start,
+            apMem->start + task_size - apMem->bss_size,
+            task_size - apMem->bss_size
+        );
 
     // bss memset 0
     memset(
             (byte_t*)(apMem->start + task_size - apMem->bss_size),
             apMem->bss_size, 0
+        );
+    BRAG("Bss %x-%x (%db)\n",
+            apMem->start + task_size - apMem->bss_size,
+            apMem->start + task_size - apMem->bss_size + apMem->bss_size,
+            apMem->bss_size
         );
 
     // allocate task stack
