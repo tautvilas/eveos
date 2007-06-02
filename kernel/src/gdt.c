@@ -75,6 +75,5 @@ tss_install()
     // printf("%x\n", read_tr());
     // dword_t tss_limit = read_tss_limit();
     // DUMP(tss_limit);
-    BRAG("TSS is loaded\n");
     return;
 }

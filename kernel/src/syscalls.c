@@ -21,12 +21,12 @@ sys_read(regs_t* apRegs)
     dword_t file_descriptor = apRegs->ebx;
     //char * offset = (char*) apRegs->ecx;
     //dword_t numbytes = apRegs->edx;
-    BRAG("task %d asked res (fd:%x, l:%d)\n", gpActiveTask->id, file_descriptor, gpActiveTask->locked);
+    //BRAG("task %d asked res (fd:%x, l:%d)\n", gpActiveTask->id, file_descriptor, gpActiveTask->locked);
     if (file_descriptor == STDIN && !gpActiveTask->locked)
     {
         rm_add_waiting_task(gpActiveTask, apRegs, KEYBOARD_SEMAPHORE);
         gpActiveTask->locked = TRUE;
-        BRAG("task %d locked\n", gpActiveTask->id);
+        //BRAG("task %d locked\n", gpActiveTask->id);
         timer_schedule(TRUE);
     }
     else

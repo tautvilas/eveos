@@ -119,7 +119,7 @@ rm_start(void)
                                 memcpy(&gWaitingTasksList[id], &gWaitingTasksList[id + 1],
                                         (gNumWaitingTasks - id) * sizeof(waiting_task_t));
                             }
-                            BRAG("task %d unlocked\n", pTask->id);
+                            // BRAG("task %d unlocked\n", pTask->id);
                             pTask->locked = FALSE;
                         }
                         else
