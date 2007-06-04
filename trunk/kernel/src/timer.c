@@ -9,7 +9,7 @@
 #define PIT_CHANNEL1 0x40 /* IRQ0 clock */
 #define PIT_CHANNEL2 0x41 /* For system */
 #define PIT_CHANNEL3 0x42 /* Beep */
-#define PIT_RATE     1193180 /* Hz if divided by 1 (default rate = 18.222Hz) */
+#define PIT_RATE     1193182L /* Hz if divided by 1 (default rate = 18.222Hz) */
 
 extern dword_t gKernelEsp;
 
