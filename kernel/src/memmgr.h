@@ -47,6 +47,9 @@ mm_alloc_page();
 uint_t KERNEL_CALL
 mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t aAccess);
 
+void KERNEL_CALL
+mm_free_page_dir(uint_t apTaskPageDir);
+
 /**
  *  Returns number of free pages.
  *

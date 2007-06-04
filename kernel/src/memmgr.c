@@ -703,7 +703,7 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
 
 
 void KERNEL_CALL
-mm_free_page_dir(mm_page_dir_t apTaskPageDir)
+mm_free_page_dir(uint_t apTaskPageDir)
 {
     const pointer_t TMP_PAGE_FRAME  = (pointer_t)((size_t)-1 - 2 * MM_PAGE_SIZE + 1);
 
@@ -742,5 +742,5 @@ mm_free_page_dir(mm_page_dir_t apTaskPageDir)
         }
     }
     pKernelPageDir[MM_PAGE_DIR_SIZE - 2] = NULL;
-    mm_free_page(apTaskPageDir);
+    mm_free_page((pointer_t)apTaskPageDir);
 }

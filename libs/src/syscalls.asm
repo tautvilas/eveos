@@ -3,10 +3,12 @@ bits 32
 global _sys_write
 global _sys_read
 global _exec
+global _kill
 
 SYS         equ 69
 SYS_READ    equ 3
 SYS_EXEC    equ 11
+SYS_KILL    equ 1
 
 SECTION .text
 
@@ -66,4 +68,18 @@ _exec:
 
     pop     ebp
     ; popa
+    ret
+
+_kill:
+    push    ebp
+    mov     ebp, esp
+    add     ebp, 4
+    push    edx
+
+    mov     eax, SYS_KILL       ; syscall id
+    mov     edx, [ebp + 4]     ; string offset
+    int     SYS
+
+    pop     edx
+    pop     ebp
     ret

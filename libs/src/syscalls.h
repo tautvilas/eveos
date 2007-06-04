@@ -11,5 +11,6 @@ typedef enum {
 extern void __attribute__((cdecl)) sys_write(const char* apStr, int aLen);
 extern int __attribute__((cdecl)) sys_read(int aFd, char* apBuffer, int aLen);
 extern int __attribute__((cdecl)) exec(const char* apFileName, priority_t aPriority, int aOnTop);
+extern int __attribute__((cdecl)) kill(int aTaskId);
 
 #endif // _SYSCALLS_H_
