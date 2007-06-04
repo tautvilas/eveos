@@ -36,7 +36,6 @@ static size_t gsTaskIdCounter = 0;
 dword_t gPingTaskOffset;
 dword_t gEshTaskOffset;
 dword_t gKernelTaskOffset;
-dword_t gKernelPageDir;
 
 task_tree_node_t* gpTaskTreeTop;
 dword_t gNextTaskOffset = 0;
@@ -211,17 +210,16 @@ unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
     mm_free_page_dir(pTask->page_dir);
 
     // free task kernel stack
-    //if (pTask->access == ACC_USER)
-    //{
-    //    free((regs_t*)pTask->kstack);
-    //}
+    if (pTask->access == ACC_USER)
+    {
+        free((regs_t*)(pTask->kstack));
+    }
 
     // free task ring node
-    /*
-    apTaskRingNode->pPrev->pNext = apTaskRingNode->pNext;
-    apTaskRingNode->pNext->pPrev = apTaskRingNode->pPrev;
-    free(apTaskRingNode);
-    */
+
+    //apTaskRingNode->pPrev->pNext = apTaskRingNode->pNext;
+    //apTaskRingNode->pNext->pPrev = apTaskRingNode->pPrev;
+    //free(apTaskRingNode);
 
     // free task struct
     //free(pTask);
@@ -262,6 +260,9 @@ kill_task(uint_t aTaskId)
         BRAG("You can not kill root process!\n");
         return -1;
     }
+
+    write_cr3((dword_t)gKernelCr3);
+    //dword_t active_task_page_dir = gpActiveTask->page_dir;
 
     gpActiveTask = gpKernelTask;
     gpActiveTaskRingNode = gpKernelTaskRingNode;
