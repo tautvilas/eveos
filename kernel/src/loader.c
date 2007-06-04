@@ -314,6 +314,7 @@ kill_task(uint_t aTaskId)
     {
         BRAG("*** Task %d and its children killed ***\n", aTaskId);
         print_task_tree();
+        mm_print_info();
         return 0;
     }
     else
