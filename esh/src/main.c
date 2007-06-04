@@ -78,13 +78,13 @@ void main(void) {
                 else
                     run_task(pCmd[1], atoi(pCmd[2]), atoi(pCmd[3]));
             }
-            else if (0 == strcmp(pCmd[0], "kill"))
+            /*else if (0 == strcmp(pCmd[0], "kill"))
             {
                 if (1 != arg_count(pCmd))
                     err_arg_count();
                 else
                     kill_task(atoi(pCmd[1]));
-            }
+            } */
             else if (0 == strcmp(pCmd[0], "help"))
             {
                 if (0 != arg_count(pCmd))
@@ -171,9 +171,9 @@ show_help()
             "\t\t0 (low), 1 (normal) or 2 (high). Task is executed in\n"
             "\t\tbackground if <ontop> is 0 or in foreground otherwise.\n"
             "\t\tCurrently only esh and ping tasks are available\n"
-            "\n"
+            /*"\n"
             "\tkill <id>\n"
-            "\t\tKills program with specified <id>\n"
+            "\t\tKills program with specified <id>\n"*/
         );
 }
 
