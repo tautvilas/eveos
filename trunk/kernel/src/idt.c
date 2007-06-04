@@ -120,7 +120,7 @@ static void *gpIsrRoutines[70] =
 /* pointers to kernel services handling functions */
 static void *gpSysCallRoutines[NUM_SYS_CALLS] =
 {
-    0, 0, 0, sys_read, sys_write, 0, 0, 0, 0, 0,
+    0, sys_kill, 0, sys_read, sys_write, 0, 0, 0, 0, 0,
     0, sys_exec, 0, 0, 0, 0, 0, 0, 0, 0
 };
 

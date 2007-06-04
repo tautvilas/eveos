@@ -12,8 +12,11 @@ sys_write(regs_t* apRegs);
 extern void KERNEL_CALL
 sys_exec(regs_t* apRegs);
 
+extern void KERNEL_CALL
+sys_kill(regs_t* apRegs);
+
 enum syscalls_t {
-    SYS_EXIT = 1,
+    SYS_KILL = 1,
     SYS_FORK,
     SYS_READ,
     SYS_WRITE,
