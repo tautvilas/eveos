@@ -12,7 +12,10 @@ void
 dump_regs();
 
 void
-exec_program(const char* apFileName, priority_t aPriority, int aOnTop);
+run_task(const char* apFileName, priority_t aPriority, int aOnTop);
+
+void
+kill_task(int aTaskId);
 
 void
 show_help();
@@ -68,12 +71,19 @@ void main(void) {
                 else
                     dump_regs();
             }
-            else if (0 == strcmp(pCmd[0], "exec"))
+            else if (0 == strcmp(pCmd[0], "run"))
             {
                 if (3 != arg_count(pCmd))
                     err_arg_count();
                 else
-                    exec_program(pCmd[1], atoi(pCmd[2]), atoi(pCmd[3]));
+                    run_task(pCmd[1], atoi(pCmd[2]), atoi(pCmd[3]));
+            }
+            else if (0 == strcmp(pCmd[0], "kill"))
+            {
+                if (1 != arg_count(pCmd))
+                    err_arg_count();
+                else
+                    kill_task(atoi(pCmd[1]));
             }
             else if (0 == strcmp(pCmd[0], "help"))
             {
@@ -144,10 +154,23 @@ void
 show_help()
 {
     printf(
-            "Commands:\n"
+            "Available commands:\n"
+            "\n"
+            "\thelp\n"
+            "\t\tPrints this text\n"
+            "\n"
             "\tmem <address> <size>\n"
+            "\t\tDumps number of bytes specified by <size> of memory beginig at\n"
+            "\t\t<address>.\n"
+            "\n"
             "\tregs\n"
-            "\texec <filename>(esh/ping) <priority>(0-2) <ontop?>(0/1)\n"
+            "\t\tDumps current values of CPU registers\n"
+            "\n"
+            "\trun <name> <priority> <ontop>\n"
+            "\t\tExecutes program specified by <name>. <priority> may be\n"
+            "\t\t0 (low), 1 (normal) or 2 (high). Task is executed in\n"
+            "\t\tbackground if <ontop> is 0 or in foreground otherwise.\n"
+            "\t\tCurrently only esh and ping tasks are available\n"
             "\n"
         );
 }
@@ -206,7 +229,7 @@ dump_regs()
 
 
 void
-exec_program(const char* apFileName, priority_t aPriority, int aOnTop)
+run_task(const char* apFileName, priority_t aPriority, int aOnTop)
 {
     const char*    LEVELS[]  = { "low", "normal", "high" };
 
@@ -224,5 +247,18 @@ exec_program(const char* apFileName, priority_t aPriority, int aOnTop)
         printf("Error occured!\n");
     }
     //printf("%x", (char*)20000);
+}
+
+void
+kill_task(int aTaskId)
+{
+    if (-1 == kill(aTaskId))
+    {
+        printf("Unable to kill program.\n");
+    }
+    else
+    {
+        printf("Killed successfully\n");
+    }
 }
 
