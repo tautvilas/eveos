@@ -44,6 +44,9 @@ dword_t gKernelCr3 = 0;
 
 uint_t gpPriorityTimes[3] = {10, 20, 50};
 
+static task_ring_node_t* gpKernelTaskRingNode;
+static task_t* gpKernelTask;
+
 task_ring_node_t* KERNEL_CALL
 load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPriority, bool_t aOnTop)
 {
@@ -69,7 +72,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     BRAG("*** Kernel is loading task... ***\n");
     BRAG("Bin start: %x, text size: %d, data size: %d, bss size: %d\n", apOffset, header.text, header.data, header.bss);
 
-    task_t* pTask = sbrk(sizeof(task_t));
+    task_t* pTask = malloc(sizeof(task_t));
     pTask->parent = apParent->pTask->id;
     pTask->vm_info.start = 0;
     pTask->vm_info.entry = header.entry;
@@ -80,6 +83,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     pTask->id = gsTaskIdCounter;
     pTask->priority = aPriority;
     pTask->timetorun = gpPriorityTimes[aPriority];
+    pTask->access = aAccess;
 
     //DUMP(aOnTop);
     if (aOnTop)
@@ -172,6 +176,8 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     }
     if(pPrevChild) pPrevChild->pNext = pTreeNode;
     else pParentTreeNode->pFirstChild = pTreeNode;
+
+    pTreeNode->pParent = pParentTreeNode;
     pTreeNode->pPrev = pPrevChild;
     pTreeNode->pNext = NULL;
 
@@ -190,6 +196,133 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     return pNode;
 }
 
+void KERNEL_CALL
+unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
+{
+    task_t* pTask = apTaskRingNode->pTask;
+    if (pTask == gpTopTask)
+    {
+        gpTopTask = parentTask;
+    }
+
+    // free task page dir
+
+    DUMP(pTask->page_dir);
+    mm_free_page_dir(pTask->page_dir);
+
+    // free task kernel stack
+    //if (pTask->access == ACC_USER)
+    //{
+    //    free((regs_t*)pTask->kstack);
+    //}
+
+    // free task ring node
+    /*
+    apTaskRingNode->pPrev->pNext = apTaskRingNode->pNext;
+    apTaskRingNode->pNext->pPrev = apTaskRingNode->pPrev;
+    free(apTaskRingNode);
+    */
+
+    // free task struct
+    //free(pTask);
+
+    //gsTaskCounter--;
+
+    // iterate through children
+    /*task_tree_node_t* pTaskTreeNode = apTaskRingNode->pTreeNode;
+    task_tree_node_t* pChild = pTaskTreeNode->pFirstChild;
+    while (pChild != NULL)
+    {
+        task_ring_node_t* pActiveTaskRingNode = gpActiveTaskRingNode;
+        do
+        {
+            if(pActiveTaskRingNode->pTask == pChild->pTask)
+            {
+                unload_task(pActiveTaskRingNode, parentTask);
+                break;
+            }
+            pActiveTaskRingNode = pActiveTaskRingNode->pNext;
+        }
+        while (pActiveTaskRingNode != gpActiveTaskRingNode);
+        pChild = pChild->pNext;
+    }
+
+    // free task tree node
+    free(pTaskTreeNode); */
+    return;
+}
+
+int KERNEL_CALL
+kill_task(uint_t aTaskId)
+{
+    BRAG("*** Kernel is trying to kill task %d ***\n", aTaskId);
+
+    if (aTaskId == 0)
+    {
+        BRAG("You can not kill root process!\n");
+        return -1;
+    }
+
+    bool_t id_is_correct = FALSE;
+    task_ring_node_t* pActiveTaskRingNode = gpActiveTaskRingNode;
+    do
+    {
+        if (pActiveTaskRingNode->pTask->id == aTaskId)
+        {
+            task_tree_node_t* pTaskTreeNode = pActiveTaskRingNode->pTreeNode;
+            task_tree_node_t* pParent = pTaskTreeNode->pParent;
+            task_tree_node_t* pChild = pParent->pFirstChild;
+            task_tree_node_t* pPrevChild = NULL;
+            DUMP(pParent);
+            DUMP(pChild);
+            while (pChild != NULL)
+            {
+                if (pChild == pTaskTreeNode)
+                {
+                    if (pPrevChild != NULL)
+                    {
+                        pPrevChild->pNext = pTaskTreeNode->pNext;
+                    }
+                    else
+                    {
+                        pParent->pFirstChild = pTaskTreeNode->pNext;
+                    }
+
+                    if (pTaskTreeNode->pNext != NULL)
+                    {
+                        pTaskTreeNode->pNext->pPrev = pPrevChild;
+                    }
+                    free(pTaskTreeNode);
+                    break;
+                }
+                pPrevChild = pChild;
+            }
+
+            gpActiveTask = gpKernelTask;
+            gpActiveTaskRingNode = gpKernelTaskRingNode;
+
+            unload_task(pActiveTaskRingNode, pParent->pTask);
+            id_is_correct = TRUE;
+            break;
+        }
+        pActiveTaskRingNode = pActiveTaskRingNode->pNext;
+    }
+    while (gpActiveTaskRingNode != pActiveTaskRingNode);
+
+    if (id_is_correct)
+    {
+        BRAG("*** Task %d and its children killed ***\n", aTaskId);
+        print_task_tree();
+        return 0;
+    }
+    else
+    {
+        BRAG("*** No such task! (%d) ***\n", aTaskId);
+        return -1;
+    }
+}
+
+
 task_ring_node_t* KERNEL_CALL
 multitasking_install(void)
 {
@@ -199,6 +332,7 @@ multitasking_install(void)
     pKernel->parent = 0;
     pKernel->page_dir = read_cr3();
     pKernel->priority = PRIOR_HIGH;
+    pKernel->access = ACC_SUPER;
 
     gsTaskIdCounter++;
     gsTaskCounter++;
@@ -227,6 +361,9 @@ multitasking_install(void)
     pNode->pTreeNode = pTreeNode;
 
     gpTaskTreeTop = pTreeNode;
+
+    gpKernelTaskRingNode = pNode;
+    gpKernelTask = pKernel;
 
     return pNode;
 }

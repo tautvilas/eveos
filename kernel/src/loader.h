@@ -17,6 +17,7 @@ typedef struct {
     size_t          timetorun;
     size_t          sleep;
     size_t          priority;
+    mm_access_t     access;
     mm_task_mem_t   vm_info;
 } task_t;
 
@@ -46,6 +47,9 @@ multitasking_install(void);
 
 void KERNEL_CALL
 print_task_tree(void);
+
+int KERNEL_CALL
+kill_task(uint_t id);
 
 extern dword_t gPingTaskOffset;
 extern dword_t gEshTaskOffset;

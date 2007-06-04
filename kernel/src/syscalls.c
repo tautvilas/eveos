@@ -81,3 +81,11 @@ sys_exec(regs_t* apRegs)
     //DUMP(apRegs->edx);
     return;
 }
+
+void KERNEL_CALL
+sys_kill(regs_t* apRegs)
+{
+    uint_t id = apRegs->edx;
+    apRegs->eax = kill_task(id);
+    return;
+}
