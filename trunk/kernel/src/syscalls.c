@@ -86,6 +86,7 @@ void KERNEL_CALL
 sys_kill(regs_t* apRegs)
 {
     uint_t id = apRegs->edx;
-    apRegs->eax = kill_task(id);
+    timer_schedule(TRUE);
+    kill_task(id);
     return;
 }
