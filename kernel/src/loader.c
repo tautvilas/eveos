@@ -263,13 +263,16 @@ kill_task(uint_t aTaskId)
         return -1;
     }
 
+    gpActiveTask = gpKernelTask;
+    gpActiveTaskRingNode = gpKernelTaskRingNode;
+
     bool_t id_is_correct = FALSE;
-    task_ring_node_t* pActiveTaskRingNode = gpActiveTaskRingNode;
+    task_ring_node_t* pTaskRingNode = gpActiveTaskRingNode;
     do
     {
-        if (pActiveTaskRingNode->pTask->id == aTaskId)
+        if (pTaskRingNode->pTask->id == aTaskId)
         {
-            task_tree_node_t* pTaskTreeNode = pActiveTaskRingNode->pTreeNode;
+            task_tree_node_t* pTaskTreeNode = pTaskRingNode->pTreeNode;
             task_tree_node_t* pParent = pTaskTreeNode->pParent;
             task_tree_node_t* pChild = pParent->pFirstChild;
             task_tree_node_t* pPrevChild = NULL;
@@ -296,18 +299,16 @@ kill_task(uint_t aTaskId)
                     break;
                 }
                 pPrevChild = pChild;
+                pChild = pChild->pNext;
             }
 
-            gpActiveTask = gpKernelTask;
-            gpActiveTaskRingNode = gpKernelTaskRingNode;
-
-            unload_task(pActiveTaskRingNode, pParent->pTask);
+            unload_task(pTaskRingNode, pParent->pTask);
             id_is_correct = TRUE;
             break;
         }
-        pActiveTaskRingNode = pActiveTaskRingNode->pNext;
+        pTaskRingNode = pTaskRingNode->pNext;
     }
-    while (gpActiveTaskRingNode != pActiveTaskRingNode);
+    while (gpActiveTaskRingNode != pTaskRingNode);
 
     if (id_is_correct)
     {
