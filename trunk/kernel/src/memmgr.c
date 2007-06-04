@@ -719,18 +719,23 @@ mm_free_page_dir(uint_t apTaskPageDir)
     {
         if ((size_t)pTaskPageDir[tbl_i] & ENTRY_PRESENT)
         {
-            // some magic to calculate virtual address of page table
+            // some black magic to calculate virtual address of page table
             // :TODO: gx 2007-06-05: replace the magic with science ;-)
             mm_page_tbl_t   pTbl    = (mm_page_tbl_t)(
-                    (size_t)4 * GIGABYTE - 8 * MEGABYTE + 1
+                    (size_t)-1 - 8 * MEGABYTE + 1
                     + MM_PAGE_SIZE * tbl_i
                 );
+//DUMP(pTaskPageDir[tbl_i]);
+//DUMP(tbl_i);
+//DUMP(pTbl);
 
             size_t  page_i  = 0;
             for (page_i = 0; page_i < MM_PAGE_TBL_SIZE; ++page_i)
             {
                 if ((uint_t)pTbl[page_i] & ENTRY_PRESENT)
                 {
+//DUMP(page_i);
+//DUMP(pTbl[page_i]);
                     mm_free_page(
                             (pointer_t)((uint_t)pTbl[page_i] & MM_PAGE_ADDR_MASK)
                         );

@@ -172,6 +172,8 @@ show_help()
             "\t\tbackground if <ontop> is 0 or in foreground otherwise.\n"
             "\t\tCurrently only esh and ping tasks are available\n"
             "\n"
+            "\tkill <id>\n"
+            "\t\tKills program with specified <id>\n"
         );
 }
 
