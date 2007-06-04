@@ -550,114 +550,6 @@ sbrk(int aIncrement)
     return (pointer_t)-1;
 }
 
-pointer_t KERNEL_CALL
-sbrk_old(size_t aBytes)
-{
-    size_t      page_c;
-    size_t      tbl_c;
-    size_t      allocated;
-    pointer_t   addr;
-    size_t      new_size    = gsKernelVmSize + aBytes;
-    pointer_t   page_addr;
-
-    if (new_size < gsKernelVmSize)
-        return (pointer_t)-1;
-
-    // :TODO: gx 2007-05-23: check for max size
-
-    addr    = (pointer_t)gsKernelVmSize;
-
-    page_c  = gsKernelVmSize / MM_PAGE_SIZE;
-    if (gsKernelVmSize % MM_PAGE_SIZE)
-        page_c--;
-    allocated   = page_c * MM_PAGE_SIZE;
-    if (new_size <= allocated)
-    {
-        gsKernelVmSize  = new_size;
-        return addr;
-    }
-
-    tbl_c   = page_c / MM_PAGE_TBL_SIZE;
-    if (page_c % MM_PAGE_TBL_SIZE)
-        tbl_c++;
-    page_c    = page_c % MM_PAGE_TBL_SIZE;
-    while (allocated < new_size)
-    {
-        mm_page_tbl_t   tbl;
-
-        page_addr   = mm_alloc_page();
-        if (NULL == page_addr)
-        {
-            // :TODO: gx 2007-05-23: rollback
-            return (pointer_t)-1;
-        }
-
-        if (0 == page_c)
-        {
-            tbl = mm_alloc_page();
-            if (NULL == tbl)
-            {
-                // :TODO: gx 2007-05-23: rollback
-                return (pointer_t)-1;
-            }
-            gpPageDirectory[tbl_c]    = (pointer_t)(
-                    (size_t)tbl | ACC_RW | ACC_SUPER | ENTRY_PRESENT
-                );
-            write_cr3((size_t)gpPageDirectory - (size_t)&gKernelBase);
-            tbl_c++;
-        }
-        else
-        {
-            tbl = (pointer_t)(
-                    (size_t)gpPageDirectory[tbl_c - 1] & MM_PAGE_ADDR_MASK
-                );
-        }
-        tbl = (pointer_t)((unsigned)(MM_PAGE_DIR_SIZE - 1) * MM_PAGE_SIZE * MM_PAGE_TBL_SIZE
-                + (tbl_c - 1) * MM_PAGE_SIZE);
-
-        tbl[page_c] = (pointer_t)(
-                (size_t)page_addr | ACC_RW | ACC_SUPER | ENTRY_PRESENT
-            );
-        write_cr3((size_t)gpPageDirectory - (size_t)&gKernelBase);
-
-        allocated   += MM_PAGE_SIZE;
-        page_c      = (page_c + 1) % MM_PAGE_TBL_SIZE;
-    }
-
-    gsKernelVmSize  = new_size;
-
-    return addr;
-}
-
-
-/*
-pointer_t* KERNEL_CALL
-mm_alloc_page_table(mm_access_t aAccess)
-{
-    size_t          flags       = aAccess & ACC_MASK;
-    pointer_t*      pPageTable  = (pointer_t*)mm_alloc_page();
-    size_t          i;
-    for (i = 0; i < MM_PAGE_TBL_SIZE; ++i)
-    {
-        pPageTable[i]   = (pointer_t)flags;
-    }
-    return pPageTable;
-}
-
-
-pointer_t* KERNEL_CALL
-mm_alloc_page_directory(mm_access_t aAccess)
-{
-    size_t          flags       = aAccess & ACC_MASK;
-    pointer_t*      pPageDir    = (pointer_t*)mm_alloc_page();
-    size_t          i;
-    for (i = 0; i < MM_PAGE_DIR_SIZE; ++i)
-    {
-        pPageDir[i] = (pointer_t)flags;
-    }
-    return pPageDir;
-}*/
-
 
 /**
  *  Returns number of free pages.
@@ -807,4 +699,48 @@ mm_alloc_task(const mm_task_mem_t* apMem, const pointer_t apOffset, mm_access_t 
     write_cr3((dword_t)pKernelPageDir);
     // __asm__ __volatile__ ("sti");
     return (uint_t)pTaskPageDir;
+}
+
+
+void KERNEL_CALL
+mm_free_page_dir(mm_page_dir_t apTaskPageDir)
+{
+    const pointer_t TMP_PAGE_FRAME  = (pointer_t)((size_t)-1 - 2 * MM_PAGE_SIZE + 1);
+
+    mm_page_dir_t   pKernelPageDir  = mm_page_dir_addr();
+    mm_page_dir_t   pTaskPageDir    = (mm_page_dir_t)TMP_PAGE_FRAME;
+
+    pKernelPageDir[MM_PAGE_DIR_SIZE - 2] = (mm_page_tbl_t)(
+            (uint_t)apTaskPageDir | ACC_SUPER | ACC_RW | ENTRY_PRESENT
+        );
+
+    size_t  tbl_i   = 0;
+    for (tbl_i = 0; tbl_i < 512; ++tbl_i)
+    {
+        if ((size_t)pTaskPageDir[tbl_i] & ENTRY_PRESENT)
+        {
+            // some magic to calculate virtual address of page table
+            // :TODO: gx 2007-06-05: replace the magic with science ;-)
+            mm_page_tbl_t   pTbl    = (mm_page_tbl_t)(
+                    (size_t)4 * GIGABYTE - 8 * MEGABYTE + 1
+                    + MM_PAGE_SIZE * tbl_i
+                );
+
+            size_t  page_i  = 0;
+            for (page_i = 0; page_i < MM_PAGE_TBL_SIZE; ++page_i)
+            {
+                if ((uint_t)pTbl[page_i] & ENTRY_PRESENT)
+                {
+                    mm_free_page(
+                            (pointer_t)((uint_t)pTbl[page_i] & MM_PAGE_ADDR_MASK)
+                        );
+                }
+            }
+            mm_free_page(
+                    (pointer_t)((size_t)pTaskPageDir[tbl_i] & MM_PAGE_ADDR_MASK)
+                );
+        }
+    }
+    pKernelPageDir[MM_PAGE_DIR_SIZE - 2] = NULL;
+    mm_free_page(apTaskPageDir);
 }
