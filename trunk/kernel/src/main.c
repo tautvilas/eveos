@@ -20,7 +20,7 @@ os_main()
 
     mm_install();
     BRAG("Memory manager is installed\n", _TIMER_RATE);
-    mm_print_info();
+    //mm_print_info();
 
     /*{
         char* p;
@@ -88,7 +88,7 @@ os_main()
 
     // prepare tss segment
     tss_install();
-    BRAG("TSS is loaded\n");
+    //BRAG("TSS is loaded\n");
     // install resource manager before starting multitasking
     rm_install();
     task_ring_node_t* pKernelNode = multitasking_install();

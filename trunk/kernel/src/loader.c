@@ -100,7 +100,6 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     // swapping page dirs might be dangerous
     if(aAccess == ACC_SUPER)
     {
-        dword_t kernel_page_dir = read_cr3();
         __asm__ __volatile__ ("cli");
 
         write_cr3(pTask->page_dir);
@@ -128,7 +127,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
         *(pStack)-- = 0x10;
         *(pStack)   = 0x10;
 
-        write_cr3(kernel_page_dir);
+        write_cr3(gKernelCr3);
         __asm__ __volatile__ ("sti");
         pTask->esp = (dword_t)pStack;
     }
@@ -212,7 +211,8 @@ unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
     // free task kernel stack
     if (pTask->access == ACC_USER)
     {
-        free((regs_t*)(pTask->kstack));
+        //TODO free charshes
+        //free((regs_t*)(pTask->kstack - sizeof(regs_t)));
     }
 
     // free task ring node
