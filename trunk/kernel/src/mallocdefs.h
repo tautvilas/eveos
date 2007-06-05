@@ -8,7 +8,7 @@
 #include "errno.h"
 
 
-#define ABORT               kernel_panic();
+#define ABORT               (BRAG("malloc ERROR!\n"), kernel_panic())
 #define HAVE_MMAP           0
 #define HAVE_MREMAP         0
 #define MMAP_CLEARS         0

@@ -211,23 +211,22 @@ unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
     // free task kernel stack
     if (pTask->access == ACC_USER)
     {
-        //TODO free charshes
-        //free((regs_t*)(pTask->kstack - sizeof(regs_t)));
+        free((regs_t*)(pTask->kstack - sizeof(regs_t)));
     }
 
     // free task ring node
 
-    //apTaskRingNode->pPrev->pNext = apTaskRingNode->pNext;
-    //apTaskRingNode->pNext->pPrev = apTaskRingNode->pPrev;
-    //free(apTaskRingNode);
+    apTaskRingNode->pPrev->pNext = apTaskRingNode->pNext;
+    apTaskRingNode->pNext->pPrev = apTaskRingNode->pPrev;
 
     // free task struct
-    //free(pTask);
+    free(pTask);
 
-    //gsTaskCounter--;
+    gsTaskCounter--;
 
     // iterate through children
-    /*task_tree_node_t* pTaskTreeNode = apTaskRingNode->pTreeNode;
+    task_tree_node_t* pTaskTreeNode = apTaskRingNode->pTreeNode;
+    free(apTaskRingNode);
     task_tree_node_t* pChild = pTaskTreeNode->pFirstChild;
     while (pChild != NULL)
     {
@@ -246,7 +245,9 @@ unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
     }
 
     // free task tree node
-    free(pTaskTreeNode); */
+    DUMP(pTaskTreeNode);
+    free(pTaskTreeNode);
+        DUMP("free ok\n");
     return;
 }
 
@@ -296,7 +297,7 @@ kill_task(uint_t aTaskId)
                     {
                         pTaskTreeNode->pNext->pPrev = pPrevChild;
                     }
-                    free(pTaskTreeNode);
+                    //free(pTaskTreeNode);
                     break;
                 }
                 pPrevChild = pChild;
