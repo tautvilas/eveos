@@ -91,13 +91,14 @@ os_main()
     //BRAG("TSS is loaded\n");
     // install resource manager before starting multitasking
     rm_install();
-    task_ring_node_t* pKernelNode = multitasking_install();
+    // task manager
+    task_ring_node_t* pKernelNode = tm_install();
     BRAG("Multitasking is enabled\n");
     //print_task_tree();
 
     // load shell app
     gEshTaskOffset = (dword_t)&gKernelEnd;
-    load_task((pointer_t) gEshTaskOffset, pKernelNode, ACC_USER, PRIOR_LOW, TRUE);
+    tm_load_task((pointer_t) gEshTaskOffset, pKernelNode, ACC_USER, PRIOR_LOW, TRUE);
 
     extern dword_t gNextTaskOffset;
     gPingTaskOffset = gNextTaskOffset;

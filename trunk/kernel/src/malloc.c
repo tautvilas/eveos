@@ -437,6 +437,9 @@ DEFAULT_MMAP_THRESHOLD       default: 256K
   disable mmap by setting to MAX_SIZE_T.
 
 */
+
+#include "global.h"
+#include "stdio.h"
 #include "mallocdefs.h"
 
 #ifndef WIN32

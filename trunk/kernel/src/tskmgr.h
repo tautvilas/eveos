@@ -42,27 +42,27 @@ typedef struct task_ring_node_t {
     struct task_tree_node_t*    pTreeNode;
 } task_ring_node_t;
 
-task_ring_node_t* KERNEL_CALL
-multitasking_install(void);
-
-void KERNEL_CALL
-print_task_tree(void);
-
-int KERNEL_CALL
-kill_task(uint_t id);
-
 extern dword_t gPingTaskOffset;
 extern dword_t gEshTaskOffset;
 extern dword_t gKernelTaskOffset;
 
-task_ring_node_t* KERNEL_CALL
-load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPrior, bool_t aOnTop);
-
 extern task_t* gpActiveTask;
-extern task_t* gpForegroundTask;
+extern task_t* gpTopTask;
 extern uint_t gpPriorityTimes[];
 extern task_ring_node_t* gpActiveTaskRingNode;
 extern dword_t gNextTaskOffset;
 extern dword_t gKernelCr3;
+
+task_ring_node_t* KERNEL_CALL
+tm_install(void);
+
+void KERNEL_CALL
+tm_print_task_tree(void);
+
+int KERNEL_CALL
+tm_kill_task(uint_t id);
+
+task_ring_node_t* KERNEL_CALL
+tm_load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPrior, bool_t aOnTop);
 
 #endif // _LOADER_H_

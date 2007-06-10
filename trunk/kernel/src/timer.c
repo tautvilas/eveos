@@ -3,7 +3,7 @@
 #include "idt.h"
 #include "ports.h"
 #include "vga.h"
-#include "loader.h"
+#include "tskmgr.h"
 
 #define PIT_COMMAND  0x43
 #define PIT_CHANNEL1 0x40 /* IRQ0 clock */

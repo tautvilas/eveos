@@ -1,19 +1,16 @@
-#include "loader.h"
+#include "tskmgr.h"
 #include "memmgr.h"
 #include "malloc.h"
 #include "stdio.h"
 #include "mem.h"
 
-#define KERNEL_TASK_NAME "kernel"
-
-extern dword_t      read_cr3();
 extern void         write_cr3(dword_t);
 extern void         gKernelBase;
+extern dword_t      read_cr3();
 extern dword_t      gGdtCsSel;
 extern dword_t      gGdtUserCsSel;
 extern dword_t      gGdtUserDataSel;
 extern dword_t      gKernelEnd;
-extern dword_t      gGdtKernelDataSel;
 
 typedef struct {
     dword_t midmag;
@@ -47,7 +44,7 @@ static task_ring_node_t* gpKernelTaskRingNode;
 static task_t* gpKernelTask;
 
 task_ring_node_t* KERNEL_CALL
-load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPriority, bool_t aOnTop)
+tm_load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, priority_t aPriority, bool_t aOnTop)
 {
     write_cr3(gKernelCr3);
 
@@ -187,7 +184,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
     BRAG("*** Kernel has ended loading task... Number of tasks running: %d ***\n", gsTaskCounter);
 
 #ifdef EVE_DEBUG
-    print_task_tree();
+    tm_print_task_tree();
     mm_print_info();
 #endif
 
@@ -195,7 +192,7 @@ load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, prior
 }
 
 void KERNEL_CALL
-unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
+tm_unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
 {
     task_t* pTask = apTaskRingNode->pTask;
     if (pTask == gpTopTask)
@@ -235,7 +232,7 @@ unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
         {
             if(pActiveTaskRingNode->pTask == pChild->pTask)
             {
-                unload_task(pActiveTaskRingNode, parentTask);
+                tm_unload_task(pActiveTaskRingNode, parentTask);
                 break;
             }
             pActiveTaskRingNode = pActiveTaskRingNode->pNext;
@@ -252,7 +249,7 @@ unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
 }
 
 int KERNEL_CALL
-kill_task(uint_t aTaskId)
+tm_kill_task(uint_t aTaskId)
 {
     BRAG("*** Kernel is trying to kill task %d ***\n", aTaskId);
 
@@ -304,7 +301,7 @@ kill_task(uint_t aTaskId)
                 pChild = pChild->pNext;
             }
 
-            unload_task(pTaskRingNode, pParent->pTask);
+            tm_unload_task(pTaskRingNode, pParent->pTask);
             id_is_correct = TRUE;
             break;
         }
@@ -315,7 +312,7 @@ kill_task(uint_t aTaskId)
     if (id_is_correct)
     {
         BRAG("*** Task %d and its children killed ***\n", aTaskId);
-        print_task_tree();
+        tm_print_task_tree();
         mm_print_info();
         return 0;
     }
@@ -328,7 +325,7 @@ kill_task(uint_t aTaskId)
 
 
 task_ring_node_t* KERNEL_CALL
-multitasking_install(void)
+tm_install(void)
 {
     task_t* pKernel = malloc(sizeof(task_t));
     pKernel->locked = FALSE;
@@ -373,7 +370,7 @@ multitasking_install(void)
 }
 
 void KERNEL_CALL
-print_task_tree_node(int aDepth, task_tree_node_t* apNode)
+tm_print_task_tree_node(int aDepth, task_tree_node_t* apNode)
 {
     int i;
 
@@ -411,15 +408,15 @@ print_task_tree_node(int aDepth, task_tree_node_t* apNode)
     task_tree_node_t* pChild = apNode->pFirstChild;
     while (pChild != NULL)
     {
-        print_task_tree_node(aDepth + 1, pChild);
+        tm_print_task_tree_node(aDepth + 1, pChild);
         pChild = pChild->pNext;
     }
 }
 
 void KERNEL_CALL
-print_task_tree(void)
+tm_print_task_tree(void)
 {
     printf("PS tree\n");
-    print_task_tree_node(0, gpTaskTreeTop);
+    tm_print_task_tree_node(0, gpTaskTreeTop);
     printf("\n");
 }

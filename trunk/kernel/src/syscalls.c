@@ -5,7 +5,7 @@
 #include "sem.h"
 #include "resmgr.h"
 #include "vga.h"
-#include "loader.h"
+#include "tskmgr.h"
 #include "timer.h"
 #include "mem.h"
 
@@ -64,12 +64,12 @@ sys_exec(regs_t* apRegs)
     priority_t priority = apRegs->edx;   // priviledge
     if (strcmp(name, "ping") == 0)
     {
-        load_task((pointer_t)gPingTaskOffset, gpActiveTaskRingNode, ACC_USER, priority, on_top);
+        tm_load_task((pointer_t)gPingTaskOffset, gpActiveTaskRingNode, ACC_USER, priority, on_top);
         apRegs->eax = 0; // success
     }
     else if (strcmp(name, "esh") == 0)
     {
-        load_task((pointer_t)gEshTaskOffset, gpActiveTaskRingNode, ACC_USER, priority, on_top);
+        tm_load_task((pointer_t)gEshTaskOffset, gpActiveTaskRingNode, ACC_USER, priority, on_top);
         apRegs->eax = 0; // success
     }
     else
@@ -87,6 +87,6 @@ sys_kill(regs_t* apRegs)
 {
     uint_t id = apRegs->edx;
     timer_schedule(TRUE);
-    kill_task(id);
+    tm_kill_task(id);
     return;
 }

@@ -2,7 +2,7 @@
 #define _RESMGR_H_
 
 #include "global.h"
-#include "loader.h"
+#include "tskmgr.h"
 
 extern KERNEL_CALL void
 rm_start(void);

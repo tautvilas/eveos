@@ -10,7 +10,7 @@
 #include "timer.h"      // timer_install
 #include "keyboard.h"   // keyboard_install
 #include "memmgr.h"     // mm_install
-#include "loader.h"     // multitasking_install
+#include "tskmgr.h"     // multitasking_install
 #include "malloc.h"
 #include "resmgr.h"     // md_start
 #include "gdt.h"
