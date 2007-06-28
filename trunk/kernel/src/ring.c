@@ -13,9 +13,19 @@ ds_ring_create()
 }
 
 
+inline pointer_t
+ds_ring_curr(const ds_ring_t* apRing)
+{
+    return apRing->mpNode->mpData;
+}
+
+
 void
 ds_ring_destroy(ds_ring_t* apRing)
 {
+    while (ds_ring_curr(apRing))
+        ds_ring_del(apRing);
+
     free(apRing);
 }
 
@@ -60,20 +70,13 @@ ds_ring_del(ds_ring_t* apRing)
 }
 
 
-pointer_t
+inline pointer_t
 ds_ring_next(ds_ring_t* apRing)
 {
     if (!apRing->mpNode)
         return NULL;
 
     apRing->mpNode  = apRing->mpNode->mpNext;
-    return apRing->mpNode->mpData;
-}
-
-
-inline pointer_t
-ds_ring_curr(const ds_ring_t* apRing)
-{
     return apRing->mpNode->mpData;
 }
 
