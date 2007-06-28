@@ -24,4 +24,6 @@
 #define LACKS_STDLIB_H
 #define DEFAULT_TRIM_THRESHOLD  MEGABYTE
 
+#define NEW(type)   ((type*)malloc(sizeof(type)))
+
 #endif  // _MALLOCDEFS_H_

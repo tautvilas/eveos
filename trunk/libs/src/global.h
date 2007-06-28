@@ -29,6 +29,8 @@
 #define MEGABYTE            1048576
 #define GIGABYTE            (MEGABYTE * 1024)
 
+#include <stddef.h>
+
 typedef unsigned char       byte_t;     // unsigned 8bit integer
 typedef unsigned short      word_t;     // unsigned 16bit integer
 typedef unsigned int        dword_t;    // unsigned 32bit integer
