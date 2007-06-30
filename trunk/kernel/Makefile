@@ -5,7 +5,7 @@
 # RM    - command for deleting files
 ifeq ($(OS),Windows_NT)
 	SYS     := win
-	DS      := \\# this is hack to set DS to `\`
+	DS      := \\	# this is hack to set DS to `\`
 	PS      := ;
 	RM      := del /Q
 	NUL     := NUL
@@ -36,6 +36,8 @@ BIN := $(BIN_DIR)$(DS)
 
 VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 
+COMPILER := g++
+
 CPPFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 			-fleading-underscore -nostdinc -fno-builtin \
 			-nostartfiles -nostdlib -fno-rtti -fno-exceptions \
@@ -50,7 +52,7 @@ LDFLAGS := -T link.ld -s -x $(MAP)
 
 define CPP_COMPILE
 		@echo ~~~ Compiling $(@F) from $(filter %.cpp, $(^F))
-		$(E)g++ $(CPPFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.cpp, $(^F)))
+		$(E)$(COMPILER) $(CPPFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.cpp, $(^F)))
 endef
 
 kernel.bin: kentry.o main.o
@@ -70,6 +72,6 @@ kentry.o: kentry.asm isr.asm utils.asm
 .PHONY: clean vars
 clean:
 	@echo ~~~ Cleaning kernel
-	-$E$(RM) $(OBJ)*.o > $(NUL)
-	-$E$(RM) $(BIN)*.bin > $(NUL)
+	$(E)$(RM) $(OBJ)*.o > $(NUL)
+	$(E)$(RM) $(BIN)*.bin > $(NUL)
 	@echo ~~~ Done

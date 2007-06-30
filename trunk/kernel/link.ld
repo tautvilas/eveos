@@ -47,4 +47,3 @@ SECTIONS
         *(.note*)
     }
 }
-
