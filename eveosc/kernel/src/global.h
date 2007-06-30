@@ -39,6 +39,7 @@ typedef int                 int_t;      // signed pointer width integer
 typedef unsigned int        uint_t;     // unsigned pointer width integer
 typedef uint_t              size_t;     // unsigned pointer width integer
 typedef void*               pointer_t;  // void pointer
+typedef void                label_t;
 
 typedef enum {
         FALSE,

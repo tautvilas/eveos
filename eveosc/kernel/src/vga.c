@@ -65,7 +65,7 @@ vga_set_reg(byte_t aRegIdx, byte_t aData)
 void KERNEL_CALL
 vga_set_fg_color(color_t aColor)
 {
-    gsFgColor   = aColor & 0xF;     // clearing unused bits
+    gsFgColor   = (color_t)(aColor & 0xF);     // clearing unused bits
 }
 
 

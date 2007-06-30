@@ -7,7 +7,7 @@
 extern void         write_cr3(dword_t);
 extern void         gKernelBase;
 extern dword_t      read_cr3();
-extern dword_t      gGdtCsSel;
+extern dword_t      gGdtKernelCsSel;
 extern dword_t      gGdtUserCsSel;
 extern dword_t      gGdtUserDataSel;
 extern dword_t      gKernelEnd;
@@ -106,7 +106,7 @@ tm_load_task(void* apOffset, task_ring_node_t* apParent, mm_access_t aAccess, pr
         dword_t* pStack = (dword_t*)pTask->ustack;
         pStack--;
         *(pStack)-- = 0x202;    //eflags: enable interrupts and set reserved bit to 1
-        *(pStack)-- = gGdtCsSel;
+        *(pStack)-- = gGdtKernelCsSel;
         *(pStack)-- = pTask->vm_info.entry;
         *(pStack)-- = 0x00;     // error code
         *(pStack)-- = 0x00;     // isr num
@@ -244,7 +244,7 @@ tm_unload_task(task_ring_node_t* apTaskRingNode, task_t* parentTask)
     // free task tree node
     DUMP(pTaskTreeNode);
     free(pTaskTreeNode);
-        DUMP("free ok\n");
+    BRAG("free ok\n");
     return;
 }
 
@@ -294,7 +294,6 @@ tm_kill_task(uint_t aTaskId)
                     {
                         pTaskTreeNode->pNext->pPrev = pPrevChild;
                     }
-                    //free(pTaskTreeNode);
                     break;
                 }
                 pPrevChild = pChild;

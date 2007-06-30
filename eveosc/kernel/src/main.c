@@ -1,6 +1,6 @@
 #include "main.h"
 
-extern void gKernelEnd;
+extern int gKernelEnd;
 
 void KERNEL_CALL
 os_main()

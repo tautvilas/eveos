@@ -10,16 +10,21 @@
 
 bits 16
 
-global _sys_stack
-global _start       ; entry symbol for linker
-global _idt_load    ; function for loading IDT
+; global vars
+
+global _start               ; entry symbol for linker
+global _idt_load            ; function for loading IDT
 
 global _gGdt
-global _gGdtCsSel           ; gdt cs selector
-global _gGdtKernelDataSel   ; gdt data selector
+
+global _gGdtKernelCsSel     ; gdt kernel cs selector
+global _gGdtKernelDataSel   ; gdt kernel data selector
 global _gGdtUserCsSel       ; gdt user cs selector
 global _gGdtUserDataSel     ; gdt user data selector
+
 global _gKernelEsp
+
+; extern vars
 
 extern _gKernelStart        ; kernel vm start
 extern _gBssStart           ; kernel bss section start
@@ -32,7 +37,7 @@ extern _irq_handler         ; IRQs handler
 extern _gpActiveTask        ; active task
 extern _gKernelCr3          ; kernel page dir
 
-extern _gTss
+extern _gTss                ; pointer to tss segment
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -171,7 +176,7 @@ init_pt2:
 paging_enabled:
 
     mov eax, CODE_SEL
-    mov [_gGdtCsSel], eax
+    mov [_gGdtKernelCsSel], eax
     mov eax, DATA_SEL
     mov [_gGdtKernelDataSel], eax
     mov eax, USER_CODE_SEL
@@ -385,7 +390,7 @@ a20_success_msg db "A20 gate enabled", 13, 10, 0
 a20_failure_msg db "Failded to enable A20 gate! Halting.", 13, 10, 0
 
 ; code selectors
-_gGdtCsSel          dd 0
+_gGdtKernelCsSel    dd 0
 _gGdtKernelDataSel  dd 0
 _gGdtUserCsSel      dd 0
 _gGdtUserDataSel    dd 0

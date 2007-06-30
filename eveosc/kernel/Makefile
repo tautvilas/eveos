@@ -37,9 +37,13 @@ BIN := $(BIN_DIR)$(DS)
 VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 
 # C compiler flags
+#CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
+#		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
+#       $(SYS_CFLAGS) -c -x c
+
 CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
-		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
-        $(SYS_CFLAGS) -c -x c
+		-fleading-underscore -nostdinc -fno-builtin \
+        $(SYS_CFLAGS) -c -x c -ffreestanding
 
 # nasm flags
 # on nix nasm requires include directory with trailing slash
@@ -49,7 +53,7 @@ LDFLAGS := -T link.ld -s -x $(MAP)
 
 define C_COMPILE
 		@echo ~~~ Compiling $(@F) from $(filter %.c, $(^F))
-		$Egcc $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
+		$Eg++ $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
 endef
 
 #paging.o
