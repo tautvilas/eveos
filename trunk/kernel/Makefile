@@ -15,7 +15,7 @@ else
 	PS      := :
 	RM      := rm -f
 	NUL     := /dev/null
-    SYS_CFLAGS  := -fno-stack-protector
+	SYS_CPPFLAGS  := -fno-stack-protector
 endif
 
 # this hides commands
@@ -36,14 +36,11 @@ BIN := $(BIN_DIR)$(DS)
 
 VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
 
-# C compiler flags
-#CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
-#		-ffreestanding -fleading-underscore -nostdinc -fno-builtin \
-#       $(SYS_CFLAGS) -c -x c
-
-CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
-		-fleading-underscore -nostdinc -fno-builtin \
-        $(SYS_CFLAGS) -c -x c -ffreestanding
+CPPFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
+			-fleading-underscore -nostdinc -fno-builtin \
+			-nostartfiles -nostdlib -fno-rtti -fno-exceptions \
+			-c \
+			$(SYS_CPPFLAGS)
 
 # nasm flags
 # on nix nasm requires include directory with trailing slash
@@ -51,32 +48,24 @@ CFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 ASFLAGS := -f aout -I$(SRC_DIR)/
 LDFLAGS := -T link.ld -s -x $(MAP)
 
-define C_COMPILE
-		@echo ~~~ Compiling $(@F) from $(filter %.c, $(^F))
-		$Eg++ $(CFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.c, $(^F)))
+define CPP_COMPILE
+		@echo ~~~ Compiling $(@F) from $(filter %.cpp, $(^F))
+		$(E)g++ $(CPPFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.cpp, $(^F)))
 endef
 
-#paging.o
-kernel.bin: kentry.o main.o vga.o mem.o ports.o idt.o stdio.o logo.o timer.o \
-	keyboard.o memmgr.o syscalls.o tskmgr.o malloc.o errno.o sem.o resmgr.o \
-	gdt.o ring.o
+kernel.bin: kentry.o main.o
 	@echo ~~~ Linking $(^F)
-	$Eld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
+	$(E)ld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
 
 kentry.o: kentry.asm isr.asm utils.asm
 	@echo ~~~ Compiling entry
-	$Enasm $(ASFLAGS) $(SRC)kentry.asm -o $(OBJ)kentry.o
+	$(E)nasm $(ASFLAGS) $(SRC)kentry.asm -o $(OBJ)kentry.o
 
-malloc.o: malloc.c mallocdefs.h
-	$(C_COMPILE)
-
-# default rule for compiling C source files
+# default rule for compiling CPP source files
 # used only if no rule is defined explictly
-%.o: %.c %.h global.h malloc.h
-	$(C_COMPILE)
-
-
+%.o: %.cpp %.h
+	$(CPP_COMPILE)
 
 .PHONY: clean vars
 clean:
