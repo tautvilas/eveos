@@ -13,7 +13,6 @@ bits 16
 ; global vars
 
 global _start               ; entry symbol for linker
-global _idt_load            ; function for loading IDT
 
 global _gGdt
 
@@ -30,14 +29,14 @@ extern _gKernelStart        ; kernel vm start
 extern _gBssStart           ; kernel bss section start
 extern _gBssEnd             ; kernel bss section end
 
-extern _os_main             ; OS main C function
-extern _gIdtp               ; Pointer to IDT
-extern _exception_handler   ; ISRs handler
-extern _irq_handler         ; IRQs handler
-extern _gpActiveTask        ; active task
-extern _gKernelCr3          ; kernel page dir
+extern _eve_main              ; OS main C function
+; extern _gIdtp               ; Pointer to IDT
+; extern _exception_handler   ; ISRs handler
+; extern _irq_handler         ; IRQs handler
+; extern _gpActiveTask        ; active task
+; extern _gKernelCr3          ; kernel page dir
 
-extern _gTss                ; pointer to tss segment
+; extern _gTss                ; pointer to tss segment
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -195,7 +194,7 @@ paging_enabled:
     lgdt [vmgdtptr]
 
     ; here is the master call
-    call _os_main
+    call _eve_main
 
     cli
     hlt
@@ -237,11 +236,6 @@ bits 32
 
 ; ISRs and IRQs function stubs
 %include "isr.asm"
-
-; Load the interrupt descriptor table
-_idt_load:
-    lidt [_gIdtp]
-    ret
 
 isr_common:
     pusha
@@ -395,6 +389,13 @@ _gGdtKernelDataSel  dd 0
 _gGdtUserCsSel      dd 0
 _gGdtUserDataSel    dd 0
 _gTssSel dd 0
+
+; dummy definitions
+
+_gpActiveTask       dd 0
+_exception_handler  dd 0
+_irq_handler        dd 0
+_gTss               dd 0
 
 ; kernel stack top
 _gKernelEsp     dd 0

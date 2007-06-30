@@ -1,2 +1,2 @@
-extern "C" void os_main() {
+extern "C" void eve_main() {
 }
