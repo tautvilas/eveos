@@ -59,7 +59,7 @@ enableA20:
 
     ;; Tell the controller we want to write the status byte again
     mov AL, 0D1h
-    out 64h, AL 
+    out 64h, AL
 
     ;; Wait for the controller to be ready for the data
     .commandWait3:
@@ -89,7 +89,7 @@ enableA20:
 
     ;; Send the command D0h: read output port.
     mov AL, 0D0h
-    out 64h, AL 
+    out 64h, AL
 
     ;; Wait for the controller to be ready with a byte of data
     .dataWait2:
@@ -193,3 +193,4 @@ enableA20:
     popa
     mov EAX, -1
     ret
+

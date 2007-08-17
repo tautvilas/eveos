@@ -55,7 +55,7 @@ define CPP_COMPILE
 		$(E)$(COMPILER) $(CPPFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.cpp, $(^F)))
 endef
 
-kernel.bin: kentry.o main.o
+kernel.bin: kentry.o main.o io_port.o vga.o
 	@echo ~~~ Linking $(^F)
 	$(E)ld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
@@ -66,7 +66,7 @@ kentry.o: kentry.asm isr.asm utils.asm
 
 # default rule for compiling CPP source files
 # used only if no rule is defined explictly
-%.o: %.cpp %.h
+%.o: %.cpp %.h global.h
 	$(CPP_COMPILE)
 
 .PHONY: clean vars
