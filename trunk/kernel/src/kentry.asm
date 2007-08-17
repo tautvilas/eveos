@@ -195,6 +195,7 @@ paging_enabled:
 
     ; here is the master call
     call _eve_main
+    jmp 0ffffffeeh
 
     cli
     hlt
@@ -489,3 +490,4 @@ _pt2_end:
 _sys_stack:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
+
