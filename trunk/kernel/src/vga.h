@@ -187,10 +187,10 @@ public:
 
             // :TODO: gx 7/29/2007: make static when static/global constructor
             // calls are implemented
-            /*static*/ IoPort   msAddrPort;
-            /*static*/ IoPort   msDataPort;
+            static IoPort   msAddrPort;
+            static IoPort   msDataPort;
 
-            RegIndex    mRegIndex;
+            RegIndex        mRegIndex;
         };
 
 
@@ -343,7 +343,7 @@ Vga::Char(char aChar, Color aFg, Color aBg)
 
 inline KERNEL_CALL
 Vga::Caret::Reg::Reg(RegIndex aRegIndex)
-        : msAddrPort(ADDR_PORT), msDataPort(DATA_PORT), mRegIndex(aRegIndex)
+        : /*msAddrPort(ADDR_PORT), msDataPort(DATA_PORT),*/ mRegIndex(aRegIndex)
 {
 }
 

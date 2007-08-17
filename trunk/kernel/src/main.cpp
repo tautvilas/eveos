@@ -1,7 +1,11 @@
 #include "main.h"
 
+#include "cpp_runtime.h"
+
 extern "C" void eve_main()
 {
+    CppRuntime::Init();
+
     {
         // just a test of possioning and putting
         Vga::Position   pos     = Vga::Caret::Pos();
@@ -16,6 +20,9 @@ extern "C" void eve_main()
         Vga::Caret::Pos(Vga::Position(0, 24));
         Vga::Print("Vga::Print()\n", Vga::BLACK, Vga::GREEN);
     }
+
+
+
     for (;;);
 }
 

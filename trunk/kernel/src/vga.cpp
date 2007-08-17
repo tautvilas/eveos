@@ -20,8 +20,8 @@ Vga::Color  Vga::msFgColor  = Vga::DEFAULT_FG;
 
 ////// Vga::Caret static members //////
 
-//IoPort Vga::Caret::Reg::msAddrPort(0x3d4);
-//IoPort Vga::Caret::Reg::msDataPort(0x3d5);
+IoPort Vga::Caret::Reg::msAddrPort(Vga::Caret::Reg::ADDR_PORT);
+IoPort Vga::Caret::Reg::msDataPort(Vga::Caret::Reg::DATA_PORT);
 
 
 
