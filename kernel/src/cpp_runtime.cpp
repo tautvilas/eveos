@@ -69,7 +69,12 @@ __cxa_atexit(void (*apFunc)(void *), void *apArg, void *apDso)
     {
         // gx 8/18/2007: It's risky to use anything here but as long as
         // Vga::Put() doesn't use any global/static objects its safe enough.
-        Vga::
+        Vga::Put(
+            "Maximum number of global/static objects destructors exceeded!",
+            Vga::Position(0, 0),
+            Vga::BLACK,
+            Vga::RED
+            );
         for (;;);
 
         return -1;
