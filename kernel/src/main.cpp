@@ -8,7 +8,7 @@ extern "C" void eve_main()
 
     {
         // just a test of possioning and putting
-        Vga::Position   pos     = Vga::Caret::Pos();
+        Vga::TPos   pos = Vga::Caret::Pos();
         for (char* pStr = "Vga::Put()"; *pStr; ++pStr, ++pos)
             Vga::Put(*pStr, pos, Vga::BLACK, Vga::WHITE);
         Vga::Caret::Pos(pos);
@@ -17,8 +17,18 @@ extern "C" void eve_main()
         Vga::Print("\nVga::Print()");
 
         // scroll and color printing test
-        Vga::Caret::Pos(Vga::Position(0, 24));
+        Vga::Caret::Pos(Vga::TPos(0, 24));
         Vga::Print("Vga::Print()\n", Vga::BLACK, Vga::GREEN);
+
+        Vga::Print(123, BIN);
+        Vga::Print(' ');
+        Vga::Print(123, OCT);
+        Vga::Print(' ');
+        Vga::Print(123, DEC);
+        Vga::Print(' ');
+        Vga::Print(123, HEX);
+        Vga::Print(' ');
+        Vga::Print(0xdeadbeef, HEX);
     }
 
 

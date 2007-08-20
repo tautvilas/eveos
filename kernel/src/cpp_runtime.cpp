@@ -20,32 +20,32 @@ void *__dso_handle; /*only the address of this symbol is taken by gcc*/
 
 namespace
 {
-    const Size MAX_OBJECTS  = 32;
+    const TSize MAX_OBJECTS  = 32;
 
-    struct Object
+    struct TObject
     {
             void (*mpFunc)(void*);
             void *mpArg;
             void *mpDso;
     };
 
-    Object  gspObjects[MAX_OBJECTS];
+    TObject gspObjects[MAX_OBJECTS];
 
-    Size    gObjectCount    = 0;
+    TSize   gObjectCount    = 0;
 };
 
 
 void
 CppRuntime::Init()
 {
-    typedef void (*Ctor)();
+    typedef void (*TCtor)();
 
     // from linker
-    extern Ctor gCppCtorFirst;
-    extern Ctor gCppCtorsEnd;
+    extern TCtor gCppCtorFirst;
+    extern TCtor gCppCtorsEnd;
 
-    const Ctor* pCtor       = &gCppCtorFirst;
-    const Ctor* pCtorsEnd   = &gCppCtorsEnd;
+    const TCtor* pCtor      = &gCppCtorFirst;
+    const TCtor* pCtorsEnd  = &gCppCtorsEnd;
 
     for (; pCtor != pCtorsEnd; ++pCtor)
     {
@@ -71,7 +71,7 @@ __cxa_atexit(void (*apFunc)(void *), void *apArg, void *apDso)
         // Vga::Put() doesn't use any global/static objects its safe enough.
         Vga::Put(
             "Maximum number of global/static objects destructors exceeded!",
-            Vga::Position(0, 0),
+            Vga::TPos(0, 0),
             Vga::BLACK,
             Vga::RED
             );
@@ -108,8 +108,8 @@ void
 __cxa_pure_virtual()
 {
     Vga::Put(
-            "Call to pure virutal method detected!",
-            Vga::Position(0, 0),
+            "Call to pure virtual method detected!",
+            Vga::TPos(0, 0),
             Vga::BLACK,
             Vga::RED
             );

@@ -6,11 +6,11 @@
 /**
  *  Class for I/O ports manipulation.
  */
-class IoPort
+class TIoPort
 {
 
     // gx 8/18/2007: tried overloading and template approaches for Write
-    // method with different size data like Byte, Word, etc. but ended up
+    // method with different size data like Byte, TWord, etc. but ended up
     // with named method solution because we need strict control over values
     // we write to I/O port. With overloaded/template method we'd need
     // explicitly cast values to use right method implementation. With named
@@ -28,44 +28,44 @@ class IoPort
 public:
 
     KERNEL_CALL
-    IoPort(Word aPort);
+    TIoPort(TWord aPort);
 
     void KERNEL_CALL
-    WriteByte(Byte aData);
+    WriteByte(TByte aData);
 
-    Byte KERNEL_CALL
+    TByte KERNEL_CALL
     ReadByte();
 
     // :TODO: gx 8/18/2007: mothods for other data types like when needed.
 
 
 private:
-    Word    mPort;
+    TWord   mPort;
 
 };
 
 
 
-////// IoPort inlines //////
+////// TIoPort inlines //////
 
 inline KERNEL_CALL
-IoPort::IoPort(Word aPort)
+TIoPort::TIoPort(TWord aPort)
         : mPort(aPort)
 {
 }
 
 
 inline void KERNEL_CALL
-IoPort::WriteByte(Byte aData)
+TIoPort::WriteByte(TByte aData)
 {
     __asm__ __volatile__ ("outb %1, %0" : : "dN"(mPort), "a"(aData));
 }
 
 
-inline Byte KERNEL_CALL
-IoPort::ReadByte()
+inline TByte KERNEL_CALL
+TIoPort::ReadByte()
 {
-    Byte data;
+    TByte data;
     __asm__ __volatile__ ("inb %1, %0" : "=a" (data) : "dN" (mPort));
     return data;
 }
