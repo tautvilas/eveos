@@ -57,7 +57,7 @@ endef
 
 kernel.bin: kentry.o cpp_runtime.o main.o io_port.o vga.o
 	@echo ~~~ Linking $(^F)
-	$(E)ld $(LDFLAGS) -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
+	$(E)ld $(LDFLAGS) -Map $(BIN)kernel.map -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done
 
 kentry.o: kentry.asm isr.asm utils.asm
