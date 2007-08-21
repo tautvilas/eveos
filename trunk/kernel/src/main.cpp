@@ -1,5 +1,6 @@
 #include "main.h"
-
+#include "vga.h"
+#include "idt.h"
 #include "cpp_runtime.h"
 
 extern "C" void eve_main()
@@ -31,7 +32,9 @@ extern "C" void eve_main()
         Vga::Print(0xdeadbeef, HEX);
     }
 
-
+    {
+        Idt::Install();
+    }
 
     for (;;);
 }
