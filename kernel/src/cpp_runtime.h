@@ -1,8 +1,6 @@
 #ifndef _CPP_RUNTIME_
 #define _CPP_RUNTIME_
 
-#include "global.h"
-
 namespace CppRuntime
 {
     /**

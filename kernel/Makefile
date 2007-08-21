@@ -55,7 +55,7 @@ define CPP_COMPILE
 		$(E)$(COMPILER) $(CPPFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.cpp, $(^F)))
 endef
 
-kernel.bin: kentry.o cpp_runtime.o main.o io_port.o vga.o
+kernel.bin: kentry.o cpp_runtime.o main.o io_port.o vga.o idt.o
 	@echo ~~~ Linking $(^F)
 	$(E)ld $(LDFLAGS) -Map $(BIN)kernel.map -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	@echo ~~~ Done

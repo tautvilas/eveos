@@ -206,7 +206,7 @@ paging_enabled:
 
 bits 16
 
-%include "enableA20.asm"
+%include "enable_a20.asm"
 
 ; Function to print out a string, which address is located in [SI]
 print_str:
@@ -380,9 +380,9 @@ irq_no_multitasking2:
 
 SECTION .data
 
-title db 13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
-a20_success_msg db "A20 gate enabled", 13, 10, 0
-a20_failure_msg db "Failded to enable A20 gate! Halting.", 13, 10, 0
+title           db  13, 10, "EveOS kernel v0.0.1 is starting, please fasten your seatbelts", 13, 10, 0
+a20_success_msg db  "A20 gate enabled", 13, 10, 0
+a20_failure_msg db  "Failded to enable A20 gate! Halting.", 13, 10, 0
 
 ; code selectors
 _gGdtKernelCsSel    dd 0
@@ -472,21 +472,22 @@ gdt_end
 ; BSS                                                   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; this memory section will be dicarded after memmory management is initialized
+
 SECTION .bss
 ; page directory
 _pd:
     resb PAGE_SIZE
 
-; page tables
+; reserve 2 page tables for kernel initialization
 _pt1:
     resb PAGE_SIZE
 
 _pt2:
     resb PAGE_SIZE
-_pt2_end:
 
 ; system stack
-    resb STACK_SIZE    ; This reserves 8KBytes of memory
+    resb STACK_SIZE
 _sys_stack:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF

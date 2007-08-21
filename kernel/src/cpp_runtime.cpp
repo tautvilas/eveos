@@ -103,7 +103,7 @@ __cxa_finalize(void *d)
 // Called atomaticaly when call to pure virtual method detected.
 // This should never happen as compiler woun't let anyone to call pure
 // virutal methods. However it is possible using some bad hacks or in case
-// of undefined behaivior of kernel.
+// of undefined behaviour of kernel.
 void
 __cxa_pure_virtual()
 {
