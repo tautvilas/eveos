@@ -3,6 +3,11 @@
 
 #include "global.h"
 
+/**
+ *  Iterator concepts: http://www.sgi.com/tech/stl/Iterators.html
+ */
+
+
 namespace Generic {
 
 ////// Declarations //////

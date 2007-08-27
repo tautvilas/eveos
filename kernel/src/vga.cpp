@@ -149,19 +149,19 @@ Vga::Put(const char* apStr, const TPos& aPos, TColor aFgColor,
 }
 
 
-/*static*/ void KERNEL_CALL
-Vga::Put(int aInt, TIntegerBase aBase, const TPos& aPos, TColor aFgColor,
-        TColor aBgColor)
-{
-    Put(IntToStr(aInt, aBase), aPos, aFgColor, aBgColor);
-}
+///*static*/ void KERNEL_CALL
+//Vga::Put(int aInt, TIntegerBase aBase, const TPos& aPos, TColor aFgColor,
+//        TColor aBgColor)
+//{
+//    Put(IntToStr(aInt, aBase), aPos, aFgColor, aBgColor);
+//}
 
 
-/*static*/ void KERNEL_CALL
-Vga::Print(int aInt, TIntegerBase aBase, TColor aFgColor, TColor aBgColor)
-{
-    Print(IntToStr(aInt, aBase), aFgColor, aBgColor);
-}
+///*static*/ void KERNEL_CALL
+//Vga::Print(int aInt, TIntegerBase aBase, TColor aFgColor, TColor aBgColor)
+//{
+//    Print(IntToStr(aInt, aBase), aFgColor, aBgColor);
+//}
 
 
 /*static*/ void KERNEL_CALL
@@ -175,86 +175,4 @@ Vga::ScrollUp(TSize aRows)
 }
 
 
-/*static*/ char* KERNEL_CALL
-Vga::IntToStr(int aInt, TIntegerBase aBase)
-{
-    switch (aBase)
-    {
-        case DEC:
-            return UIntToStr(Generic::Abs(aInt), aBase, aInt < 0);
-
-        default:
-            return UIntToStr(static_cast<unsigned int>(aInt), aBase, false);
-    }
-}
-
-
-/*static*/ char* KERNEL_CALL
-Vga::UIntToStr(unsigned int aInt, TIntegerBase aBase, bool aNegative)
-{
-    static const char   SYMBOLS[]   = { '0', '1', '2', '3', '4', '5', '6',
-             '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-    static const TSize  PREFIX_SIZE = 3;
-
-    static const TSize  BUFFER_SIZE = sizeof(unsigned int) * BITS_PER_BYTE
-            + 1             // for sign
-            + PREFIX_SIZE
-            + 1;            // for null-byte
-
-    static char         spBuffer[BUFFER_SIZE];
-
-    char* pStr  = spBuffer + BUFFER_SIZE - 1;
-    *pStr       = 0;
-    for (; aInt != 0; aInt /= aBase)
-        *--pStr = SYMBOLS[aInt % aBase];
-
-
-    static const TSize          BASE_COUNT          = 4;
-    static const TIntegerBase   BASES[BASE_COUNT]   = { BIN, OCT, DEC, HEX };
-    TSize base_idx  = Generic::Find(BASES, BASES + BASE_COUNT, aBase) - BASES;
-
-    // right padding (should be seperate method)
-    {
-        static const TSize  PAD_DIVS[]   = {
-                BITS_PER_BYTE,              // bin
-                0,                          // oct
-                0,                          // dec
-                sizeof(unsigned int) * 2,   // hex
-                };
-        TSize div   = PAD_DIVS[base_idx];
-        if (div)
-        {
-            TSize mod   = (spBuffer + BUFFER_SIZE - pStr - 1) % div;
-            if (mod)
-            {
-                TSize len   = div - mod;
-                pStr        -= len;
-                Generic::Fill(pStr, pStr + len, SYMBOLS[0]);
-            }
-        }
-    }
-
-    // adding prefix (should be seperate method)
-    {
-        typedef char TPrefix[PREFIX_SIZE];
-        static const TPrefix    PREFIXES[BASE_COUNT]    = {
-                "",         // bin
-                "0",        // oct
-                "",         // dec
-                "0x",       // hex
-                };
-
-        const char* PREFIX  = PREFIXES[base_idx];
-        TSize prefix_len    = Generic::Find(PREFIX, PREFIX + PREFIX_SIZE, '\0')
-                - PREFIX;
-        pStr                -= prefix_len;
-        Generic::Copy(PREFIX, PREFIX + prefix_len, pStr);
-    }
-
-    if (aNegative)
-        *--pStr = '-';
-
-    return pStr;
-}
 
