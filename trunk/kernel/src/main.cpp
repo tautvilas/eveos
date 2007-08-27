@@ -1,12 +1,16 @@
 #include "main.h"
-#include "vga.h"
-#include "idt.h"
 #include "cpp_runtime.h"
+#include "vga.h"
+#include "out.h"
+#include "idt.h"
 
 extern "C" void eve_main()
 {
-    CppRuntime::Init();
+    CppRuntime::Init();     // shouldn't we choose consitent naming
+    Idt::Install();         // for initialization?
 
+
+    // Vga tests
     {
         // just a test of possioning and putting
         Vga::TPos   pos = Vga::Caret::Pos();
@@ -21,6 +25,7 @@ extern "C" void eve_main()
         Vga::Caret::Pos(Vga::TPos(0, 24));
         Vga::Print("Vga::Print()\n", Vga::BLACK, Vga::GREEN);
 
+        /*
         Vga::Print(123, BIN);
         Vga::Print(' ');
         Vga::Print(123, OCT);
@@ -30,11 +35,24 @@ extern "C" void eve_main()
         Vga::Print(123, HEX);
         Vga::Print(' ');
         Vga::Print(0xdeadbeef, HEX);
+        */
     }
 
+    // Out tests
     {
-        Idt::Install();
+        Out::Info() << "Out::Info() test:\n"
+                << 123 << ' '               // by default outputing in DEC
+                << -123 << ' '
+
+                << BIN << 123 << ' '        // we may use TIntegerBase as
+                << OCT << 123 << ' '        // modifier to change integers
+                << HEX << 123 << ' '        // base to output
+
+                << 0xdeadbeef << ' '        // modifier once used has effect
+                                            // to all output after after it
+                << DEC << 0xdeadbeef;
     }
+
 
     for (;;);
 }

@@ -217,12 +217,12 @@ public:
     Put(const char* apStr, const TPos& aPos);
 
 
-    static void KERNEL_CALL
-    Put(int aInt, TIntegerBase aBase, const TPos& aPos, TColor aFgColor,
-            TColor aBgColor);
+    //static void KERNEL_CALL
+    //Put(int aInt, TIntegerBase aBase, const TPos& aPos, TColor aFgColor,
+    //        TColor aBgColor);
 
-    static void KERNEL_CALL
-    Put(int aInt, TIntegerBase aBase, const TPos& aPos);
+    //static void KERNEL_CALL
+    //Put(int aInt, TIntegerBase aBase, const TPos& aPos);
 
 
     static void KERNEL_CALL
@@ -239,11 +239,11 @@ public:
     Print(const char* apStr);
 
 
-    static void KERNEL_CALL
-    Print(int aInt, TIntegerBase aBase, TColor aFgColor, TColor aBgColor);
+    //static void KERNEL_CALL
+    //Print(int aInt, TIntegerBase aBase, TColor aFgColor, TColor aBgColor);
 
-    static void KERNEL_CALL
-    Print(int aInt, TIntegerBase aBase);
+    //static void KERNEL_CALL
+    //Print(int aInt, TIntegerBase aBase);
 
 
 
@@ -315,11 +315,11 @@ Vga::Put(const char* apStr, const TPos& aPos)
 }
 
 
-/*static*/ inline void KERNEL_CALL
-Vga::Put(int aInt, TIntegerBase aBase, const TPos& aPos)
-{
-    Put(aInt, aBase, aPos, msFgColor, msBgColor);
-}
+///*static*/ inline void KERNEL_CALL
+//Vga::Put(int aInt, TIntegerBase aBase, const TPos& aPos)
+//{
+//    Put(aInt, aBase, aPos, msFgColor, msBgColor);
+//}
 
 
 /*static*/ inline void KERNEL_CALL
@@ -336,11 +336,11 @@ Vga::Print(const char* apStr)
 }
 
 
-/*static*/ inline void KERNEL_CALL
-Vga::Print(int aInt, TIntegerBase aBase)
-{
-    Print(aInt, aBase, msFgColor, msBgColor);
-}
+///*static*/ inline void KERNEL_CALL
+//Vga::Print(int aInt, TIntegerBase aBase)
+//{
+//    Print(aInt, aBase, msFgColor, msBgColor);
+//}
 
 
 /*static*/ inline const Vga::TColor KERNEL_CALL

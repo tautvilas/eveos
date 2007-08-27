@@ -9,6 +9,9 @@ typedef unsigned char   TByte;
 typedef unsigned short  TWord;
 typedef unsigned int    TDWord;
 
+typedef int             TInt;
+typedef unsigned int    TUInt;
+
 enum TIntegerBase
 {
     BIN     = 2,
