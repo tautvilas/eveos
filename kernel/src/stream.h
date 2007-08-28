@@ -22,7 +22,7 @@ protected:
     TStream();
 
     static char* KERNEL_CALL
-    IntToStr(TInt aInt, TIntegerBase aBase);
+    IntToStr(TInt aInt, TIntegerBase aBase, bool aSigned = true);
 
 private:
 

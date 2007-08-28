@@ -63,7 +63,7 @@ TOutStream::operator <<(int aInt)
 inline TOutStream& KERNEL_CALL
 TOutStream::operator <<(unsigned int aInt)
 {
-    Vga::Print(IntToStr(aInt, IntBase()));
+    Vga::Print(IntToStr(aInt, IntBase(), false));
     return *this;
 }
 
