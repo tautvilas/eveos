@@ -9,6 +9,9 @@ class Out
 public:
 
     static TOutStream& KERNEL_CALL
+    Dbg();
+
+    static TOutStream& KERNEL_CALL
     Info();
 
     static TOutStream& KERNEL_CALL
@@ -30,6 +33,13 @@ private:
 
 
 ////// Out inlines //////
+
+/*static*/ inline TOutStream& KERNEL_CALL
+Out::Dbg()
+{
+    return mInfo;
+}
+
 
 /*static*/ inline TOutStream& KERNEL_CALL
 Out::Info()

@@ -1,14 +1,15 @@
 #include "stream.h"
 #include "algorithms.h"
+
 using namespace Generic;
 
 
 /*static*/ char* KERNEL_CALL
-TStream::IntToStr(TInt aInt, TIntegerBase aBase)
+TStream::IntToStr(TInt aInt, TIntegerBase aBase, bool aSigned)
 {
     static const char   SYMBOLS[]   = {     // :DEPENDS ON: TIntegerBase
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
-            'b', 'c', 'd', 'e', 'f'
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'a', 'b', 'c', 'd', 'e', 'f'
             };
 
     static const TSize  BUFFER_SIZE =
@@ -20,7 +21,7 @@ TStream::IntToStr(TInt aInt, TIntegerBase aBase)
     bool    negative;
     TUInt   uint;
 
-    if (DEC == aBase)
+    if (aSigned && DEC == aBase)
     {
         negative    = aInt < 0;
         uint        = static_cast<TUInt>(Abs(aInt));

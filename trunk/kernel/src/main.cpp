@@ -1,14 +1,15 @@
 #include "main.h"
 #include "cpp_runtime.h"
+#include "idt.h"
+
 #include "vga.h"
 #include "out.h"
-#include "idt.h"
+
 
 extern "C" void eve_main()
 {
     CppRuntime::Init();     // shouldn't we choose consitent naming
     Idt::Install();         // for initialization?
-
 
     // Vga tests
     {
@@ -49,11 +50,13 @@ extern "C" void eve_main()
                 << HEX << 123 << ' '        // base to output
 
                 << 0xdeadbeef << ' '        // modifier once used has effect
-                                            // to all output after after it
-                << DEC << 0xdeadbeef;
+                                            // on all output after it
+                << DEC << 0xdeadbeef
+                << "\n";
     }
 
 
-    for (;;);
+    //for (;;);
+    kernel_stop();
 }
 
