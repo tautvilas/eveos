@@ -1,13 +1,19 @@
-#summary One-sentence summary of this page.
+#summary EveOS coding standard
 
-= Introduction =
+= General =
 
-Add your content here.
+  * Line length - 75 chars + max 2 symbols if needed
 
+= Assembly language =
 
-= Details =
+  * Always use underscore to separate words in names
+  * Use underscore in front of a name for global values
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+= C++ =
+
+  * User camelCase at all times
+  * Class names begin with upper case
+  * Mehod and function names begin with lower case
+
+  * g prefix for global variables (e.g. gGlobal)
+  * m prefix for members (e.g. mMember)
