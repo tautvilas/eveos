@@ -9,7 +9,7 @@ namespace CppRuntime
      *  Calls global/static objects constructors if any.
      */
     void
-    Init();
+    init();
 
     /**
      *  Must be called in kernel cleanup code.
@@ -17,8 +17,7 @@ namespace CppRuntime
      *  Calls global/static objects destructors if any.
      */
     void
-    Deinit();
+    deinit();
 };
 
 #endif // _CPP_RUNTIME_
-

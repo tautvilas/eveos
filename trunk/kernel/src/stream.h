@@ -1,61 +1,60 @@
 #ifndef _STREAM_H_
 #define _STREAM_H_
 
-#include "global.h"
+#include <global.h>
 
 
-class TStream
+class Stream
 {
 public:
 
     void KERNEL_CALL
-    IntBase(TIntegerBase aBase);
+    intBase(IntegerBase base);
 
-    TIntegerBase KERNEL_CALL
-    IntBase();
+    IntegerBase KERNEL_CALL
+    intBase();
 
 
 
 protected:
 
     KERNEL_CALL
-    TStream();
+    Stream();
 
     static char* KERNEL_CALL
-    IntToStr(TInt aInt, TIntegerBase aBase, bool aSigned = true);
+    intToStr(Int num, IntegerBase base, Bool isSigned = true);
 
 private:
 
-    TIntegerBase    mIntBase;
+    IntegerBase     mIntBase;
 
 
     static char* KERNEL_CALL
-    IntToStrPad(char* apStr, char* apEnd, TIntegerBase aBase, char aChar);
+    intToStrPad(char* str, char* end, IntegerBase base, char c);
 };
 
 
 
-////// TStream inlines //////
+////// Stream inlines //////
 
 inline KERNEL_CALL
-TStream::TStream()
+Stream::Stream()
         : mIntBase(DEC)
 {
 }
 
 
 inline void KERNEL_CALL
-TStream::IntBase(TIntegerBase aBase)
+Stream::intBase(IntegerBase base)
 {
-    mIntBase    = aBase;
+    mIntBase    = base;
 }
 
-inline TIntegerBase KERNEL_CALL
-TStream::IntBase()
+inline IntegerBase KERNEL_CALL
+Stream::intBase()
 {
     return mIntBase;
 }
 
 
 #endif // _STREAM_H_
-

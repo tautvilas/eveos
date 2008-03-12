@@ -85,4 +85,5 @@ read_tss_limit_success:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 _kernel_stop:
+    jmp $
     hlt
