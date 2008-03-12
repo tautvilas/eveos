@@ -11,7 +11,7 @@
 
 == C++ ==
 
-  * User camelCase at all times
+  * Use camelCase at all times
   * Class names begin with upper case
   * Mehod and function names begin with lower case
 
