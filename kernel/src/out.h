@@ -1,29 +1,29 @@
 #ifndef _OUT_H_
 #define _OUT_H_
 
-#include "out_stream.h"
+#include <out_stream.h>
 
 class Out
 {
 
 public:
 
-    static TOutStream& KERNEL_CALL
-    Dbg();
+    static OutStream& KERNEL_CALL
+    dbg();
 
-    static TOutStream& KERNEL_CALL
-    Info();
+    static OutStream& KERNEL_CALL
+    info();
 
-    static TOutStream& KERNEL_CALL
-    Err();
+    static OutStream& KERNEL_CALL
+    err();
 
-    static TOutStream& KERNEL_CALL
-    Warn();
+    static OutStream& KERNEL_CALL
+    warn();
 
 
 private:
 
-    static TOutStream   mInfo;
+    static OutStream    msInfo;
 
     KERNEL_CALL
     Out();
@@ -34,33 +34,32 @@ private:
 
 ////// Out inlines //////
 
-/*static*/ inline TOutStream& KERNEL_CALL
-Out::Dbg()
+/*static*/ inline OutStream& KERNEL_CALL
+Out::dbg()
 {
-    return mInfo;
+    return msInfo;
 }
 
 
-/*static*/ inline TOutStream& KERNEL_CALL
-Out::Info()
+/*static*/ inline OutStream& KERNEL_CALL
+Out::info()
 {
-    return mInfo;
+    return msInfo;
 }
 
 
-/*static*/ inline TOutStream& KERNEL_CALL
-Out::Err()
+/*static*/ inline OutStream& KERNEL_CALL
+Out::err()
 {
-    return mInfo;
+    return msInfo;
 }
 
 
-/*static*/ inline TOutStream& KERNEL_CALL
-Out::Warn()
+/*static*/ inline OutStream& KERNEL_CALL
+Out::warn()
 {
-    return mInfo;
+    return msInfo;
 }
 
 
 #endif // _OUT_H_
-

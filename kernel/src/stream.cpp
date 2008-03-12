@@ -5,56 +5,56 @@ using namespace Generic;
 
 
 /*static*/ char* KERNEL_CALL
-TStream::IntToStr(TInt aInt, TIntegerBase aBase, bool aSigned)
+Stream::intToStr(Int num, IntegerBase base, Bool isSigned)
 {
     static const char   SYMBOLS[]   = {     // :DEPENDS ON: TIntegerBase
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'a', 'b', 'c', 'd', 'e', 'f'
             };
 
-    static const TSize  BUFFER_SIZE =
+    static const Size   BUFFER_SIZE =
             sizeof(unsigned int) * BITS_PER_BYTE
             + 1;            // for null-byte
 
-    static char         spBuffer[BUFFER_SIZE];
+    static char         sBuffer[BUFFER_SIZE];
 
     bool    negative;
-    TUInt   uint;
+    UInt    uint;
 
-    if (aSigned && DEC == aBase)
+    if (isSigned && DEC == base)
     {
-        negative    = aInt < 0;
-        uint        = static_cast<TUInt>(Abs(aInt));
+        negative    = num < 0;
+        uint        = static_cast<UInt>(abs(num));
     }
     else
     {
         negative    = false;
-        uint        = static_cast<TUInt>(aInt);
+        uint        = static_cast<UInt>(num);
     }
 
-    char* pStr  = spBuffer + BUFFER_SIZE - 1;
-    *pStr       = 0;
-    for (; uint != 0; uint /= aBase)
-        *--pStr = SYMBOLS[uint % aBase];
+    char* str   = sBuffer + BUFFER_SIZE - 1;
+    *str        = 0;
+    for (; uint != 0; uint /= base)
+        *--str = SYMBOLS[uint % base];
 
-    pStr    = IntToStrPad(pStr, spBuffer + BUFFER_SIZE, aBase, SYMBOLS[0]);
+    str = intToStrPad(str, sBuffer + BUFFER_SIZE, base, SYMBOLS[0]);
 
     if (negative)
-        *--pStr = '-';
+        *--str = '-';
 
-    return pStr;
+    return str;
 }
 
 
 /*static*/ char* KERNEL_CALL
-TStream::IntToStrPad(char* apStr, char* apEnd, TIntegerBase aBase, char aChar)
+Stream::intToStrPad(char* str, char* end, IntegerBase base, char c)
 {
-    TSize   div = 0;
+    Size    div = 0;
 
-    switch (aBase)
+    switch (base)
     {
         case HEX:
-            div = sizeof(unsigned int) * 2;
+            div = sizeof(UInt) * 2;
         break;
 
         case BIN:
@@ -62,18 +62,17 @@ TStream::IntToStrPad(char* apStr, char* apEnd, TIntegerBase aBase, char aChar)
         break;
 
         default:
-            return apStr;
+            return str;
         break;
     }
 
-    TSize mod   = (apEnd - apStr - 1) % div;
+    Size    mod = (end - str - 1) % div;
     if (0 == mod)
-        return apStr;
+        return str;
 
-    TSize len   = div - mod;
-    apStr       -= len;
-    Fill(apStr, apStr + len, aChar);
+    Size len    = div - mod;
+    str         -= len;
+    fill(str, str + len, c);
 
-    return apStr;
+    return str;
 }
-

@@ -1,29 +1,32 @@
 #ifndef _OUT_STREAM_H_
 #define _OUT_STREAM_H_
 
-#include "stream.h"
-#include "vga.h"
+#include <stream.h>
+#include <vga.h>
 
 
-class TOutStream
-        : public TStream
+class OutStream
+        : public Stream
 {
 public:
 
-    TOutStream& KERNEL_CALL
+    OutStream& KERNEL_CALL
     operator <<(const char*);
 
-    TOutStream& KERNEL_CALL
+    OutStream& KERNEL_CALL
     operator <<(char);
 
-    TOutStream& KERNEL_CALL
-    operator <<(int);
+    OutStream& KERNEL_CALL
+    operator <<(Int);
 
-    TOutStream& KERNEL_CALL
-    operator <<(unsigned int);
+    OutStream& KERNEL_CALL
+    operator <<(UInt);
 
-    TOutStream& KERNEL_CALL
-    operator <<(TIntegerBase);
+    OutStream& KERNEL_CALL
+    operator <<(const void*);
+
+    OutStream& KERNEL_CALL
+    operator <<(IntegerBase);
 
 
 private:
@@ -34,47 +37,54 @@ private:
 
 
 
-////// TOutStream inlines //////
+////// OutStream inlines //////
 
-inline TOutStream& KERNEL_CALL
-TOutStream::operator <<(const char* apStr)
+inline OutStream& KERNEL_CALL
+OutStream::operator <<(const char* str)
 {
-    Vga::Print(apStr);
+    Vga::print(str);
     return *this;
 }
 
 
-inline TOutStream& KERNEL_CALL
-TOutStream::operator <<(char aChar)
+inline OutStream& KERNEL_CALL
+OutStream::operator <<(char c)
 {
-    Vga::Print(aChar);
+    Vga::print(c);
     return *this;
 }
 
 
-inline TOutStream& KERNEL_CALL
-TOutStream::operator <<(int aInt)
+inline OutStream& KERNEL_CALL
+OutStream::operator <<(Int num)
 {
-    Vga::Print(IntToStr(aInt, IntBase()));
+    Vga::print(intToStr(num, intBase()));
     return *this;
 }
 
 
-inline TOutStream& KERNEL_CALL
-TOutStream::operator <<(unsigned int aInt)
+inline OutStream& KERNEL_CALL
+OutStream::operator <<(UInt num)
 {
-    Vga::Print(IntToStr(aInt, IntBase(), false));
+    Vga::print(intToStr(num, intBase(), false));
     return *this;
 }
 
 
-inline TOutStream& KERNEL_CALL
-TOutStream::operator <<(TIntegerBase aBase)
+inline OutStream& KERNEL_CALL
+OutStream::operator <<(const void* ptr)
 {
-    IntBase(aBase);
+    Vga::print(intToStr(reinterpret_cast<UInt>(ptr), HEX, false));
+    return *this;
+}
+
+
+inline OutStream& KERNEL_CALL
+OutStream::operator <<(IntegerBase base)
+{
+    intBase(base);
     return *this;
 }
 
 
 #endif // _OUT_STREAM_H_
-

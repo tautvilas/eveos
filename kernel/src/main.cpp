@@ -1,47 +1,57 @@
-#include "main.h"
-#include "cpp_runtime.h"
-#include "idt.h"
+#include <main.h>
+#include <cpp_runtime.h>
+//#include <idt.h>
+//#include <mem.h>
 
-#include "vga.h"
-#include "out.h"
+#include <vga.h>
+#include <out.h>
 
 
 extern "C" void eve_main()
 {
-    CppRuntime::Init();     // shouldn't we choose consitent naming
-    Idt::Install();         // for initialization?
+    CppRuntime::init();     // shouldn't we choose consitent naming
+    //Idt::Install();         // for initialization?
+    //Mem::init();
 
     // Vga tests
+    if (true)
     {
+        // screen corners
+        Vga::put('\\', Vga::Pos(0, 0), Vga::BLACK, Vga::WHITE);
+        Vga::put('/', Vga::Pos(79, 0), Vga::BLACK, Vga::WHITE);
+        Vga::put('/', Vga::Pos(0, 24), Vga::BLACK, Vga::WHITE);
+        Vga::put('\\', Vga::Pos(79, 24), Vga::BLACK, Vga::WHITE);
+
         // just a test of possioning and putting
-        Vga::TPos   pos = Vga::Caret::Pos();
-        for (char* pStr = "Vga::Put()"; *pStr; ++pStr, ++pos)
-            Vga::Put(*pStr, pos, Vga::BLACK, Vga::WHITE);
-        Vga::Caret::Pos(pos);
+        Vga::Pos   pos = Vga::Caret::pos();
+        //Vga::Pos pos(0, 0);
+        for (char* str = "Vga::Put()"; *str; ++str, ++pos)
+            Vga::put(*str, pos, Vga::BLACK, Vga::WHITE);
+        Vga::Caret::pos(pos);
 
         // real usage test
-        Vga::Print("\nVga::Print()");
+        Vga::print("\nVga::Print()");
 
         // scroll and color printing test
-        Vga::Caret::Pos(Vga::TPos(0, 24));
-        Vga::Print("Vga::Print()\n", Vga::BLACK, Vga::GREEN);
+        //Vga::Caret::pos(Vga::Pos(0, 24));
+        //Vga::print("Vga::Print()\n", Vga::BLACK, Vga::GREEN);
 
-        /*
-        Vga::Print(123, BIN);
-        Vga::Print(' ');
-        Vga::Print(123, OCT);
-        Vga::Print(' ');
-        Vga::Print(123, DEC);
-        Vga::Print(' ');
-        Vga::Print(123, HEX);
-        Vga::Print(' ');
-        Vga::Print(0xdeadbeef, HEX);
-        */
+        /*/
+        Vga::print(123, BIN);
+        Vga::print(' ');
+        Vga::print(123, OCT);
+        Vga::print(' ');
+        Vga::print(123, DEC);
+        Vga::print(' ');
+        Vga::print(123, HEX);
+        Vga::print(' ');
+        Vga::print(0xdeadbeef, HEX);
+        //*/
     }
 
     // Out tests
-    {
-        Out::Info() << "Out::Info() test:\n"
+    /*{
+        Out::info() << "\nOut::info() test:\n"
                 << 123 << ' '               // by default outputing in DEC
                 << -123 << ' '
 
@@ -53,10 +63,11 @@ extern "C" void eve_main()
                                             // on all output after it
                 << DEC << 0xdeadbeef
                 << "\n";
-    }
+    }*/
 
 
-    //for (;;);
+
+
     kernel_stop();
+    //for (;;);
 }
-

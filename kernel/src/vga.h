@@ -1,16 +1,14 @@
 #ifndef _VGA_H_
 #define _VGA_H_
 
-#include "global.h"
-#include "io_port.h"
-
+#include <global.h>
 
 
 class Vga
 {
 public:
 
-    enum TColor
+    enum Color
     {
         BLACK                   = 0,
         BLUE                    = 1,
@@ -34,266 +32,92 @@ public:
     };
 
 
-    class TPos
-    {
-    public:
-
-        KERNEL_CALL
-        TPos();
-
-        KERNEL_CALL
-        TPos(TSize aCol, TSize aRow);
-
-        KERNEL_CALL
-        TPos(const TPos& aPos);
-
-        const TSize KERNEL_CALL
-        Col() const;
-
-        const void KERNEL_CALL
-        Col(TSize aCol);
-
-        const TSize KERNEL_CALL
-        Row() const;
-
-        const void KERNEL_CALL
-        Row(TSize aRow);
-
-        bool KERNEL_CALL
-        IsValid() const;
-
-        TPos& KERNEL_CALL
-        operator ++();              // prefix
-
-        TPos KERNEL_CALL
-        operator ++(int);           // postfix
-
-        TPos& KERNEL_CALL
-        operator =(const TPos& aPos);
-
-        // :TODO: gx 7/28/2007: other operators
-
-
-    private:
-
-        TSize mCol;
-        TSize mRow;
-
-        KERNEL_CALL
-        TPos(TWord aIndex);
-
-        //TSize KERNEL_CALL
-        //ToIndex() const;
-
-        KERNEL_CALL
-        operator TSize() const;
-
-        friend class Vga;
-        //friend class Vga::Caret;
-    };
-
-
-    /**
-     *  Static class to maipulate VGA caret.
-     */
-    class Caret
-    {
-    public:
-
-        /**
-         *  Returns ceret visibility.
-         *
-         *  @return true if caret visible, false otherwise.
-         */
-        static bool KERNEL_CALL
-        Visible();
-
-        /**
-         *  Changes caret visibility.
-         *
-         *  @param  aVisible    true to male caret visible, false to hide caret.
-         */
-        static void KERNEL_CALL
-        Visible(bool aVisible);
-
-        /**
-         *  Returns caret position.
-         *
-         *  @return Caret position.
-         */
-        static TPos KERNEL_CALL
-        Pos();
-
-        /**
-         *  Changes caret position.
-         *
-         *  @param  aPos    New caret position.
-         */
-        static void KERNEL_CALL
-        Pos(const TPos& aPos);
-
-
-    private:
-
-        /**
-         *  Class representing VGA caret register.
-         */
-        class TReg
-        {
-        public:
-
-            enum TRegIndex
-            {
-                POS_HI      = 0x0E,
-                POS_LO      = 0x0F,
-                VISIBILITY  = 0x0A,     // actually this is "caret start
-                                        // register" but as we use it only
-                                        // for visibility lets name it this
-                                        // way
-            };
-
-            /**
-             *  COnstructor.
-             *
-             *  @param  aRegIndex VGA caret register index.
-             */
-            KERNEL_CALL
-            TReg(TRegIndex aRegIndex);
-
-            /**
-             *  Reads and returns TByte of data from register.
-             *
-             *  @return TByte of data from register.
-             */
-            TByte KERNEL_CALL
-            Read();
-
-            /**
-             *  Writes TByte of data to register.
-             *
-             *  @param  aData   Data to write to register.
-             */
-            void KERNEL_CALL
-            Write(TByte aData);
-
-        private:
-
-            enum
-            {
-                ADDR_PORT   = 0x3d4,
-                DATA_PORT   = 0x3d5,
-            };
-
-            // :TODO: gx 7/29/2007: make static when static/global constructor
-            // calls are implemented
-            static TIoPort  msAddrPort;
-            static TIoPort  msDataPort;
-
-            TRegIndex       mRegIndex;
-        };
-
-
-        enum
-        {
-            HIDE_MASK     = 0x20,     // 00100000b
-        };
-
-        KERNEL_CALL
-        Caret();
-    };
+    class Pos;
+    class Caret;
 
 
     static void KERNEL_CALL
-    Put(char aChar, const TPos& aPos, TColor aFgColor, TColor aBgColor);
+    put(char c, const Pos& pos, Color fg, Color bg);
 
     static void KERNEL_CALL
-    Put(char aChar, const TPos& aPos);
-
-
-    static void KERNEL_CALL
-    Put(const char* apStr, const TPos& aPos, TColor aFgColor, TColor aBgColor);
-
-    static void KERNEL_CALL
-    Put(const char* apStr, const TPos& aPos);
-
-
-    //static void KERNEL_CALL
-    //Put(int aInt, TIntegerBase aBase, const TPos& aPos, TColor aFgColor,
-    //        TColor aBgColor);
-
-    //static void KERNEL_CALL
-    //Put(int aInt, TIntegerBase aBase, const TPos& aPos);
+    put(char aChar, const Pos& aPos);
 
 
     static void KERNEL_CALL
-    Print(char aChar, TColor aFgColor, TColor aBgColor);
+    put(const char* str, const Pos& pos, Color fg, Color bg);
 
     static void KERNEL_CALL
-    Print(const char aChar);
+    put(const char* str, const Pos& pos);
+
 
 
     static void KERNEL_CALL
-    Print(const char* apStr, TColor aFgColor, TColor aBgColor);
+    print(char c, Color fg, Color bg);
 
     static void KERNEL_CALL
-    Print(const char* apStr);
+    print(const char c);
 
 
-    //static void KERNEL_CALL
-    //Print(int aInt, TIntegerBase aBase, TColor aFgColor, TColor aBgColor);
+    static void KERNEL_CALL
+    print(const char* str, Color fg, Color bg);
 
-    //static void KERNEL_CALL
-    //Print(int aInt, TIntegerBase aBase);
+    static void KERNEL_CALL
+    print(const char* str);
 
 
 
-    static const TColor KERNEL_CALL
-    Foreground();
+    static const Color KERNEL_CALL
+    foreground();
 
     static const void KERNEL_CALL
-    Foreground(TColor aColor);
+    foreground(Color fg);
 
 
-    static const TColor KERNEL_CALL
-    Background();
+    static const Color KERNEL_CALL
+    background();
 
     static const void KERNEL_CALL
-    Background(TColor aColor);
+    background(Color bg);
 
 
 private:
 
-    typedef TWord       TChar;
+    typedef Word        Chr;
 
-    static TChar* const MEM_BEGIN;
-    static TChar* const MEM_END;
+    static Chr* const   MEM_BEGIN;
+    static Chr* const   MEM_END;
 
-    static const TSize  COLS;
-    static const TSize  ROWS;
-    static const TSize  TAB_WIDTH;
+    static const Size   COLS;
+    static const Size   ROWS;
+    static const Size   TAB_WIDTH;
     static const char   BLANK_CHAR;
 
 
-    static TColor       msBgColor;
-    static TColor       msFgColor;
+    static Color        msBgColor;
+    static Color        msFgColor;
 
     KERNEL_CALL
     Vga();
 
-    static TChar KERNEL_CALL
-    Char(char aChar, TColor aFg, TColor aBg);
+    static Chr KERNEL_CALL
+    chr(char c, Color fg, Color bg);
 
     static void KERNEL_CALL
-    ScrollUp(TSize aLines = 1);
+    scrollUp(Size aLines = 1);
 
     static char* KERNEL_CALL
-    IntToStr(int aInt, TIntegerBase aBase);
+    intToStr(int i, IntegerBase base);
 
     static char* KERNEL_CALL
-    UIntToStr(unsigned int aInt, TIntegerBase aBase, bool aNegative);
+    uintToStr(unsigned int ui, IntegerBase base, Bool negative);
 
     //friend Pos;
 };
+
+
+
+#include <vga_pos.h>
+#include <vga_caret.h>
 
 
 
@@ -302,190 +126,66 @@ private:
 
 
 /*static*/ inline void KERNEL_CALL
-Vga::Put(char aChar, const TPos& aPos)
+Vga::put(char c, const Pos& pos)
 {
-    Put(aChar, aPos, msFgColor, msBgColor);
+    put(c, pos, msFgColor, msBgColor);
 }
 
 
 /*static*/ inline void KERNEL_CALL
-Vga::Put(const char* apStr, const TPos& aPos)
+Vga::put(const char* str, const Pos& pos)
 {
-    Put(apStr, aPos, msFgColor, msBgColor);
-}
-
-
-///*static*/ inline void KERNEL_CALL
-//Vga::Put(int aInt, TIntegerBase aBase, const TPos& aPos)
-//{
-//    Put(aInt, aBase, aPos, msFgColor, msBgColor);
-//}
-
-
-/*static*/ inline void KERNEL_CALL
-Vga::Print(const char aChar)
-{
-    Print(aChar, msFgColor, msBgColor);
+    put(str, pos, msFgColor, msBgColor);
 }
 
 
 /*static*/ inline void KERNEL_CALL
-Vga::Print(const char* apStr)
+Vga::print(const char c)
 {
-    Print(apStr, msFgColor, msBgColor);
+    print(c, msFgColor, msBgColor);
 }
 
 
-///*static*/ inline void KERNEL_CALL
-//Vga::Print(int aInt, TIntegerBase aBase)
-//{
-//    Print(aInt, aBase, msFgColor, msBgColor);
-//}
+/*static*/ inline void KERNEL_CALL
+Vga::print(const char* str)
+{
+    print(str, msFgColor, msBgColor);
+}
 
 
-/*static*/ inline const Vga::TColor KERNEL_CALL
-Vga::Foreground()
+/*static*/ inline const Vga::Color KERNEL_CALL
+Vga::foreground()
 {
     return msFgColor;
 }
 
 
 /*static*/ inline const void KERNEL_CALL
-Vga::Foreground(TColor aColor)
+Vga::foreground(Color color)
 {
-    msFgColor   = aColor;
+    msFgColor   = color;
 }
 
 
-/*static*/ inline const Vga::TColor KERNEL_CALL
-Vga::Background()
+/*static*/ inline const Vga::Color KERNEL_CALL
+Vga::background()
 {
     return msBgColor;
 }
 
 
 /*static*/ inline const void KERNEL_CALL
-Vga::Background(TColor aColor)
+Vga::background(Color color)
 {
-    msBgColor   = aColor;
+    msBgColor   = color;
 }
 
 
-/*static*/ inline Vga::TChar KERNEL_CALL
-Vga::Char(char aChar, TColor aFg, TColor aBg)
+/*static*/ inline Vga::Chr KERNEL_CALL
+Vga::chr(char c, Color fg, Color bg)
 {
-    return static_cast<TChar>(aChar) | aFg << 8 | aBg << 12;
+    return static_cast<Chr>(c) | fg << 8 | bg << 12;
 }
-
-
-
-////// Vga::Caret::TReg inlines //////
-
-inline KERNEL_CALL
-Vga::Caret::TReg::TReg(TRegIndex aRegIndex)
-        : mRegIndex(aRegIndex)
-{
-}
-
-
-inline void KERNEL_CALL
-Vga::Caret::TReg::Write(TByte aData)
-{
-    msAddrPort.WriteByte(mRegIndex);
-    msDataPort.WriteByte(aData);
-}
-
-
-inline TByte KERNEL_CALL
-Vga::Caret::TReg::Read()
-{
-    msAddrPort.WriteByte(mRegIndex);
-    return msDataPort.ReadByte();
-}
-
-
-////// Vga::TPos inlines //////
-
-inline KERNEL_CALL
-Vga::TPos::TPos()
-        : mCol(0), mRow(0)
-{
-}
-
-
-inline KERNEL_CALL
-Vga::TPos::TPos(TSize aCol, TSize aRow)
-        : mCol(aCol), mRow(aRow)
-{
-}
-
-
-inline KERNEL_CALL
-Vga::TPos::TPos(const TPos& aPos)
-        : mCol(aPos.mCol), mRow(aPos.mRow)
-{
-}
-
-
-inline KERNEL_CALL
-Vga::TPos::TPos(TWord aIndex)
-        : mCol(aIndex % COLS), mRow(aIndex / COLS)
-{
-}
-
-
-inline bool KERNEL_CALL
-Vga::TPos::IsValid() const
-{
-    return mCol < COLS && mRow < ROWS;
-}
-
-
-/*inline TSize KERNEL_CALL
-Vga::TPos::ToIndex() const
-{
-    return mRow * COLS + mCol;
-}*/
-
-
-inline Vga::TPos& KERNEL_CALL
-Vga::TPos::operator ++()
-{
-    ++mCol;
-    if (mCol >= COLS)
-    {
-        mCol    = 0;
-        ++mRow;
-    }
-    return *this;
-}
-
-
-inline Vga::TPos KERNEL_CALL
-Vga::TPos::operator ++(int)
-{
-    TPos pos = *this;
-    ++*this;
-    return pos;
-}
-
-
-inline Vga::TPos& KERNEL_CALL
-Vga::TPos::operator =(const TPos& aPos)
-{
-    mCol    = aPos.mCol;
-    mRow    = aPos.mRow;
-    return *this;
-}
-
-
-inline KERNEL_CALL
-Vga::TPos::operator TSize() const
-{
-    return mRow * COLS + mCol;
-}
-
-
+
 
 #endif  // _VGA_H_
-

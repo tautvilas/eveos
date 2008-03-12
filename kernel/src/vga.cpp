@@ -1,81 +1,34 @@
-#include "vga.h"
-#include "algorithms.h"
+#include <vga.h>
+#include <algorithms.h>
 
 
 ////// Vga static constants //////
 
-const TSize  Vga::COLS       = 80;
-const TSize  Vga::ROWS       = 25;
-const TSize  Vga::TAB_WIDTH  = 8;
+const Size  Vga::COLS       = 80;
+const Size  Vga::ROWS       = 25;
+const Size  Vga::TAB_WIDTH  = 8;
 const char  Vga::BLANK_CHAR = ' ';
 
-Vga::TChar* const    Vga::MEM_BEGIN  = reinterpret_cast<TChar*>(0xB8000 + &gKernelBase);
-Vga::TChar* const    Vga::MEM_END    = Vga::MEM_BEGIN + Vga::COLS * Vga::ROWS;
+Vga::Chr* const Vga::MEM_BEGIN  = reinterpret_cast<Chr*>(0xB8000 + &gKernelBase);
+//Vga::Chr* const Vga::MEM_BEGIN  = reinterpret_cast<Chr*>(0xB7F60 + &gKernelBase);
+Vga::Chr* const Vga::MEM_END    = Vga::MEM_BEGIN + Vga::COLS * Vga::ROWS;
 
 
 ////// Vga static members //////
 
-Vga::TColor  Vga::msBgColor  = Vga::DEFAULT_BG;
-Vga::TColor  Vga::msFgColor  = Vga::DEFAULT_FG;
-
-
-
-////// Vga::Caret static members //////
-
-TIoPort Vga::Caret::TReg::msAddrPort(Vga::Caret::TReg::ADDR_PORT);
-TIoPort Vga::Caret::TReg::msDataPort(Vga::Caret::TReg::DATA_PORT);
-
-
-
-////// Vga::Caret methods //////
-
-/*static*/ bool KERNEL_CALL
-Vga::Caret::Visible()
-{
-    return TReg(TReg::VISIBILITY).Read() & HIDE_MASK;
-}
-
-
-/*static*/ void KERNEL_CALL
-Vga::Caret::Visible(bool aVisible)
-{
-    TReg reg(TReg::VISIBILITY);
-    if (aVisible)
-        reg.Write(reg.Read() & ~HIDE_MASK);
-    else
-        reg.Write(reg.Read() | HIDE_MASK);
-}
-
-
-/*static*/ Vga::TPos KERNEL_CALL
-Vga::Caret::Pos()
-{
-    TWord   pos = 0 | TReg(TReg::POS_HI).Read();
-
-    return pos << 8 | TReg(TReg::POS_LO).Read();
-}
-
-
-/*static*/ void KERNEL_CALL
-Vga::Caret::Pos(const TPos& aPos)
-{
-    if (!aPos.IsValid())
-        return;
-
-    TReg(TReg::POS_HI).Write(static_cast<TByte>(aPos >> 8));
-    TReg(TReg::POS_LO).Write(static_cast<TByte>(aPos));
-}
+Vga::Color  Vga::msBgColor  = Vga::DEFAULT_BG;
+Vga::Color  Vga::msFgColor  = Vga::DEFAULT_FG;
 
 
 
 ////// Vga methods //////
 
 /*static*/ void KERNEL_CALL
-Vga::Print(char aChar, TColor aFgColor, TColor aBgColor)
+Vga::print(char c, Color fg, Color bg)
 {
-    TPos pos    = Caret::Pos();
+    Pos pos = Caret::pos();
 
-    switch (aChar)
+    switch (c)
     {
         case '\n':
         case '\r':
@@ -84,95 +37,79 @@ Vga::Print(char aChar, TColor aFgColor, TColor aBgColor)
         break;
 
         case '\t':
-            for (TSize i = TAB_WIDTH - pos.mCol % TAB_WIDTH;
+            for (Size i = TAB_WIDTH - pos.mCol % TAB_WIDTH;
                     i != 0;
                     --i, ++pos
                 )
             {
-                Put(BLANK_CHAR, pos, aFgColor, aBgColor);
+                put(BLANK_CHAR, pos, fg, bg);
             }
         break;
 
         case '\b':
             if (pos.mCol > 0)
                 --pos.mCol;
-            Put(BLANK_CHAR, pos, aFgColor, aBgColor);
+            put(BLANK_CHAR, pos, fg, bg);
         break;
 
         default:
-            Put(aChar, pos, aFgColor, aBgColor);
+            put(c, pos, fg, bg);
             ++pos;
         break;
     }
 
     if (ROWS == pos.mRow)
     {
-        ScrollUp();
+        scrollUp();
         --pos.mRow;
     }
 
-    Caret::Pos(pos);
+    Caret::pos(pos);
 }
 
 
 /*static*/ void KERNEL_CALL
-Vga::Print(const char* apStr, TColor aFgColor, TColor aBgColor)
+Vga::print(const char* str, Color fg, Color bg)
 {
-    if (!apStr)
+    if (!str)
         return;
 
-    for (; *apStr; ++apStr)
-        Print(*apStr, aFgColor, aBgColor);
+    for (; *str; ++str)
+        print(*str, fg, bg);
 }
 
 
 /*static*/ void KERNEL_CALL
-Vga::Put(char aChar, const TPos& aPos, TColor aFgColor, TColor aBgColor)
+Vga::put(char c, const Pos& pos, Color fg, Color bg)
 {
-    if (!aPos.IsValid())
+    if (!pos.isValid())
         return;
 
-    MEM_BEGIN[aPos] = Char(aChar, aFgColor, aBgColor);
+    MEM_BEGIN[pos]  = chr(c, fg, bg);
+    //Chr* mem = reinterpret_cast<Chr*>(0xB8000 + &gKernelBase - 0);
+    //mem[0] = chr('~', static_cast<Color>(5), static_cast<Color>(4));
 }
 
 
 
 /*static*/ void KERNEL_CALL
-Vga::Put(const char* apStr, const TPos& aPos, TColor aFgColor,
-        TColor aBgColor)
+Vga::put(const char* str, const Pos& pos, Color fg, Color bg)
 {
-    if (!apStr)
+    if (!str)
         return;
 
-    for (TPos pos = aPos; *apStr; ++apStr, ++pos)
-        Put(*apStr, pos, aFgColor, aBgColor);
+    for (Pos p = pos; *str; ++str, ++p)
+        put(*str, p, fg, bg);
 }
 
-
-///*static*/ void KERNEL_CALL
-//Vga::Put(int aInt, TIntegerBase aBase, const TPos& aPos, TColor aFgColor,
-//        TColor aBgColor)
-//{
-//    Put(IntToStr(aInt, aBase), aPos, aFgColor, aBgColor);
-//}
-
-
-///*static*/ void KERNEL_CALL
-//Vga::Print(int aInt, TIntegerBase aBase, TColor aFgColor, TColor aBgColor)
-//{
-//    Print(IntToStr(aInt, aBase), aFgColor, aBgColor);
-//}
 
 
 /*static*/ void KERNEL_CALL
-Vga::ScrollUp(TSize aRows)
+Vga::scrollUp(Size rows)
 {
-    using Generic::Copy;
-    using Generic::Fill;
-    TSize scroll = aRows * COLS;
-    Copy(MEM_BEGIN + scroll, MEM_END, MEM_BEGIN);
-    Fill(MEM_END - scroll, MEM_END, Char(BLANK_CHAR, msFgColor, msBgColor));
+    using Generic::copy;
+    using Generic::fill;
+    Size scroll = rows * COLS;
+    copy(MEM_BEGIN + scroll, MEM_END, MEM_BEGIN);
+    fill(MEM_END - scroll, MEM_END, chr(BLANK_CHAR, msFgColor, msBgColor));
 }
-
-
-

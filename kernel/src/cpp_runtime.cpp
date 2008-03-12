@@ -1,12 +1,12 @@
-#include "cpp_runtime.h"
-#include "vga.h"
+#include <cpp_runtime.h>
+#include <vga.h>
 
 // resource: http://www.osdev.org/wiki/C_PlusPlus#Global_objects_2
 
 extern "C"
 {
     int
-    __cxa_atexit(void (*apFunc)(void *), void *apArg, void *apDso);
+    __cxa_atexit(void (*func)(void *), void *arg, void *dso);
 
     void
     __cxa_finalize(void *d);
@@ -20,42 +20,42 @@ void *__dso_handle; /*only the address of this symbol is taken by gcc*/
 
 namespace
 {
-    const TSize MAX_OBJECTS  = 32;
+    const Size MAX_OBJECTS  = 32;
 
-    struct TObject
+    struct Object
     {
-            void (*mpFunc)(void*);
-            void *mpArg;
-            void *mpDso;
+            void (*mFunc)(void*);
+            void *mArg;
+            void *mDso;
     };
 
-    TObject gspObjects[MAX_OBJECTS];
+    Object  gObjects[MAX_OBJECTS];
 
-    TSize   gObjectCount    = 0;
+    Size    gObjectCount    = 0;
 };
 
 
 void
-CppRuntime::Init()
+CppRuntime::init()
 {
-    typedef void (*TCtor)();
+    typedef void (*Ctor)();
 
     // from linker
-    extern TCtor gCppCtorFirst;
-    extern TCtor gCppCtorsEnd;
+    extern Ctor gCppCtorFirst;
+    extern Ctor gCppCtorsEnd;
 
-    const TCtor* pCtor      = &gCppCtorFirst;
-    const TCtor* pCtorsEnd  = &gCppCtorsEnd;
+    const Ctor* ctor        = &gCppCtorFirst;
+    const Ctor* ctorsEnd    = &gCppCtorsEnd;
 
-    for (; pCtor != pCtorsEnd; ++pCtor)
+    for (; ctor != ctorsEnd; ++ctor)
     {
-        (*pCtor)();
+        (*ctor)();
     }
 }
 
 
 void
-CppRuntime::Deinit()
+CppRuntime::deinit()
 {
     __cxa_finalize(0);
 }
@@ -63,26 +63,27 @@ CppRuntime::Deinit()
 
 // Called automaticaly by GCC to register global/static objects destructors
 int
-__cxa_atexit(void (*apFunc)(void *), void *apArg, void *apDso)
+__cxa_atexit(void (*func)(void *), void *arg, void *dso)
 {
     if (gObjectCount >= MAX_OBJECTS)
     {
         // gx 8/18/2007: It's risky to use anything here but as long as
-        // Vga::Put() doesn't use any global/static objects its safe enough.
-        Vga::Put(
-            "Maximum number of global/static objects destructors exceeded!",
-            Vga::TPos(0, 0),
-            Vga::BLACK,
-            Vga::RED
+        // Vga::put() doesn't use any global/static objects its safe enough.
+        Vga::put(
+                "Maximum number of global/static objects destructors"
+                    " exceeded!",
+                Vga::Pos(0, 0),
+                Vga::BLACK,
+                Vga::RED
             );
         for (;;);
 
         return -1;
     }
 
-    gspObjects[gObjectCount].mpFunc = apFunc;
-    gspObjects[gObjectCount].mpArg  = apArg;
-    gspObjects[gObjectCount].mpDso  = apDso;
+    gObjects[gObjectCount].mFunc    = func;
+    gObjects[gObjectCount].mArg     = arg;
+    gObjects[gObjectCount].mDso     = dso;
     ++gObjectCount;
     return 0;
 }
@@ -95,7 +96,7 @@ __cxa_finalize(void *d)
     // Objects must be destroyed in opposite order they were constructed
     for (; gObjectCount != 0; --gObjectCount)
     {
-        gspObjects[gObjectCount].mpFunc(gspObjects[gObjectCount].mpArg);
+        gObjects[gObjectCount].mFunc(gObjects[gObjectCount].mArg);
     }
 }
 
@@ -107,12 +108,11 @@ __cxa_finalize(void *d)
 void
 __cxa_pure_virtual()
 {
-    Vga::Put(
+    Vga::put(
             "Call to pure virtual method detected!",
-            Vga::TPos(0, 0),
+            Vga::Pos(0, 0),
             Vga::BLACK,
             Vga::RED
-            );
+        );
     for (;;);
 }
-

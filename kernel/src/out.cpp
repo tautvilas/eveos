@@ -2,4 +2,4 @@
 
 ////// Out static members //////
 
-TOutStream Out::mInfo   = TOutStream();
+OutStream Out::msInfo    = OutStream();

@@ -1,12 +1,12 @@
 #ifndef _IO_PORT_H_
 #define _IO_PORT_H_
 
-#include "global.h"
+#include <global.h>
 
 /**
  *  Class for I/O ports manipulation.
  */
-class TIoPort
+class IoPort
 {
 
     // gx 8/18/2007: tried overloading and template approaches for Write
@@ -28,19 +28,19 @@ class TIoPort
 public:
 
     KERNEL_CALL
-    TIoPort(TWord aPort);
+    IoPort(Word port);
 
     void KERNEL_CALL
-    WriteByte(TByte aData);
+    writeByte(Byte data);
 
-    TByte KERNEL_CALL
-    ReadByte();
+    Byte KERNEL_CALL
+    readByte();
 
     // :TODO: gx 8/18/2007: mothods for other data types like when needed.
 
 
 private:
-    TWord   mPort;
+    Word    mPort;
 
 };
 
@@ -49,27 +49,26 @@ private:
 ////// TIoPort inlines //////
 
 inline KERNEL_CALL
-TIoPort::TIoPort(TWord aPort)
-        : mPort(aPort)
+IoPort::IoPort(Word port)
+        : mPort(port)
 {
 }
 
 
 inline void KERNEL_CALL
-TIoPort::WriteByte(TByte aData)
+IoPort::writeByte(Byte data)
 {
-    __asm__ __volatile__ ("outb %1, %0" : : "dN"(mPort), "a"(aData));
+    __asm__ __volatile__ ("outb %1, %0" : : "dN"(mPort), "a"(data));
 }
 
 
-inline TByte KERNEL_CALL
-TIoPort::ReadByte()
+inline Byte KERNEL_CALL
+IoPort::readByte()
 {
-    TByte data;
+    Byte data;
     __asm__ __volatile__ ("inb %1, %0" : "=a" (data) : "dN" (mPort));
     return data;
 }
 
 
 #endif // _IO_PORT_H_
-

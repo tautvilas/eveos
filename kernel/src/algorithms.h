@@ -12,86 +12,160 @@ namespace Generic {
 
 ////// Declarations //////
 
-template <typename TInputIterator, typename TOutputIterator>
-TOutputIterator KERNEL_CALL
-Copy(TInputIterator aFirst, TInputIterator aLast, TOutputIterator aResult);
+template <typename InputIterator, typename OutputIterator>
+OutputIterator KERNEL_CALL
+copy(InputIterator first, InputIterator last, OutputIterator result);
 
 
-template <typename TOutputIterator, typename TValue>
+template <typename OutputIterator, typename Value>
 void KERNEL_CALL
-Fill(TOutputIterator aFirst, TOutputIterator aLast, const TValue& aValue);
+fill(OutputIterator first, OutputIterator last, const Value& value);
 
 
-template <typename TInputIterator, typename TValue>
-TInputIterator KERNEL_CALL
-Find(TInputIterator aFirst, TInputIterator aLast, const TValue& aValue);
+template <typename InputIterator, typename Value>
+InputIterator KERNEL_CALL
+find(InputIterator first, InputIterator last, const Value& value);
 
 
-template <typename TInteger>
-TInteger KERNEL_CALL
-DivUp(const TInteger& aValue, const TInteger& aDivisor);
+//template <typename TInteger>
+//TInteger KERNEL_CALL
+//DivUp(const TInteger& aValue, const TInteger& aDivisor);
 
+UInt KERNEL_CALL
+divUp(const UInt& value, const UInt& divisor);
+
+template <typename T, typename M>
+inline T KERNEL_CALL
+mask(const T& value, const M& mask);
 
 int KERNEL_CALL
-Abs(int aValue);
+abs(int value);
+
+template <typename T>
+const T& KERNEL_CALL
+max(const T& value1, const T& value2);
+
+template <typename T>
+const T& KERNEL_CALL
+min(const T& value1, const T& value2);
 
 
 
 ////// Templates implementation //////
 
-template <typename TInputIterator, typename TOutputIterator>
-TOutputIterator KERNEL_CALL
-Copy(TInputIterator aFirst, TInputIterator aLast, TOutputIterator aResult)
+template <typename InputIterator, typename OutputIterator>
+OutputIterator KERNEL_CALL
+copy(InputIterator first, InputIterator last, OutputIterator result)
 {
-    for (; aFirst != aLast; ++aFirst, ++aResult)
-        *aResult = *aFirst;
-    return aResult;
+    for (; first != last; ++first, ++result)
+        *result = *first;
+    return result;
 }
 
 
-template <typename TOutputIterator, typename TValue>
+template <typename OutputIterator, typename Value>
 void KERNEL_CALL
-Fill(TOutputIterator aFirst, TOutputIterator aLast, const TValue& aValue)
+fill(OutputIterator first, OutputIterator last, const Value& value)
 {
-    for (; aFirst != aLast; ++aFirst)
-        *aFirst = aValue;
+    for (; first != last; ++first)
+        *first = value;
 }
 
 
-template <typename TInputIterator, typename TValue>
-TInputIterator KERNEL_CALL
-Find(TInputIterator aFirst, TInputIterator aLast, const TValue& aValue)
+template <typename InputIterator, typename Value>
+InputIterator KERNEL_CALL
+find(InputIterator first, InputIterator last, const Value& value)
 {
-    for (; aFirst != aLast; ++aFirst)
-        if (aValue == *aFirst)
+    for (; first != last; ++first)
+        if (value == *first)
             break;
 
-    return aFirst;
+    return first;
 }
 
 
-template <typename TInteger>
-TInteger KERNEL_CALL
-DivUp(const TInteger& aValue, const TInteger& aDivisor)
+//template <typename TInteger>
+//TInteger KERNEL_CALL
+//DivUp(const TInteger& aValue, const TInteger& aDivisor)
+//{
+//    TInteger result = aValue / aDivisor;
+//    if (aValue % aDivisor > 0)
+//        ++result;
+//    return result;
+//}
+
+
+inline UInt KERNEL_CALL
+divUp(const UInt& value, const UInt& divisor)
 {
-    TInteger result = aValue / aDivisor;
-    if (aValue % aDivisor > 0)
+    UInt result = value / divisor;
+    if (value % divisor > 0)
         ++result;
     return result;
 }
 
 
 inline int KERNEL_CALL
-Abs(int aValue)
+abs(int value)
 {
-    if (aValue < 0)
-        return ~aValue + 1;
+    if (value < 0)
+        return ~value + 1;
     else
-        return aValue;
+        return value;
 }
+
+
+template <typename T>
+inline const T& KERNEL_CALL
+max(const T& value1, const T& value2)
+{
+    return (value2 < value1) ? value1 : value2;
+}
+
+
+template <typename T>
+inline const T& KERNEL_CALL
+min(const T& value1, const T& value2)
+{
+    return (value2 < value1) ? value2 : value1;
+}
+
+
+template <typename T, typename M>
+inline T KERNEL_CALL
+maskBits(const T& value, const M& mask)
+{
+    return (T)((M)value & mask);
+}
+
+
+template <typename T, typename M>
+inline T KERNEL_CALL
+setBits(const T& value, const M& mask)
+{
+    return (T)((M)value | mask);
+}
+
+
+template <typename T, typename M>
+inline T KERNEL_CALL
+shiftLeft(const T& value, const M& mask)
+{
+    return (T)((M)value << mask);
+}
+
+
+template <typename T, typename M>
+inline T KERNEL_CALL
+shiftRight(const T& value, const M& mask)
+{
+    return (T)((M)value >> mask);
+}
+
+
+
 
 
 }; // namespace Generic
 
 #endif // _ALGORITHMS_H_
-
