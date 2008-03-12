@@ -1,15 +1,15 @@
 #summary EveOS coding standard
 
-= General =
+== General ==
 
   * Line length - 75 chars + max 2 symbols if needed
 
-= Assembly language =
+== Assembly language ==
 
   * Always use underscore to separate words in names
   * Use underscore in front of a name for global values
 
-= C++ =
+== C++ ==
 
   * User camelCase at all times
   * Class names begin with upper case
