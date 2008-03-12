@@ -1,3 +1,0 @@
-#summary EveOS kodo standartas
-
-http://bhb.linija.net/gonix/coding_standards/cpp_standartas.html
