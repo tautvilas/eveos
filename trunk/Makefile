@@ -1,24 +1,4 @@
-#EveOS core makefile
-
-# setting variables depending on OS
-# SYS   - OS identifier (win/nix)
-# DS    - directory separator
-# PS    - path separator
-# RM    - command for deleting files
-# NUL   -
-ifeq ($(OS),Windows_NT)
-	SYS     := win
-	DS      := \\# this is hack to set DS to `\`
-	PS      := ;
-	RM      := del /Q
-	NUL     := NUL
-else
-	SYS     := nix
-	DS      := /
-	PS      := :
-	RM      := rm -f
-	NUL     := /dev/null
-endif
+#EveOS linux core makefile
 
 # this hides commands
 # set E to empty string if you want to see commands used
@@ -30,30 +10,27 @@ LOADER_DIR  := loader
 KERNEL_DIR  := kernel
 IMAGE_DIR   := image
 
-KERNEL      := $(KERNEL_DIR)$(DS)bin$(DS)kernel.bin
-LOADER      := $(LOADER_DIR)$(DS)bin$(DS)loader.bin
-IMAGE       := $(IMAGE_DIR)$(DS)eveos.img
+KERNEL      := $(KERNEL_DIR)/bin/kernel.bin
+LOADER      := $(LOADER_DIR)/bin/loader.bin
+IMAGE       := $(IMAGE_DIR)/eveos.img
 
 all:
 	$(E)(cd $(LOADER_DIR) && $(MAKE))
 	$(E)(cd $(KERNEL_DIR) && $(MAKE))
 	@echo ~~~ Building EveOS image
-ifeq ($(SYS),win)
-	$(E)copy /Y $(LOADER) /B + $(KERNEL) /B $(IMAGE) /B > $(NUL)
-else
+
 	$(E)(cat $(LOADER) > $(IMAGE))
 	$(E)(cat $(KERNEL) >> $(IMAGE))
-endif
-	@echo ~~~ Done
 
+	@echo ~~~ Done
 
 .PHONY: clean vars
 clean:
 	@echo ~~~ Cleaning image
-	-$(E)$(RM) $(IMAGE) > $(NUL)
+	-$(E)(rm -f $(IMAGE) > /dev/null)
 	@echo ~~~ Done
 	-$(E)(cd $(KERNEL_DIR) && $(MAKE) clean)
 	-$(E)(cd $(LOADER_DIR) && $(MAKE) clean)
 
 vars:
-	@echo OS=$(OS) DS=$(DS) PS=$(PS) RM=$(RM) E=$(E)
+	@echo E=$(E)

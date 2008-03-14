@@ -1,22 +1,4 @@
-# setting variables depending on OS
-# SYS   - OS identifier (win/nix)
-# DS    - directory separator
-# PS    - path separator
-# RM    - command for deleting files
-ifeq ($(OS),Windows_NT)
-	SYS     := win
-	DS      := \\	# this is hack to set DS to `\`
-	PS      := ;
-	RM      := del /Q
-	NUL     := NUL
-else
-	SYS     := nix
-	DS      := /
-	PS      := :
-	RM      := rm -f
-	NUL     := /dev/null
-	SYS_CPPFLAGS  := -fno-stack-protector
-endif
+# EveOS kernel linux makefile
 
 # this hides commands
 # set E to empty string if you want to see commands used
@@ -25,24 +7,23 @@ E := @
 
 # directories
 SRC_DIR := src
-INC_DIR := $(SRC_DIR)$(DS)headers
+INC_DIR := $(SRC_DIR)/headers
 OBJ_DIR := obj
 BIN_DIR := bin
 
 # directories with trailing directory separator
-SRC := $(SRC_DIR)$(DS)
-OBJ := $(OBJ_DIR)$(DS)
-BIN := $(BIN_DIR)$(DS)
+SRC := $(SRC_DIR)/
+OBJ := $(OBJ_DIR)/
+BIN := $(BIN_DIR)/
 
-VPATH := $(SRC_DIR)$(PS)$(INC_DIR)$(PS)$(OBJ_DIR)$(PS)$(BIN_DIR)
+VPATH := $(SRC_DIR):$(INC_DIR):$(OBJ_DIR):$(BIN_DIR)
 
 COMPILER := g++
 
 CPPFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 			-fleading-underscore -nostdinc -fno-builtin \
 			-nostartfiles -nostdlib -fno-rtti -fno-exceptions \
-			-I$(SRC_DIR) -c \
-			$(SYS_CPPFLAGS)
+			-I$(SRC_DIR) -c
 
 # nasm flags
 # on nix nasm requires include directory with trailing slash
@@ -87,7 +68,7 @@ kentry.o: kentry.asm isr.asm utils.asm
 .PHONY: clean vars
 clean:
 	@echo ~~~ Cleaning kernel
-	$(E)$(RM) $(OBJ)*.o > $(NUL)
-	$(E)$(RM) $(BIN)*.bin > $(NUL)
-	$(E)$(RM) $(BIN)*.map > $(NUL)
+	$(E)rm -f $(OBJ)*.o > /dev/null
+	$(E)rm -f $(BIN)*.bin > /dev/null
+	$(E)rm -f $(BIN)*.map > /dev/null
 	@echo ~~~ Done
