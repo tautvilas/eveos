@@ -10,7 +10,7 @@
 ; PC starts booting in real mode
 [bits 16]
 ; Location in mem where bootsector is about to be stored
-[org 7C00h]
+[org OFF_BOOT]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Main                                                  ;
@@ -59,6 +59,7 @@ integrity_check_ok:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Function to print out a string, which address is located in [SI]
+
 print_str:
     push ax
     push bx
@@ -80,10 +81,8 @@ print_str:
     pop ax
 ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; load the kernel at 0800h:0000h
-; BIOS passes drive number in dl,
-; so it's not changed:
+; load the kernel at 0800h:0000h BIOS passes drive number in dl, so it's not changed:
+; TODO:zv:2007 09 12; write macros for loading from floppy
 
 load_kernel:
     push ax
@@ -128,22 +127,6 @@ load_kernel:
 ; read!
     int S_DISK
 
-    ;mov ah, F_READ_SECT_FROM_DRIVE
-; al keeps how many sectors to read
-    ;mov al, KERNEL_SIZE - 62
-    ;mov ch, 1 ;cylinder.
-    ;mov cl, 1 ;sector.
-    ;mov dh, 0 ;head.
-; dl not changed! - drive number
-
-; es:bx points to receiving
-; data buffer:
-    ;mov bx, SEG_KERNEL
-    ;mov es, bx
-    ;mov bx, OFF_KERNEL + 62 * 512
-; read!
-    ;int S_DISK
-
     pop es
     pop cx
     pop bx
@@ -159,7 +142,7 @@ ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-debug:
+test_output:
     mov si, debug_string
     call print_str
 ret
@@ -169,19 +152,20 @@ ret
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 title            db 'K-loader started!', 13, 10, 0
-debug_string     db '###### debug message ######', 13, 10, 0
+debug_string     db 'Testing printing to screen', 13, 10, 0
 loading_from_fd0 db 'Trying to read kernel from disc sector 2, cylinder 0, head 0...', 13, 10, 0
-load_kern_err    db 'The kernel file is invalid!', 13, 10
+load_kern_err    db 'Kernel file is invalid!', 13, 10
                  db 'System will now reboot. Pres any key to continue...', 13, 10, 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Ending                                                ;
+; Bootsector end                                        ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Fill all remaining of 510 bytes with 0
-; $-$$ means [start of the instruction - start of the program]
+; $-$$ = [start of the instruction - start of the program]
     times 510-($-$$) db 0
-; The magic value to comple 512b sector
+; The magic value indentifying that this 512 sector is a boot sector
     dw BOOTSECT_MAGIC_VALUE
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
+
