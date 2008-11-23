@@ -25,7 +25,7 @@ extern "C" void eve_main()
         // just a test of possioning and putting
         Vga::Pos   pos = Vga::Caret::pos();
         //Vga::Pos pos(0, 0);
-        for (char* str = "Vga::Put()"; *str; ++str, ++pos)
+        for (const char* str = "Vga::Put()"; *str; ++str, ++pos)
             Vga::put(*str, pos, Vga::BLACK, Vga::WHITE);
         Vga::Caret::pos(pos);
 

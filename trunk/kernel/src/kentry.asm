@@ -217,13 +217,13 @@ print_str:
     mov ah, F_TELETYPE ; Function to display a chacter (teletype)
     mov bh, 0          ; Page number
     mov bl, CL_GRAY    ; Gray text color
-.nextchar
+.nextchar:
     lodsb         ; Loads [SI] into AL and increases SI by one
     cmp al, 0     ; Check for end of string '0'
     jz .return
     int S_VIDEO
     jmp .nextchar ; Go to check next char
-.return
+.return:
 
     pop si
     pop bx
@@ -331,7 +331,7 @@ irq_not_kernel:
 
 irq_no_multitasking1:
     mov eax, esp
-irq_multitasking_init_end
+irq_multitasking_init_end:
     ;;;;;;;;;
 
     push eax                ; pointer to regs struct
@@ -411,9 +411,9 @@ vmgdtptr :
     dd _gGdt                ; virtual address of gdt
 
 ; the mighty gdt itself
-_gGdt
+_gGdt:
 NULL_SEL equ $-_gGdt  ; $->current location,so nullsel = 0h
-gdt0                   ; Null descriptor,as per convention gdt0 is 0
+gdt0:                  ; Null descriptor,as per convention gdt0 is 0
     dd 0               ; Each gdt entry is 8 bytes, so at 08h it is CS
     dd 0               ; In all the segment descriptor is 64 bits
 
@@ -421,7 +421,7 @@ gdt0                   ; Null descriptor,as per convention gdt0 is 0
 ; TODO externalize segment values
 
 CODE_SEL equ $-_gGdt  ; This is 8h,ie 2nd descriptor in gdt
-code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
+code_gd:               ; Code descriptor 4Gb flat segment at 0000:0000h
     dw 0xffff          ; Limit 4Gb  bits 0-15 of segment descriptor
     dw 0x0000          ; BASE 0h bits 16-31 of segment descriptor (sd)
     db 0x00            ; BASE addr of seg 16-23 of 32bit addr,32-39 of sd
@@ -434,7 +434,7 @@ code_gd                ; Code descriptor 4Gb flat segment at 0000:0000h
                        ; Lower nibble bits 16-19 of segment limit
     db 0x00            ; BASE addr of seg 24-31 of 32bit addr,56-63 of sd
 DATA_SEL equ $-_gGdt  ; ie 10h, beginning of next 8 bytes for data sd
-data_gd                ; Data descriptor 4Gb flat seg at 0000:0000h
+data_gd:               ; Data descriptor 4Gb flat seg at 0000:0000h
     dw 0xffff          ; Limit 4Gb
     dw 0x0000          ; BASE 0000:0000h
     db 0x00            ; Descriptor format same as above
@@ -442,7 +442,7 @@ data_gd                ; Data descriptor 4Gb flat seg at 0000:0000h
     db 11001111b
     db 0x00
 USER_CODE_SEL equ $-_gGdt
-code_user_gd           ; Code descriptor 4Gb flat segment at 0000:0000h
+code_user_gd:          ; Code descriptor 4Gb flat segment at 0000:0000h
     dw 0xffff          ; Limit 4Gb  bits 0-15 of segment descriptor
     dw 0x0000          ; BASE 0h bits 16-31 of segment descriptor (sd)
     db 0x00            ; BASE addr of seg 16-23 of 32bit addr,32-39 of sd
@@ -455,7 +455,7 @@ code_user_gd           ; Code descriptor 4Gb flat segment at 0000:0000h
                        ; Lower nibble bits 16-19 of segment limit
     db 0x00            ; BASE addr of seg 24-31 of 32bit addr,56-63 of sd
 USER_DATA_SEL equ $-_gGdt
-data_user_gd           ; Data descriptor 4Gb flat seg at 0000:0000h
+data_user_gd:          ; Data descriptor 4Gb flat seg at 0000:0000h
     dw 0xffff          ; Limit 4Gb
     dw 0x0000          ; BASE 0000:0000h
     db 0x00            ; Descriptor format same as above
@@ -463,10 +463,10 @@ data_user_gd           ; Data descriptor 4Gb flat seg at 0000:0000h
     db 11001111b
     db 0x00
 TSS_SEL equ $-_gGdt
-tss_gd
+tss_gd:
     dd 0
     dd 0
-gdt_end
+gdt_end:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; BSS                                                   ;
@@ -491,4 +491,3 @@ _pt2:
 _sys_stack:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
-

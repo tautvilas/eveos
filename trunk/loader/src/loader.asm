@@ -68,13 +68,13 @@ print_str:
     mov ah, F_TELETYPE ; Function to display a chacter (teletype)
     mov bh, 0          ; Page number
     mov bl, CL_GRAY    ; Gray text color
-.nextchar
+.nextchar:
     lodsb         ; Loads [SI] into AL and increases SI by one
     cmp al, 0     ; Check for end of string '0'
     jz .return
     int S_VIDEO
     jmp .nextchar ; Go to check next char
-.return
+.return:
 
     pop si
     pop bx
@@ -168,4 +168,3 @@ load_kern_err    db 'Kernel file is invalid!', 13, 10
     dw BOOTSECT_MAGIC_VALUE
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF
-
