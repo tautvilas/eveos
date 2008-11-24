@@ -26,7 +26,7 @@ public:
     void KERNEL_CALL
     push(const T& value);
 
-    void KERNEL_CALL
+    T KERNEL_CALL
     pop();
 
     T& KERNEL_CALL
@@ -84,7 +84,7 @@ inline KERNEL_CALL
 FixedStack<T, I>::FixedStack(I first, I end)
         : mFirst(first), mEnd(end), mCurr(end)
 {
-    ASSERT(first < end);
+    ASSERT(first <= end);
 }
 
 
@@ -99,12 +99,12 @@ FixedStack<T, I>::push(const T& value)
 
 
 template <typename T, typename I>
-inline void KERNEL_CALL
+inline T KERNEL_CALL
 FixedStack<T, I>::pop()
 {
     ASSERT(mCurr >= mFirst && mCurr < mEnd);
 
-    ++mCurr;
+    return *mCurr++;
 }
 
 
