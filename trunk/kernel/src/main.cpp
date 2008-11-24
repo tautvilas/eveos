@@ -1,7 +1,7 @@
 #include <main.h>
 #include <cpp_runtime.h>
+#include <mem_physical.h>
 //#include <idt.h>
-//#include <mem.h>
 
 #include <vga.h>
 #include <out.h>
@@ -10,6 +10,7 @@
 extern "C" void eve_main()
 {
     CppRuntime::init();     // shouldn't we choose consitent naming
+    Mem::Physical::init();
     //Idt::Install();         // for initialization?
     //Mem::init();
 

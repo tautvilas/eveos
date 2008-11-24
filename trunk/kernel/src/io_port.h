@@ -10,7 +10,7 @@ class IoPort
 {
 
     // gx 8/18/2007: tried overloading and template approaches for Write
-    // method with different size data like Byte, TWord, etc. but ended up
+    // method with different size data like Byte, Word, etc. but ended up
     // with named method solution because we need strict control over values
     // we write to I/O port. With overloaded/template method we'd need
     // explicitly cast values to use right method implementation. With named
@@ -36,7 +36,7 @@ public:
     Byte KERNEL_CALL
     readByte();
 
-    // :TODO: gx 8/18/2007: mothods for other data types like when needed.
+    // :TODO: gx 8/18/2007: mothods for other data types when needed.
 
 
 private:

@@ -38,12 +38,16 @@ enum MemoryMeasure
     GIGABYTE        = MEGABYTE * 1024,
 };
 
-extern "C" Byte gKernelBase;
-extern "C" Byte gKernelOffset;
-extern "C" Byte gKernelStart;
-extern "C" Byte gKernelEnd;
+
+struct Kernel
+{
+    static Byte* const  BASE;
+    static Byte* const  START;
+    static Byte* const  END;
+    static const Index  OFFSET;
+};
+
 
 extern "C" void kernel_stop();
-
 
 #endif // _GLOBAL_H_

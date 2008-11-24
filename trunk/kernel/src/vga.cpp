@@ -9,8 +9,8 @@ const Size  Vga::ROWS       = 25;
 const Size  Vga::TAB_WIDTH  = 8;
 const char  Vga::BLANK_CHAR = ' ';
 
-Vga::Chr* const Vga::MEM_BEGIN  = reinterpret_cast<Chr*>(0xB8000 + &gKernelBase);
-//Vga::Chr* const Vga::MEM_BEGIN  = reinterpret_cast<Chr*>(0xB7F60 + &gKernelBase);
+
+Vga::Chr* const Vga::MEM_BEGIN  = reinterpret_cast<Chr*>(Kernel::BASE + 0xB8000);
 Vga::Chr* const Vga::MEM_END    = Vga::MEM_BEGIN + Vga::COLS * Vga::ROWS;
 
 
