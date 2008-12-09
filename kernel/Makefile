@@ -44,10 +44,11 @@ define CPP_COMPILE
 		$(E)$(COMPILER) $(CPPFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.cpp, $(^F)))
 endef
 
-kernel.bin: kentry.o cpp_runtime.o main.o \
+kernel.bin: kentry.o global.o cpp_runtime.o main.o \
         io_port.o \
         vga_caret_reg.o vga_caret.o vga.o \
         stream.o out_stream.o out.o \
+        mem_physical_page.o mem_physical.o \
 #        idt.o \
 #        mem.o
 	@echo ~~~ Linking $(^F)
@@ -64,6 +65,7 @@ kentry.o: kentry.asm isr.asm utils.asm
 # used only if no rule is defined explictly
 %.o: %.cpp %.h global.h
 	$(CPP_COMPILE)
+
 
 .PHONY: clean vars
 clean:
