@@ -19,8 +19,19 @@
   * _g_ prefix for global variables (e.g. `gGlobal`)
   * _m_ prefix for class/struct members (e.g. `mMember`)
 
-  * Curly brackets `{` and `}` always in new line at the same level as owning expression
+  * Curly brackets `{` and `}` always in new line at the same level as owning expression:
   * Round brackets `(` and `)` always separated by space after keyword (like `if`, `for`, etc.) and always intact with function, method name. No spaces after opening and before closing bracket
   * Square brackets `[` and `]`  always intact with owning expression. No spaces after opening and before closing bracket
-
   * All arithmetic, logic, bitwise operators always separated by one space around them except for unary operators that must be intact with affected expression
+
+E.g.
+{{{
+if (foo < SIZE)
+{
+    Vga::put(mFoo[foo + 1]);
+}
+else
+{
+    Vga::put(gFail);
+}
+}}}
