@@ -1,13 +1,13 @@
 config_interface: textconfig
 display_library: sdl
-romimage: file=/usr/share/bochs/BIOS-bochs-latest, address=0xf0000
+romimage: file=/usr/share/bochs/BIOS-bochs-latest, address=0xe0000
 megs: 32
 vgaromimage: file=/usr/share/vgabios/vgabios.bin
 floppya: 1_44="image/eveos.img", status=inserted
 
 boot: floppy
 
-ips: 1000000
+# ips: 1000000
 floppy_bootsig_check: disabled=0
 log: /dev/stdout
 panic: action=ask
@@ -21,7 +21,7 @@ debugger_log: /dev/stdout
 vga_update_interval: 300000
 keyboard_serial_delay: 250
 keyboard_paste_delay: 100000
-floppy_command_delay: 500
+# floppy_command_delay: 500
 # mouse: enabled=1
 private_colormap: enabled=0
 #ne2k: ioaddr=0x240, irq=9, mac=b0:c4:20:00:00:00, ethmod=linux, ethdev=eth0

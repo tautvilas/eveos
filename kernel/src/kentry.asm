@@ -68,7 +68,6 @@ a20_success:
     mov si, ax
     call print_str - KERNEL_BASE
 
-
     cli             ; Disable external interrupts
 
     ; init gdt
@@ -165,7 +164,8 @@ init_pt2:
     mov eax, cr0
     or eax, PAGING_BIT          ; Set PG bit
     mov cr0, eax                ; Paging is on!
-    jmp $+2                     ; Flush the instruction queue.
+    jmp flush                   ; Flush the instruction queue.
+flush:
 
     jmp CODE_SEL:paging_enabled
 
