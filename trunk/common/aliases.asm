@@ -41,7 +41,7 @@
     PAGE_SIZE                   equ 1000h   ; page size in bytes
     STACK_SIZE                  equ 8192    ; stack size in bytes
     NUM_PAGE_ENTRIES            equ 1024
-    NUM_PAGE_TABLES             equ 2
+    NUM_TABLE_ENTRIES           equ 1024
 
 ; flags
     PAGE_RW_PRESENT             equ 3

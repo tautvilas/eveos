@@ -22,6 +22,12 @@ public:
      */
     KERNEL_CALL
     FixedStack(BidirectionalIterator first, BidirectionalIterator end);
+    
+    KERNEL_CALL
+    FixedStack(BidirectionalIterator first, Size size);
+    
+    KERNEL_CALL
+    FixedStack();
 
     void KERNEL_CALL
     push(const T& value);
@@ -46,6 +52,13 @@ public:
 
     const BidirectionalIterator KERNEL_CALL
     end() const;
+
+    Size KERNEL_CALL
+    size() const;
+    
+    Bool KERNEL_CALL
+    empty() const;
+    
 
 private:
 
@@ -84,8 +97,24 @@ inline KERNEL_CALL
 FixedStack<T, I>::FixedStack(I first, I end)
         : mFirst(first), mEnd(end), mCurr(end)
 {
-    ASSERT(first <= end);
+    ASSERT(mFirst <= mEnd);
 }
+
+
+template <typename T, typename I>
+inline KERNEL_CALL
+FixedStack<T, I>::FixedStack(I first, Size size)
+        : mFirst(first), mEnd(first + size), mCurr(first + size)
+{
+    ASSERT(mFirst <= mEnd);
+}
+
+
+template <typename T, typename I>
+inline KERNEL_CALL
+FixedStack<T, I>::FixedStack()
+        : mFirst(0), mEnd(0), mCurr(0)
+{}
 
 
 template <typename T, typename I>
@@ -157,6 +186,22 @@ inline const I KERNEL_CALL
 FixedStack<T, I>::end() const
 {
     return mEnd;
+}
+
+
+template <typename T, typename I>
+inline Size KERNEL_CALL
+FixedStack<T, I>::size() const
+{
+    return end() - begin();
+}
+
+
+template <typename T, typename I>
+inline Bool KERNEL_CALL
+FixedStack<T, I>::empty() const
+{
+    return end() == begin();
 }
 
 

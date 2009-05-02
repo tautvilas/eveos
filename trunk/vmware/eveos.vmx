@@ -1,0 +1,68 @@
+#!/usr/bin/vmware
+.encoding = "UTF-8"
+displayName = "EveOS"
+guestOS = "other"
+
+memsize = "32"
+scsi0:0.fileName = "500M.vmdk"
+#ide1:0.fileName = "path/to/iso"
+
+floppy0.fileType = "file"
+floppy0.fileName = "../image/eveos.img"
+floppy0.startConnected = "TRUE"
+
+
+# DEFAULT SETTINGS UNDER THIS LINE
+config.version = "8"
+virtualHW.version = "4"
+
+MemAllowAutoScaleDown = "FALSE"
+MemTrimRate = "-1"
+
+uuid.location = "56 4d 0a 0b 46 1f 9f 54-17 57 ee 61 1b aa e6 38"
+uuid.bios = "56 4d 0a 0b 46 1f 9f 54-17 57 ee 61 1b aa e6 38"
+
+uuid.action = "create"
+checkpoint.vmState = ""
+
+#ethernet0.present = "TRUE"
+#ethernet0.connectionType = "nat"
+#ethernet0.addressType = "generated"
+#ethernet0.generatedAddress = "00:0c:29:02:d5:37"
+#ethernet0.generatedAddressOffset = "0"
+
+usb.present = "FALSE"
+sound.present = "FALSE"
+
+scsi0.present = "TRUE"
+scsi0.virtualdev = "lsilogic"
+scsi0:0.present = "TRUE"
+scsi0:0.deviceType = "disk"
+scsi0:0.mode = "persistent"
+scsi0:0.redo = ""
+scsi0:0.writeThrough = "FALSE"
+scsi0:0.startConnected = "FALSE"
+
+scsi0:1.present = "FALSE"
+#floppy0.present = "FALSE"
+floppy0.present = "TRUE"
+ide0:0.present = "FALSE"
+ide0:1.present = "FALSE"
+ide1:1.present = "FALSE"
+
+#ide1:0.present = "TRUE"
+ide1:0.present = "FALSE"
+ide1:0.deviceType = "cdrom-image"
+ide1:0.autodetect = "FALSE"
+ide1:0.startConnected = "TRUE"
+
+
+tools.remindInstall = "FALSE"
+
+floppy0.clientDevice = "FALSE"
+extendedConfigFile = "eveos.vmxf"
+virtualHW.productCompatibility = "hosted"
+tools.upgrade.policy = "manual"
+
+debugStub.linuxOffsets = "0x0,0xffffffff,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0"
+vmotion.checkpointFBSize = "16777216"

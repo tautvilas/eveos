@@ -22,13 +22,11 @@ all:
 	$(E)(cat $(LOADER) > $(IMAGE))
 	$(E)(cat $(KERNEL) >> $(IMAGE))
 
-	@echo ~~~ Done
 
 .PHONY: clean vars
 clean:
 	@echo ~~~ Cleaning image
 	-$(E)(rm -f $(IMAGE) > /dev/null)
-	@echo ~~~ Done
 	-$(E)(cd $(KERNEL_DIR) && $(MAKE) clean)
 	-$(E)(cd $(LOADER_DIR) && $(MAKE) clean)
 
