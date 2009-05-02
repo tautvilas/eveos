@@ -18,12 +18,12 @@ VPATH := $(SRC_DIR):$(BIN_DIR)
 ASFLAGS := -f bin -I$(SRC_DIR)/
 
 loader.bin: loader.asm
-	@echo ~~~ Compiling loader
+	@echo ~~~ Buildng loader
 	$Enasm $(ASFLAGS) $(SRC)loader.asm -o $(BIN)loader.bin
-	@echo ~~~ Done
+
 
 .PHONY: clean
 clean:
 	@echo ~~~ Cleaning loader
 	-$Erm -f $(BIN)*.bin > /dev/null
-	@echo ~~~ Done
+

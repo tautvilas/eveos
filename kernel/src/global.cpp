@@ -6,7 +6,8 @@ extern "C" Byte gKernelOffset;
 extern "C" Byte gKernelStart;
 extern "C" Byte gKernelEnd;
 
-Byte* const Kernel::BASE    = &gKernelBase;
-Byte* const Kernel::START   = &gKernelStart;
-Byte* const Kernel::END     = &gKernelEnd;
-const Index Kernel::OFFSET  = reinterpret_cast<Index>(&gKernelBase);
+
+const Addr Kernel::BASE     = addr(&gKernelBase);
+const Addr Kernel::START    = addr(&gKernelStart);
+const Addr Kernel::END      = addr(&gKernelEnd);
+

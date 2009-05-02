@@ -21,6 +21,8 @@ global _gGdtKernelDataSel   ; gdt kernel data selector
 global _gGdtUserCsSel       ; gdt user cs selector
 global _gGdtUserDataSel     ; gdt user data selector
 
+global _gKernelPageDir      ; kernel page dir
+
 global _gKernelEsp
 
 ; extern vars
@@ -118,26 +120,22 @@ set_bss_null:
     ; init paging
     mov esp, _sys_stack - KERNEL_BASE
 
-    ; init kernel page table (over 2GB and first 8MB)
+    ; init kernel page table (over 2GB and first 4MB)
     ; TODO maybe do this with macros
-    mov eax, _pd - KERNEL_BASE      ; eax  = &pd
+    mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx       = &pt1 | 3
+    mov eax, _gKernelPageDir - KERNEL_BASE          ; eax       = &pd[0]
+    mov [eax], ebx                                  ; pd[0]     = &pt1    
+    add eax, PAGE_DIRECTORY_OFFSET                  ; eax       = &pd[512]
+    mov [eax], ebx                                  ; pd[512]   = &pt1
+    
+    ; set last page dir entry to it self
+    mov ebx, _gKernelPageDir - KERNEL_BASE \
+            + PAGE_RW_PRESENT                       ; ebx       = &pd | 3
+    mov eax, _gKernelPageDir - KERNEL_BASE \
+            + (NUM_TABLE_ENTRIES - 1) * 4           ; eax       = &pd[1023]
+    mov [eax], ebx                                  ; pd[1023]  = &pd
 
-    mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
-    mov [eax], ebx                  ; pd[0] = &pt
-    add eax, 4
-    mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
-    mov [eax], ebx
-
-    mov eax,  _pd - KERNEL_BASE + PAGE_DIRECTORY_OFFSET ; eax = &pde[512h]
-
-    mov ebx, _pt1 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
-    mov [eax], ebx                  ; pd[512] = &pt
-    add eax, 4
-    mov ebx, _pt2 - KERNEL_BASE + PAGE_RW_PRESENT   ; ebx  = &pt | 3
-    mov [eax], ebx
-
-    ; fill in the page tables
-
+    ; fill in the page tables    
     mov edi, _pt1 - KERNEL_BASE     ; edi = &pt
     mov eax, PAGE_RW_PRESENT        ; Address 0, bit p & r/w set
     mov ecx, NUM_PAGE_ENTRIES       ; 1024 entries
@@ -146,18 +144,9 @@ init_pt1:
     add eax, PAGE_SIZE              ; Next page address
     loop init_pt1                   ; Loop
 
-    mov edi, _pt2 - KERNEL_BASE     ; edi = &pt
-    mov eax, PAGE_RW_PRESENT        ; Address 0, bit p & r/w set
-    mov ecx, NUM_PAGE_ENTRIES       ; 1024 entries
-init_pt2:
-    stosd                           ; Write one entry
-    add eax, PAGE_SIZE              ; Next page address
-    loop init_pt2                   ; Loop
-
     ; set the page directory in cr3
-
-    mov eax,  _pd - KERNEL_BASE     ; eax = &pd
-    mov cr3, eax                    ; cr3 = &pd
+    mov eax,  _gKernelPageDir - KERNEL_BASE     ; eax = &pd
+    mov cr3, eax                                ; cr3 = &pd
 
     ; set CR0's PG bit.
 
@@ -475,15 +464,13 @@ gdt_end:
 ; this memory section will be dicarded after memmory management is initialized
 
 SECTION .bss
+
 ; page directory
-_pd:
+_gKernelPageDir:
     resb PAGE_SIZE
 
-; reserve 2 page tables for kernel initialization
+; reserve 1 page table for kernel initialization
 _pt1:
-    resb PAGE_SIZE
-
-_pt2:
     resb PAGE_SIZE
 
 ; system stack

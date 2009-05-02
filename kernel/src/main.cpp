@@ -1,18 +1,21 @@
+#include <debug.h>
 #include <main.h>
 #include <cpp_runtime.h>
-#include <mem_physical.h>
+#include <mem.h>
+#include <new.h>
+
 //#include <idt.h>
 
 #include <vga.h>
 #include <out.h>
 
+#include <critical.h>
 
 extern "C" void eve_main()
 {
-    CppRuntime::init();     // shouldn't we choose consitent naming
-    Mem::Physical::init();
-    //Idt::Install();         // for initialization?
-    //Mem::init();
+    CppRuntime::init();     
+    Mem::init();
+
 
     // Vga tests
     if (true)
@@ -31,23 +34,11 @@ extern "C" void eve_main()
         Vga::Caret::pos(pos);
 
         // real usage test
-        Vga::print("\nVga::Print()");
+        Vga::print("\nVga::Print()\n");
 
         // scroll and color printing test
         //Vga::Caret::pos(Vga::Pos(0, 24));
         //Vga::print("Vga::Print()\n", Vga::BLACK, Vga::GREEN);
-
-        /*/
-        Vga::print(123, BIN);
-        Vga::print(' ');
-        Vga::print(123, OCT);
-        Vga::print(' ');
-        Vga::print(123, DEC);
-        Vga::print(' ');
-        Vga::print(123, HEX);
-        Vga::print(' ');
-        Vga::print(0xdeadbeef, HEX);
-        //*/
     }
 
     // Out tests
@@ -65,9 +56,54 @@ extern "C" void eve_main()
                 << DEC << 0xdeadbeef
                 << "\n";
     }*/
+    
+    // Kernel virtual memory tests
+    /*{
+        void* p = Mem::grow(0);
+        DBG(p);        
+        
+        Byte* p1 = static_cast<Byte*>(Mem::grow(4));
+        DBG(p1);
+        DBG(Mem::grow(2 * KILOBYTE));
+        
+        Byte* p2 = static_cast<Byte*>(Mem::grow(1));
+        DBG(p2);
+        p2[0] = 'X';
+        DBG(p2[0]);
+        DBG(p1[4 + 2 * KILOBYTE]);
+        DBG(p2[10]);    // accessing *formally* unallocated memory (ok)
+        
+        Byte* p3 = p2 + 4 * KILOBYTE;
+        DBG(p3);
+        DBG(p3[0]);     // accessing *actually* unallocated memory (fault)
+    }*/
+    
+    
+    // operator new tests
+    /*{
+        DBG(Mem::used());
+        Byte* p1 = new Byte('X');
+        DBG(Mem::used());
+        DBG(p1);
+        DBG(*p1);
+        Byte* p2 = new Byte[MEGABYTE / 2];
+        DBG(Mem::used());
+        DBG(p2);
+        delete p1;
+        delete [] p2;
+    }*/
 
-
-
+    /*
+    CRITICAL 
+    {
+        Out::info() << "critical " << Critical::depth() << "\n";
+        CRITICAL
+        {
+            Out::info() << "critical " << Critical::depth() << "\n";
+        }
+        Out::info() << "critical " << Critical::depth() << "\n";
+    }
+    */
 
     kernel_stop();
     //for (;;);

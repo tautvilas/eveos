@@ -48,13 +48,12 @@ kernel.bin: kentry.o global.o cpp_runtime.o main.o \
         io_port.o \
         vga_caret_reg.o vga_caret.o vga.o \
         stream.o out_stream.o out.o \
-        mem_physical_page.o mem_physical.o \
-#        idt.o \
-#        mem.o
-	@echo ~~~ Linking $(^F)
+        mem_physical.o mem.o new.o \
+        critical.o
+#        idt.o
+	@echo ~~~ Linking
 	$(E)ld $(LDFLAGS) -Map $(BIN)kernel.map -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	$(E)cat $(BIN)kernel.map | c++filt -_ > $(BIN)kernel.readable.map
-	@echo ~~~ Done
 
 kentry.o: kentry.asm isr.asm utils.asm
 	@echo ~~~ Compiling entry
@@ -73,4 +72,4 @@ clean:
 	$(E)rm -f $(OBJ)*.o > /dev/null
 	$(E)rm -f $(BIN)*.bin > /dev/null
 	$(E)rm -f $(BIN)*.map > /dev/null
-	@echo ~~~ Done
+

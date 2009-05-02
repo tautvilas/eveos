@@ -12,14 +12,16 @@ class Physical
 {
 public:
 
-    static void KERNEL_CALL
-    init();
+    enum 
+    {
+        PAGE_SIZE   = 4 * KILOBYTE,
+    };
 
-    static Byte* KERNEL_CALL
+    static Addr KERNEL_CALL
     alloc();
 
-    static void KERNEL_CALL
-    dealloc(Byte*);
+    static Bool KERNEL_CALL
+    dealloc(Addr);
 
     static Size KERNEL_CALL
     size();
@@ -32,13 +34,16 @@ public:
 
 private:
 
-    class Page;
-
-    typedef Generic::FixedStack<Byte*>  PageStack;
+    typedef Generic::FixedStack<Addr>   PageStack;
 
     static PageStack    mFreePages;
 
     Physical();
+
+    static void KERNEL_CALL
+    init();
+    
+    friend void Mem::init();
 };
 
 

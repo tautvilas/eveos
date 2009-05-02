@@ -1,72 +1,81 @@
 #include <mem_physical.h>
-#include <mem_physical_page.h>
 #include <algorithms.h>
 
 namespace Mem {
 
 
-Physical::PageStack Physical::mFreePages(0, 0);
+Physical::PageStack Physical::mFreePages;
+
+
+namespace {
+
+    Addr KERNEL_CALL
+    page(Addr addr)
+    {
+        return addr - (addr % Physical::PAGE_SIZE);
+    }
+    
+}
 
 
 /*static*/ void KERNEL_CALL
 Physical::init()
 {
-    using Generic::max;
-    using Generic::fill;
+    Addr    SYS_LO_MEM  = Kernel::BASE + MEGABYTE;
+    
+    Addr    end         = size();
+    Addr    stackAddr   = Generic::max(Kernel::END, SYS_LO_MEM);
+    Addr    firstFree   = stackAddr - Kernel::BASE;
 
-    Byte* const SYSTEM_LO_MEM_END   = Kernel::BASE + MEGABYTE;
-
-    Size    base    = reinterpret_cast<Size>(Kernel::BASE);
-    Byte*   end     = reinterpret_cast<Byte*>(size());
-    Byte*   free    = max(Kernel::END, SYSTEM_LO_MEM_END) - base;
-    Size    count   = (end - free) / Page::SIZE;
-
-    ASSERT(free <= end);
+    ASSERT(firstFree <= end);
 
     // putting free pages stack low in free memory
-    mFreePages  = PageStack(
-            reinterpret_cast<PageStack::Iterator>(free + base),
-            reinterpret_cast<PageStack::Iterator>(free + base) + count
-        );
+    Size    stackSize   = (end - firstFree) / PAGE_SIZE;
+    mFreePages          = PageStack(addr_cast<Addr*>(stackAddr), stackSize);
 
     // this memory is now used by free pages stack
-    free        += count * sizeof(Byte*);
+    firstFree           += stackSize * sizeof(Addr);
 
-    // filling stack with all awailable free pages
-    for (Page p(end - Page::SIZE); p > free; mFreePages.push(p--));
+    // filling stack with all available free pages
+    for (Addr p = page(end - PAGE_SIZE); p > firstFree; mFreePages.push(p))
+        p   -= PAGE_SIZE;
 }
 
 
-/*static*/ Byte* KERNEL_CALL
+/*static*/ Addr KERNEL_CALL
 Physical::alloc()
 {
-    return mFreePages.pop();
+    if (!mFreePages.empty())
+        return mFreePages.pop();
+    else
+        return NULL;
 }
 
 
-/*static*/ void KERNEL_CALL
-Physical::dealloc(Byte* addr)
+/*static*/ Bool KERNEL_CALL
+Physical::dealloc(Addr pg)
 {
-    Page        page    = addr;
+    Addr        p       = page(pg);
     PageStack&  stack   = mFreePages;
 
-    ASSERT(page >= reinterpret_cast<Byte*>(stack.end()))
-    ASSERT(stack.end() == Generic::find(stack.begin(), stack.end(), page));
+    ASSERT(p >= addr(stack.end()))
+    ASSERT(stack.end() == Generic::find(stack.begin(), stack.end(), p));
 
-    if (page < reinterpret_cast<Byte*>(stack.end()))
-        return; // cannot free memory used by kernel and stack
+    if (p < addr(stack.end()))
+        return false;   // cannot free memory used by kernel and stack
 
-    if (stack.end() != Generic::find(stack.begin(), stack.end(), page))
-        return; // page already free
+    if (stack.end() != Generic::find(stack.begin(), stack.end(), p))
+        return false;   // page already free
 
-    mFreePages.push(page);
+    mFreePages.push(p);
+    return true;
 }
 
 
 /*static*/ Size KERNEL_CALL
 Physical::free()
 {
-    return (mFreePages.end() - mFreePages.begin()) * Page::SIZE;
+    return mFreePages.size() * PAGE_SIZE;
 }
 
 
@@ -81,8 +90,8 @@ Physical::used()
 Physical::size()
 {
     // :TODO: gd 2008-11-24: get real RAM size from BIOS
-    //      for now assuming that we have 8MB of RAM
-    return 1.1 * MEGABYTE;
+    //      for now assuming that we have 2MB of RAM
+    return 2 * MEGABYTE;
 }
 
 
