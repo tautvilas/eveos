@@ -111,3 +111,7 @@ The existence of the page-translation cache is invisible to applications program
   # By performing a task switch to a TSS that has a different CR3 image than the current TSS.
 
 
+-----
+References:
+  # [http://www.logix.cz/michal/doc/i386/chp05-02.htm Intel 80386 Programmer's Reference Manual: 5.2 Page Translation]
+  # [http://www.logix.cz/michal/doc/i386/chp06-04.htm Intel 80386 Programmer's Reference Manual: 6.4 Page-Level Protection]
