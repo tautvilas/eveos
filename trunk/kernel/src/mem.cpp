@@ -87,10 +87,10 @@ init()
 }
 
 
-void* KERNEL_CALL
+Maybe<void*> KERNEL_CALL
 grow(Size size)
 {
-    // :TODO: 2009-05-02 gx: unallocate memory when returning NULL
+    // :TODO: 2009-05-02 gx: unallocate memory when returning None()
     
     Index   newPage     = divUp(mUsedEnd, PAGE_SIZE);
     Size    endPage     = divUp(mUsedEnd + size, PAGE_SIZE);   
@@ -103,18 +103,17 @@ grow(Size size)
         
         if (0 == p)
         {
-            Addr page   = Physical::alloc();
-            if (!page)
-                return NULL;
-            
-            tbl         = tblNew(newPage / TABLE_SIZE, page);
+            if (Addr page = Physical::alloc().value())
+                tbl = tblNew(newPage / TABLE_SIZE, page);
+            else
+                return None();
         }
         
-        Addr page   = Physical::alloc();
-        if (!page)
-            return NULL;
+        if (Addr page = Physical::alloc().value())
+            tbl[p]  = page | SYS_RW;
+        else
+            return None();
             
-        tbl[p]      = page | SYS_RW;
     }   
     
     // zero-filling remaining new page table entries 

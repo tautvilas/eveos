@@ -59,14 +59,15 @@ extern "C" void eve_main()
     
     // Kernel virtual memory tests
     /*{
-        void* p = Mem::grow(0);
+        void* p = Mem::grow(0).value();
         DBG(p);        
         
-        Byte* p1 = static_cast<Byte*>(Mem::grow(4));
+        Byte* p1 = static_cast<Byte*>(Mem::grow(4).value());
         DBG(p1);
-        DBG(Mem::grow(2 * KILOBYTE));
+        DBG(Mem::grow(2 * KILOBYTE).value());
         
-        Byte* p2 = static_cast<Byte*>(Mem::grow(1));
+        Byte* p2 = static_cast<Byte*>(Mem::grow(1).value());
+        DBG(Mem::grow(0).value());
         DBG(p2);
         p2[0] = 'X';
         DBG(p2[0]);
@@ -75,7 +76,7 @@ extern "C" void eve_main()
         
         Byte* p3 = p2 + 4 * KILOBYTE;
         DBG(p3);
-        DBG(p3[0]);     // accessing *actually* unallocated memory (fault)
+        //DBG(p3[0]);     // accessing *actually* unallocated memory (fault)
     }*/
     
     

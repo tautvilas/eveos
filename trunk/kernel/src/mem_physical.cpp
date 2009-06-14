@@ -42,13 +42,13 @@ Physical::init()
 }
 
 
-/*static*/ Addr KERNEL_CALL
+/*static*/ Maybe<Addr> KERNEL_CALL
 Physical::alloc()
 {
     if (!mFreePages.empty())
         return mFreePages.pop();
     else
-        return NULL;
+        return None();
 }
 
 

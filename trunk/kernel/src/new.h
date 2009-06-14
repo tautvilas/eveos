@@ -7,6 +7,10 @@ void*
 operator new(Size size);
 
 
+void*
+operator new(Size size, void* where);
+
+
 void* 
 operator new[](Size size);
 

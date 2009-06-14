@@ -17,7 +17,7 @@ public:
         PAGE_SIZE   = 4 * KILOBYTE,
     };
 
-    static Addr KERNEL_CALL
+    static Maybe<Addr> KERNEL_CALL
     alloc();
 
     static Bool KERNEL_CALL
