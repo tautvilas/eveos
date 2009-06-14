@@ -9,7 +9,7 @@ namespace Mem {
 void KERNEL_CALL
 init();
 
-void* KERNEL_CALL
+Maybe<void*> KERNEL_CALL
 grow(Size size);
 
 Size KERNEL_CALL
