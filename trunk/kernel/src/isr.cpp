@@ -5,7 +5,6 @@
 #include <isr.h>
 
 extern "C" void enable_int();
-
 extern "C" Byte kernel_cs_sel;
 extern "C" void exc0(), exc1(), exc2(), exc3(), exc4(), exc5(), exc6(), exc7(), exc8(),
                 exc9(), exc10(), exc11(), exc12(), exc13(), exc14(), exc15(), exc16(),
@@ -17,125 +16,30 @@ extern "C" void exc0(), exc1(), exc2(), exc3(), exc4(), exc5(), exc6(), exc7(), 
 
                 sys69();
 
-// These definitions are outside namespaces so that ASM code could reach them
-typedef struct
-{
-    DWord gs, fs, es, ds;
-    DWord edi, esi, ebp, esp, ebx, edx, ecx, eax;
-    DWord intNo, errCode;
-    DWord eip, cs, eflags, useresp, ss;
-} Regs;
-
-typedef struct
-{
-    Word limit;
-    DWord base;
-} __attribute__ ((packed)) IdtPtr;
-
-extern "C" void load_idt(IdtPtr*);
-
-enum
-{
-    // entry is present, ring 3
-    ISR_FLAGS = 0xEE,
-    PIC1 = 0x20,
-    PIC2 = 0xA0,
-    // PIC command ports
-    PIC1_COMMAND = PIC1,
-    PIC2_COMMAND = PIC2,
-    // PIC data ports
-    PIC1_DATA = (PIC1 + 1),
-    PIC2_DATA = (PIC2 + 1),
-    // End of interrupt signal
-    PIC_EOI = 0x20,
-};
-
-static IoPort mPic1Command(PIC1_COMMAND);
-static IoPort mPic2Command(PIC2_COMMAND);
-static IoPort mPic1Data(PIC1_DATA);
-static IoPort mPic2Data(PIC2_DATA);
-
-// pointers to isr handling functions
-// static void* mIsrHandlers[70];
-
-static const char* mExceptionNames[] =
-{
-    "Division By Zero",
-    "Debug",
-    "Non Maskable interrupt",
-    "Breakpoint",
-    "Into  Detected Overflow",
-    "Out of Bounds",
-    "Invalid Opcode",
-    "No coprocessor",
-    "Double Fault",
-    "Coprocessor Segment Overrun",
-    "Bad TSS",
-    "Segment Not Present",
-    "Stack Fault",
-    "General Protection Fault",
-    "Page Fault",
-    "Unknown Interrupt",
-    "Coprocessor Fault",
-    "Aligment Check",
-    "Machine Check",
-    "Reserved 19",
-    "Reserved 20",
-    "Reserved 21",
-    "Reserved 22",
-    "Reserved 23",
-    "Reserved 24",
-    "Reserved 25",
-    "Reserved 26",
-    "Reserved 27",
-    "Reserved 28",
-    "Reserved 29",
-    "Reserved 30",
-    "Reserved 31"
-};
-
-extern "C" {void KERNEL_CALL isrHandler(Regs*);}
-
-void KERNEL_CALL
-isrHandler(Regs* regs)
-{
-    // void (*handler)(Regs *regs);
-
-    UInt intNo = regs->intNo;
-    // if (intNo != 32) DBG(intNo);
-    // handler = mIsrHandlers[intNo];
-    if (intNo < 32)
-    {
-        Out::err() << mExceptionNames[intNo];
-        Out::err() << " Exception caught\n";
-        // kernel_panic();
-    }
-    // IRQ
-    else if (intNo >= 32 && intNo < 47)
-    {
-        // If the IDT entry that was invoked was greater than 40
-        // (meaning IRQ8 - 15), then we need to send an EOI to
-        // the slave controller
-        if (intNo >= 40)
-        {
-            mPic2Command.writeByte(PIC_EOI);
-        }
-
-        // In either case, we need to send an EOI to the master
-        // interrupt controller too
-        mPic1Command.writeByte(PIC_EOI);
-    }
-    else
-    {
-        Out::warn() << "Unhandled interrupt caught - " << intNo;
-    }
-    return;
-}
-
 namespace Isr {
 
 
 namespace {
+
+    typedef struct Regs Regs;
+    typedef struct IdtPtr IdtPtr;
+
+    extern "C" void KERNEL_CALL isrCommonHandler(Regs*);
+    extern "C" void load_idt(IdtPtr*);
+
+    typedef struct Regs
+    {
+        DWord gs, fs, es, ds;
+        DWord edi, esi, ebp, esp, ebx, edx, ecx, eax;
+        DWord intNo, errCode;
+        DWord eip, cs, eflags, useresp, ss;
+    };
+
+    typedef struct IdtPtr
+    {
+        Word limit;
+        DWord base;
+    } __attribute__ ((packed));
 
     typedef struct
     {
@@ -151,6 +55,60 @@ namespace {
         Word baseHigh;
     } __attribute__ ((packed)) IdtGate;
 
+    enum
+    {
+        IRQ_FIRST_INDEX = 32,
+        IRQ_LAST_INDEX = 46,
+        // entry is present, ring 3
+        ISR_FLAGS = 0xEE,
+        PIC1 = 0x20,
+        PIC2 = 0xA0,
+        // PIC command ports
+        PIC1_COMMAND = PIC1,
+        PIC2_COMMAND = PIC2,
+        // PIC data ports
+        PIC1_DATA = (PIC1 + 1),
+        PIC2_DATA = (PIC2 + 1),
+        // End of interrupt signal
+        PIC_EOI = 0x20,
+    };
+
+    const char* mExceptionNames[] =
+    {
+        "Division By Zero",
+        "Debug",
+        "Non Maskable interrupt",
+        "Breakpoint",
+        "Into  Detected Overflow",
+        "Out of Bounds",
+        "Invalid Opcode",
+        "No coprocessor",
+        "Double Fault",
+        "Coprocessor Segment Overrun",
+        "Bad TSS",
+        "Segment Not Present",
+        "Stack Fault",
+        "General Protection Fault",
+        "Page Fault",
+        "Unknown Interrupt",
+        "Coprocessor Fault",
+        "Aligment Check",
+        "Machine Check",
+        "Reserved 19",
+        "Reserved 20",
+        "Reserved 21",
+        "Reserved 22",
+        "Reserved 23",
+        "Reserved 24",
+        "Reserved 25",
+        "Reserved 26",
+        "Reserved 27",
+        "Reserved 28",
+        "Reserved 29",
+        "Reserved 30",
+        "Reserved 31"
+    };
+
     void(*isrs[])() = {
         exc0, exc1, exc2, exc3, exc4, exc5, exc6, exc7, exc8,
         exc9, exc10, exc11, exc12, exc13, exc14, exc15, exc16,
@@ -161,8 +119,13 @@ namespace {
         irq9, irq10, irq11, irq12, irq13, irq14, irq15,
     };
 
+    IoPort mPic1Command(PIC1_COMMAND);
+    IoPort mPic2Command(PIC2_COMMAND);
+    IoPort mPic1Data(PIC1_DATA);
+    IoPort mPic2Data(PIC2_DATA);
     IdtGate mIdt[256];
     IdtPtr gIdtPtr;
+    // void* mIsrHandlers[70];
 
     void KERNEL_CALL
     setIdtGate(Byte num, void (*routine)(), Word sel, Byte flags)
@@ -173,6 +136,42 @@ namespace {
         mIdt[num].sel = sel;
         mIdt[num].flags = flags;
         mIdt[num].always0 = 0x00;
+        return;
+    }
+
+    void KERNEL_CALL
+    isrCommonHandler(Regs* regs)
+    {
+        // void (*handler)(Regs *regs);
+
+        UInt intNo = regs->intNo;
+        // if (intNo != 32) DBG(intNo);
+        // handler = mIsrHandlers[intNo];
+        if (intNo < IRQ_FIRST_INDEX)
+        {
+            Out::err() << mExceptionNames[intNo];
+            Out::err() << " Exception caught\n";
+            // kernel_panic();
+        }
+        // IRQ
+        else if (intNo >= IRQ_FIRST_INDEX && intNo <= IRQ_LAST_INDEX)
+        {
+            // If the IDT entry that was invoked was greater than 40
+            // (meaning IRQ8 - 15), then we need to send an EOI to
+            // the slave controller
+            if (intNo >= 40)
+            {
+                mPic2Command.writeByte(PIC_EOI);
+            }
+
+            // In either case, we need to send an EOI to the master
+            // interrupt controller too
+            mPic1Command.writeByte(PIC_EOI);
+        }
+        else
+        {
+            Out::warn() << "Unhandled interrupt caught - " << intNo;
+        }
         return;
     }
 
