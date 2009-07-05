@@ -19,14 +19,13 @@ global _read_tss_limit;
 
 global _kernel_stop
 
-extern _gIdtPtr
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; IDT                                                   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 _load_idt:
-    lidt [_gIdtPtr]
+    mov eax, [esp + 4]
+    lidt [eax]
     retn
 
 _enable_int:

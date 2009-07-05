@@ -16,7 +16,7 @@ global _start               ; entry symbol for linker
 
 global _gGdt
 
-global _gGdtKernelCsSel     ; gdt kernel cs selector
+global _kernel_cs_sel     ; gdt kernel cs selector
 global _gGdtKernelDataSel   ; gdt kernel data selector
 global _gGdtUserCsSel       ; gdt user cs selector
 global _gGdtUserDataSel     ; gdt user data selector
@@ -163,7 +163,7 @@ flush:
 paging_enabled:
 
     mov eax, CODE_SEL
-    mov [_gGdtKernelCsSel], eax
+    mov [_kernel_cs_sel], eax
     mov eax, DATA_SEL
     mov [_gGdtKernelDataSel], eax
     mov eax, USER_CODE_SEL
@@ -266,7 +266,7 @@ a20_success_msg db  "A20 gate enabled", 13, 10, 0
 a20_failure_msg db  "Failded to enable A20 gate! Halting.", 13, 10, 0
 
 ; code selectors
-_gGdtKernelCsSel    dd 0
+_kernel_cs_sel    dd 0
 _gGdtKernelDataSel  dd 0
 _gGdtUserCsSel      dd 0
 _gGdtUserDataSel    dd 0
