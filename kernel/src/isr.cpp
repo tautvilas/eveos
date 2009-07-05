@@ -4,19 +4,18 @@
 #include <out.h>
 #include <isr.h>
 
-extern "C" void load_idt(DWord);
 extern "C" void enable_int();
 
 extern "C" Byte kernel_cs_sel;
-extern "C" void *exc0, *exc1, *exc2, *exc3, *exc4, *exc5, *exc6, *exc7, *exc8,
-                *exc9, *exc10, *exc11, *exc12, *exc13, *exc14, *exc15, *exc16,
-                *exc17, *exc18, *exc19, *exc20, *exc21, *exc22, *exc23, *exc24,
-                *exc25, *exc26, *exc27, *exc28, *exc29, *exc30, *exc31,
+extern "C" void exc0(), exc1(), exc2(), exc3(), exc4(), exc5(), exc6(), exc7(), exc8(),
+                exc9(), exc10(), exc11(), exc12(), exc13(), exc14(), exc15(), exc16(),
+                exc17(), exc18(), exc19(), exc20(), exc21(), exc22(), exc23(), exc24(),
+                exc25(), exc26(), exc27(), exc28(), exc29(), exc30(), exc31(),
 
-                *irq0, *irq1, *irq2, *irq3, *irq4, *irq5, *irq6, *irq7, *irq8,
-                *irq9, *irq10, *irq11, *irq12, *irq13, *irq14, *irq15,
+                irq0(), irq1(), irq2(), irq3(), irq4(), irq5(), irq6(), irq7(), irq8(),
+                irq9(), irq10(), irq11(), irq12(), irq13(), irq14(), irq15(),
 
-                *sys69;
+                sys69();
 
 // These definitions are outside namespaces so that ASM code could reach them
 typedef struct
@@ -26,6 +25,14 @@ typedef struct
     DWord intNo, errCode;
     DWord eip, cs, eflags, useresp, ss;
 } Regs;
+
+typedef struct
+{
+    Word limit;
+    DWord base;
+} __attribute__ ((packed)) IdtPtr;
+
+extern "C" void load_idt(IdtPtr*);
 
 enum
 {
@@ -132,14 +139,8 @@ namespace {
 
     typedef struct
     {
-        Word limit;
-        DWord base;
-    } __attribute__ ((packed)) IdtPtr;
-
-    typedef struct
-    {
         // ISR address low word
-        Word bselow;
+        Word baseLow;
         // kernel segment
         Word sel;
         // always set this to 0
@@ -150,23 +151,24 @@ namespace {
         Word baseHigh;
     } __attribute__ ((packed)) IdtGate;
 
-    void* isrs[] = {
-        &exc0, &exc1, &exc2, &exc3, &exc4, &exc5, &exc6, &exc7, &exc8,
-        &exc9, &exc10, &exc11, &exc12, &exc13, &exc14, &exc15, &exc16,
-        &exc17, &exc18, &exc19, &exc20, &exc21, &exc22, &exc23, &exc24,
-        &exc25, &exc26, &exc27, &exc28, &exc29, &exc30, &exc31,
+    void(*isrs[])() = {
+        exc0, exc1, exc2, exc3, exc4, exc5, exc6, exc7, exc8,
+        exc9, exc10, exc11, exc12, exc13, exc14, exc15, exc16,
+        exc17, exc18, exc19, exc20, exc21, exc22, exc23, exc24,
+        exc25, exc26, exc27, exc28, exc29, exc30, exc31,
 
-        &irq0, &irq1, &irq2, &irq3, &irq4, &irq5, &irq6, &irq7, &irq8,
-        &irq9, &irq10, &irq11, &irq12, &irq13, &irq14, &irq15,
+        irq0, irq1, irq2, irq3, irq4, irq5, irq6, irq7, irq8,
+        irq9, irq10, irq11, irq12, irq13, irq14, irq15,
     };
 
     IdtGate mIdt[256];
     IdtPtr gIdtPtr;
 
     void KERNEL_CALL
-    setIdtGate(Byte num, DWord base, Word sel, Byte flags)
+    setIdtGate(Byte num, void (*routine)(), Word sel, Byte flags)
     {
-        mIdt[num].bselow = base & 0xFFFF;
+        DWord base = reinterpret_cast<Addr>(routine);
+        mIdt[num].baseLow = base & 0xFFFF;
         mIdt[num].baseHigh = (base >> 16) & 0xFFFF;
         mIdt[num].sel = sel;
         mIdt[num].flags = flags;
@@ -223,12 +225,12 @@ init()
 
     unsigned int i;
     for (i = 0; i < sizeof(isrs) / sizeof(void*); i++) {
-        setIdtGate(i, reinterpret_cast<Addr>(isrs[i]), kernel_cs_sel, ISR_FLAGS);
+        setIdtGate(i, isrs[i], kernel_cs_sel, ISR_FLAGS);
     }
 
-    setIdtGate(69, reinterpret_cast<Addr>(sys69), kernel_cs_sel, ISR_FLAGS);
+    setIdtGate(69, sys69, kernel_cs_sel, ISR_FLAGS);
 
-    load_idt((DWord)&gIdtPtr);
+    load_idt(&gIdtPtr);
     enable_int();
     return;
 }
