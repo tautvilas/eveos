@@ -4,42 +4,42 @@
 
 ; ISR references
 
-global _isr0    ; division by zero exception
-global _isr1    ; debug exception
-global _isr2    ; non maskable interrupt exception
-global _isr3    ; breakpoint exception
-global _isr4    ; into detected overflow exception
-global _isr5    ; out of bounds exception
-global _isr6    ; invalid opcode exception
-global _isr7    ; no coprocessor exception
-global _isr8    ; double fault exception (pushes error code)
-global _isr9    ; coprocessor segment overrun exception
-global _isr10   ; bad TSS exception (pushes error code)
-global _isr11   ; segment not present exception (pushes error code)
-global _isr12   ; stack fault exception (pushes error code)
-global _isr13   ; general protection fault exception (pushes error code)
-global _isr14   ; page fault exception (pushes error code)
-global _isr15   ; unknown interrupt exception
-global _isr16   ; coprocessor fault exception
-global _isr17   ; aligment check exception (486+)
-global _isr18   ; machine check exception (pentium/586+)
+global _exc0    ; division by zero exception
+global _exc1    ; debug exception
+global _exc2    ; non maskable interrupt exception
+global _exc3    ; breakpoint exception
+global _exc4    ; into detected overflow exception
+global _exc5    ; out of bounds exception
+global _exc6    ; invalid opcode exception
+global _exc7    ; no coprocessor exception
+global _exc8    ; double fault exception (pushes error code)
+global _exc9    ; coprocessor segment overrun exception
+global _exc10   ; bad TSS exception (pushes error code)
+global _exc11   ; segment not present exception (pushes error code)
+global _exc12   ; stack fault exception (pushes error code)
+global _exc13   ; general protection fault exception (pushes error code)
+global _exc14   ; page fault exception (pushes error code)
+global _exc15   ; unknown interrupt exception
+global _exc16   ; coprocessor fault exception
+global _exc17   ; aligment check exception (486+)
+global _exc18   ; machine check exception (pentium/586+)
 
 ; reserved exceptions
 
-global _isr19
-global _isr20
-global _isr21
-global _isr22
-global _isr22
-global _isr23
-global _isr24
-global _isr25
-global _isr26
-global _isr27
-global _isr28
-global _isr29
-global _isr30
-global _isr31
+global _exc19
+global _exc20
+global _exc21
+global _exc22
+global _exc22
+global _exc23
+global _exc24
+global _exc25
+global _exc26
+global _exc27
+global _exc28
+global _exc29
+global _exc30
+global _exc31
 
 ; IRQs begin here
 
@@ -62,7 +62,7 @@ global _irq15
 
 ; Kernel service interrupt
 
-global _isr69
+global _sys69
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Implementation                                        ;
@@ -70,188 +70,188 @@ global _isr69
 
 ; ISRS
 
-_isr0:
+_exc0:
     cli
     push byte 0    ; A normal ISR stub that pops a dummy error code to keep a
                    ; uniform stack frame
     push byte 0
     jmp isr_common
 
-_isr1:
+_exc1:
     cli
     push byte 0
     push byte 1
     jmp isr_common
 
-_isr2:
+_exc2:
     cli
     push byte 0
     push byte 2
     jmp isr_common
 
-_isr3:
+_exc3:
     cli
     push byte 0
     push byte 3
     jmp isr_common
 
-_isr4:
+_exc4:
     cli
     push byte 0
     push byte 4
     jmp isr_common
 
-_isr5:
+_exc5:
     cli
     push byte 0
     push byte 5
     jmp isr_common
 
-_isr6:
+_exc6:
     cli
     push byte 0
     push byte 6
     jmp isr_common
 
-_isr7:
+_exc7:
     cli
     push byte 0
     push byte 7
     jmp isr_common
 
-_isr8:
+_exc8:
     cli
     push byte 8
     jmp isr_common
 
-_isr9:
+_exc9:
     cli
     push byte 0
     push byte 9
     jmp isr_common
 
-_isr10:
+_exc10:
     cli
     push byte 10
     jmp isr_common
 
-_isr11:
+_exc11:
     cli
     push byte 11
     jmp isr_common
 
-_isr12:
+_exc12:
     cli
     push byte 12
     jmp isr_common
 
-_isr13:
+_exc13:
     cli
     push byte 13
     jmp isr_common
 
-_isr14:
+_exc14:
     cli
     push byte 14
     jmp isr_common
 
-_isr15:
+_exc15:
     cli
     push byte 0
     push byte 15
     jmp isr_common
 
-_isr16:
+_exc16:
     cli
     push byte 0
     push byte 16
     jmp isr_common
 
-_isr17:
+_exc17:
     cli
     push byte 0
     push byte 17
     jmp isr_common
 
-_isr18:
+_exc18:
     cli
     push byte 0
     push byte 18
     jmp isr_common
 
-_isr19:
+_exc19:
     cli
     push byte 0
     push byte 19
     jmp isr_common
 
-_isr20:
+_exc20:
     cli
     push byte 0
     push byte 20
     jmp isr_common
 
-_isr21:
+_exc21:
     cli
     push byte 0
     push byte 21
     jmp isr_common
 
-_isr22:
+_exc22:
     cli
     push byte 0
     push byte 22
     jmp isr_common
 
-_isr23:
+_exc23:
     cli
     push byte 0
     push byte 23
     jmp isr_common
 
-_isr24:
+_exc24:
     cli
     push byte 0
     push byte 24
     jmp isr_common
 
-_isr25:
+_exc25:
     cli
     push byte 0
     push byte 25
     jmp isr_common
 
-_isr26:
+_exc26:
     cli
     push byte 0
     push byte 26
     jmp isr_common
 
-_isr27:
+_exc27:
     cli
     push byte 0
     push byte 27
     jmp isr_common
 
-_isr28:
+_exc28:
     cli
     push byte 0
     push byte 28
     jmp isr_common
 
-_isr29:
+_exc29:
     cli
     push byte 0
     push byte 29
     jmp isr_common
 
-_isr30:
+_exc30:
     cli
     push byte 0
     push byte 30
     jmp isr_common
 
-_isr31:
+_exc31:
     cli
     push byte 0
     push byte 31
@@ -263,101 +263,101 @@ _irq0:
     cli
     push byte 0 ; we need dummy byte here
     push byte 32
-    jmp irq_common
+    jmp isr_common
 
 _irq1:
     cli
     push byte 0 ; we need dummy byte here
     push byte 33
-    jmp irq_common
+    jmp isr_common
 
 _irq2:
     cli
     push byte 0 ; we need dummy byte here
     push byte 34
-    jmp irq_common
+    jmp isr_common
 
 _irq3:
     cli
     push byte 0 ; we need dummy byte here
     push byte 35
-    jmp irq_common
+    jmp isr_common
 
 _irq4:
     cli
     push byte 0 ; we need dummy byte here
     push byte 36
-    jmp irq_common
+    jmp isr_common
 
 _irq5:
     cli
     push byte 0 ; we need dummy byte here
     push byte 37
-    jmp irq_common
+    jmp isr_common
 
 _irq6:
     cli
     push byte 0 ; we need dummy byte here
     push byte 38
-    jmp irq_common
+    jmp isr_common
 
 _irq7:
     cli
     push byte 0 ; we need dummy byte here
     push byte 39
-    jmp irq_common
+    jmp isr_common
 
 _irq8:
     cli
     push byte 0 ; we need dummy byte here
     push byte 40
-    jmp irq_common
+    jmp isr_common
 
 _irq9:
     cli
     push byte 0 ; we need dummy byte here
     push byte 41
-    jmp irq_common
+    jmp isr_common
 
 _irq10:
     cli
     push byte 0 ; we need dummy byte here
     push byte 42
-    jmp irq_common
+    jmp isr_common
 
 _irq11:
     cli
     push byte 0 ; we need dummy byte here
     push byte 43
-    jmp irq_common
+    jmp isr_common
 
 _irq12:
     cli
     push byte 0 ; we need dummy byte here
     push byte 44
-    jmp irq_common
+    jmp isr_common
 
 _irq13:
     cli
     push byte 0 ; we need dummy byte here
     push byte 45
-    jmp irq_common
+    jmp isr_common
 
 _irq14:
     cli
     push byte 0 ; we need dummy byte here
     push byte 46
-    jmp irq_common
+    jmp isr_common
 
 _irq15:
     cli
     push byte 0 ; we need dummy byte here
     push byte 47
-    jmp irq_common
+    jmp isr_common
 
 ; kernel service interrupt stub
 
-_isr69:
+_sys69:
     cli
     push byte 0
     push byte 69

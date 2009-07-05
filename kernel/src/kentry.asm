@@ -32,13 +32,12 @@ extern _gBssStart           ; kernel bss section start
 extern _gBssEnd             ; kernel bss section end
 
 extern _eve_main              ; OS main C function
-; extern _gIdtp               ; Pointer to IDT
-; extern _exception_handler   ; ISRs handler
 ; extern _irq_handler         ; IRQs handler
 ; extern _gpActiveTask        ; active task
 ; extern _gKernelCr3          ; kernel page dir
 
 ; extern _gTss                ; pointer to tss segment
+extern _isrHandler      ; ISRs handler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -234,57 +233,18 @@ isr_common:
     push fs
     push gs
 
-    ;;;;;;;;
-    mov eax, [_gpActiveTask]
-    cmp eax, 0          ; is mtasking enabled?
-    je isr_no_multitasking1
-
-    mov eax, [_gpActiveTask]
-    mov [eax], esp      ; save active task esp
-    mov ebx, [eax + 4]  ; load active task id
-    cmp ebx, 0          ; is this task a root kernel task?
-    jne isr_not_kernel
-    mov [_gKernelEsp], esp   ; if this task is a kernel svave its esp in global
-
-isr_not_kernel:
-    mov eax, esp            ; prepare for pushinng pointer to regs
-    mov esp, [_gKernelEsp]  ; change esp from task esp to kernel esp
-    jmp isr_multitasking_init_end
-
-isr_no_multitasking1:
     mov eax, esp
-isr_multitasking_init_end:
-    ;;;;;;;;
-
     push eax        ; pointer to regs struct
 
-    mov ax, DATA_SEL
-    mov ds, ax
-    mov fs, ax
-    mov es, ax
-    mov gs, ax
+    ;mov ax, DATA_SEL
+    ;mov ds, ax
+    ;mov fs, ax
+    ;mov es, ax
+    ;mov gs, ax
 
-    mov eax, _exception_handler
+    mov eax, _isrHandler
     call eax    ; a special call, preserves 'eip' register
-    pop eax
-
-    ;;;;;;;;
-    mov eax, [_gpActiveTask]      ; is mtasking enabled?
-    cmp eax, 0
-    je isr_no_multitasking2
-
-    ; read kstack top
-    mov ebx, [eax + 16]
-    ; update tss
-    mov [_gTss + 4], ebx
-    ; load stack pointer
-    mov esp, [eax]
-    ; load task page dir
-    mov ebx, [eax + 8]
-    mov cr3, ebx
-
-isr_no_multitasking2:
-    ;;;;;;;;
+    ;pop eax
 
     pop gs
     pop fs
@@ -292,76 +252,8 @@ isr_no_multitasking2:
     pop ds
     popa
     add esp, 8  ; cleans up pushed error code and ISR number
+    sti
     iret        ; pops cs, eip, eflags (+ss and esp if interrupt was called at privilege lvl 3)
-
-irq_common:
-    pusha
-    push ds
-    push es
-    push fs
-    push gs
-
-    ;;;;;;;;;
-    mov eax, [_gpActiveTask]
-    cmp eax, 0          ; is mtasking enabled?
-    je irq_no_multitasking1
-
-    mov eax, [_gpActiveTask]
-    mov [eax], esp      ; save active task esp
-    mov ebx, [eax + 4]  ; load active task id
-    cmp ebx, 0          ; is this task a root kernel task?
-    jne irq_not_kernel
-    mov [_gKernelEsp], esp      ; if this task is a kernel svave its esp in global
-
-irq_not_kernel:
-    mov eax, esp            ; prepare for pushinng pointer to regs
-    mov esp, [_gKernelEsp]  ; change esp from task esp to kernel esp
-    jmp irq_multitasking_init_end
-
-irq_no_multitasking1:
-    mov eax, esp
-irq_multitasking_init_end:
-    ;;;;;;;;;
-
-    push eax                ; pointer to regs struct
-
-    mov ax, DATA_SEL
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
-    mov eax, _irq_handler
-    call eax    ; a special call, preserves 'eip' register
-    pop eax
-
-    ;;;;;;;;;
-    mov eax, [_gpActiveTask]      ; is mtasking enabled?
-    cmp eax, 0
-    je irq_no_multitasking2
-
-    ; patch tss
-
-    ; read kstack top
-    mov ebx, [eax + 16]
-    ; update tss
-    mov [_gTss + 4], ebx
-    ; load task stack pointer
-    mov esp, [eax]
-    ; load task page dir
-    mov ebx, [eax + 8]
-    mov cr3, ebx
-
-irq_no_multitasking2:
-    ;;;;;;;;;
-
-    pop gs
-    pop fs
-    pop es
-    pop ds
-    popa
-    add esp, 8  ; cleans up pushed error code and ISR number
-    iret        ; pops cs, eip, eflags, ss and esp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data                                                  ;
@@ -383,7 +275,6 @@ _gTssSel dd 0
 ; dummy definitions
 
 _gpActiveTask       dd 0
-_exception_handler  dd 0
 _irq_handler        dd 0
 _gTss               dd 0
 
