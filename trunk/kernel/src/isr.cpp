@@ -1,14 +1,13 @@
 #include <global.h>
-#include <isr.h>
 #include <io_port.h>
 #include <debug.h>
 #include <out.h>
+#include <isr.h>
 
-extern "C" Byte gGdtKernelCsSel;
-
-extern "C" void load_idt();
+extern "C" void load_idt(DWord);
 extern "C" void enable_int();
 
+extern "C" Byte kernel_cs_sel;
 extern "C" void *exc0, *exc1, *exc2, *exc3, *exc4, *exc5, *exc6, *exc7, *exc8,
                 *exc9, *exc10, *exc11, *exc12, *exc13, *exc14, *exc15, *exc16,
                 *exc17, *exc18, *exc19, *exc20, *exc21, *exc22, *exc23, *exc24,
@@ -19,14 +18,7 @@ extern "C" void *exc0, *exc1, *exc2, *exc3, *exc4, *exc5, *exc6, *exc7, *exc8,
 
                 *sys69;
 
-// The struct and gIdtPtr variable are outside namespaces
-// so that ASM code could reach it
-typedef struct
-{
-    Word limit;
-    DWord base;
-} __attribute__ ((packed)) IdtPtr;
-
+// These definitions are outside namespaces so that ASM code could reach them
 typedef struct
 {
     DWord gs, fs, es, ds;
@@ -51,16 +43,13 @@ enum
     PIC_EOI = 0x20,
 };
 
-IdtPtr gIdtPtr;
-IoPort mPic1Command(PIC1_COMMAND);
-IoPort mPic2Command(PIC2_COMMAND);
-IoPort mPic1Data(PIC1_DATA);
-IoPort mPic2Data(PIC2_DATA);
+static IoPort mPic1Command(PIC1_COMMAND);
+static IoPort mPic2Command(PIC2_COMMAND);
+static IoPort mPic1Data(PIC1_DATA);
+static IoPort mPic2Data(PIC2_DATA);
 
 // pointers to isr handling functions
 // static void* mIsrHandlers[70];
-
-extern "C" {void KERNEL_CALL isrHandler(Regs*);}
 
 static const char* mExceptionNames[] =
 {
@@ -97,6 +86,8 @@ static const char* mExceptionNames[] =
     "Reserved 30",
     "Reserved 31"
 };
+
+extern "C" {void KERNEL_CALL isrHandler(Regs*);}
 
 void KERNEL_CALL
 isrHandler(Regs* regs)
@@ -141,6 +132,12 @@ namespace {
 
     typedef struct
     {
+        Word limit;
+        DWord base;
+    } __attribute__ ((packed)) IdtPtr;
+
+    typedef struct
+    {
         // ISR address low word
         Word bselow;
         // kernel segment
@@ -153,7 +150,7 @@ namespace {
         Word baseHigh;
     } __attribute__ ((packed)) IdtGate;
 
-    static void* isrs[] = {
+    void* isrs[] = {
         &exc0, &exc1, &exc2, &exc3, &exc4, &exc5, &exc6, &exc7, &exc8,
         &exc9, &exc10, &exc11, &exc12, &exc13, &exc14, &exc15, &exc16,
         &exc17, &exc18, &exc19, &exc20, &exc21, &exc22, &exc23, &exc24,
@@ -163,10 +160,10 @@ namespace {
         &irq9, &irq10, &irq11, &irq12, &irq13, &irq14, &irq15,
     };
 
+    IdtGate mIdt[256];
+    IdtPtr gIdtPtr;
 
-    static IdtGate mIdt[256];
-
-    static void KERNEL_CALL
+    void KERNEL_CALL
     setIdtGate(Byte num, DWord base, Word sel, Byte flags)
     {
         mIdt[num].bselow = base & 0xFFFF;
@@ -194,7 +191,7 @@ namespace {
 
     // IRQs 0-7 are by default mapped to entries 8-15
     // This conflicts with ISRs so we should remap all IRQs to 32-47
-    static void KERNEL_CALL
+    void KERNEL_CALL
     irqRemap(void)
     {
         // start sequence
@@ -226,13 +223,12 @@ init()
 
     unsigned int i;
     for (i = 0; i < sizeof(isrs) / sizeof(void*); i++) {
-        setIdtGate(i, reinterpret_cast<Addr>(isrs[i]), gGdtKernelCsSel, ISR_FLAGS);
+        setIdtGate(i, reinterpret_cast<Addr>(isrs[i]), kernel_cs_sel, ISR_FLAGS);
     }
 
-    setIdtGate(69, reinterpret_cast<Addr>(sys69), gGdtKernelCsSel, ISR_FLAGS);
+    setIdtGate(69, reinterpret_cast<Addr>(sys69), kernel_cs_sel, ISR_FLAGS);
 
-    load_idt();
-    // load_idt((DWord)&gIdtPtr);
+    load_idt((DWord)&gIdtPtr);
     enable_int();
     return;
 }
