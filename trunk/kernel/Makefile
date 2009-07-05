@@ -29,7 +29,7 @@ CPPFLAGS := -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions \
 # on nix nasm requires include directory with trailing slash
 # on win nasm ignores trailing slash but can not work with trailing backslash!
 ASFLAGS := -f aout -I$(SRC_DIR)/
-LDFLAGS := -T link.ld -s -x $(MAP)
+LDFLAGS := -T link.ld -s -x
 
 MAP_DEMANGLE := awk 'BEGIN { hex = "^0x[0-9a-f]+$" } { \
         if ($2 ~ hex && $3 ~ hex) { addr = $2; size = $3 } \
@@ -49,8 +49,7 @@ kernel.bin: kentry.o global.o cpp_runtime.o main.o \
         vga_caret_reg.o vga_caret.o vga.o \
         stream.o out_stream.o out.o \
         mem_physical.o mem.o new.o \
-        critical.o
-#        idt.o
+        critical.o isr.o
 	@echo ~~~ Linking
 	$(E)ld $(LDFLAGS) -Map $(BIN)kernel.map -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
 	$(E)cat $(BIN)kernel.map | c++filt -_ > $(BIN)kernel.readable.map
