@@ -37,7 +37,7 @@ extern _eve_main              ; OS main C function
 ; extern _gKernelCr3          ; kernel page dir
 
 ; extern _gTss                ; pointer to tss segment
-extern _isrHandler      ; ISRs handler
+extern _isrCommonHandler      ; ISRs handler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -242,7 +242,7 @@ isr_common:
     ;mov es, ax
     ;mov gs, ax
 
-    mov eax, _isrHandler
+    mov eax, _isrCommonHandler
     call eax    ; a special call, preserves 'eip' register
     ;pop eax
 

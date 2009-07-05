@@ -12,5 +12,5 @@ init();
 
 }
 
-#endif // _IDT_H_
+#endif // _ISR_H_
 
