@@ -3,9 +3,7 @@
 #include <cpp_runtime.h>
 #include <mem.h>
 #include <new.h>
-
-//#include <idt.h>
-
+#include <isr.h>
 #include <vga.h>
 #include <out.h>
 
@@ -13,9 +11,9 @@
 
 extern "C" void eve_main()
 {
-    CppRuntime::init();     
+    CppRuntime::init();
     Mem::init();
-
+    Isr::init();
 
     // Vga tests
     if (true)
@@ -56,16 +54,16 @@ extern "C" void eve_main()
                 << DEC << 0xdeadbeef
                 << "\n";
     }*/
-    
+
     // Kernel virtual memory tests
     /*{
         void* p = Mem::grow(0).value();
-        DBG(p);        
-        
+        DBG(p);
+
         Byte* p1 = static_cast<Byte*>(Mem::grow(4).value());
         DBG(p1);
         DBG(Mem::grow(2 * KILOBYTE).value());
-        
+
         Byte* p2 = static_cast<Byte*>(Mem::grow(1).value());
         DBG(Mem::grow(0).value());
         DBG(p2);
@@ -73,13 +71,13 @@ extern "C" void eve_main()
         DBG(p2[0]);
         DBG(p1[4 + 2 * KILOBYTE]);
         DBG(p2[10]);    // accessing *formally* unallocated memory (ok)
-        
+
         Byte* p3 = p2 + 4 * KILOBYTE;
         DBG(p3);
         //DBG(p3[0]);     // accessing *actually* unallocated memory (fault)
     }*/
-    
-    
+
+
     // operator new tests
     /*{
         DBG(Mem::used());
@@ -95,7 +93,7 @@ extern "C" void eve_main()
     }*/
 
     /*
-    CRITICAL 
+    CRITICAL
     {
         Out::info() << "critical " << Critical::depth() << "\n";
         CRITICAL
@@ -106,6 +104,17 @@ extern "C" void eve_main()
     }
     */
 
+    /*
+    // Interrupt tests
+    {
+        __asm__ ("int $0");
+        __asm__ ("int $1");
+        __asm__ ("int $2");
+        __asm__ ("int $3");
+        __asm__ ("int $31");
+        __asm__ ("int $33");
+    }
+    */
+
     kernel_stop();
-    //for (;;);
 }

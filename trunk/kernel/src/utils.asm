@@ -1,4 +1,6 @@
-global _idt_load:
+global _load_idt;
+global _enable_int;
+global _disable_int;
 
 global _read_cr0;
 global _read_cr2;
@@ -17,13 +19,23 @@ global _read_tss_limit;
 
 global _kernel_stop
 
+extern _gIdtPtr
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; IDT                                                   ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; _idt_load:
-;     lidt [_gIdtp]
-;     ret
+_load_idt:
+    lidt [_gIdtPtr]
+    retn
+
+_enable_int:
+    sti
+    retn
+
+_disable_int:
+    cli
+    retn
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Paging                                                ;
