@@ -18,6 +18,7 @@ global _read_tr;
 global _read_tss_limit;
 
 global _kernel_stop
+global _kernel_idle
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; IDT                                                   ;
@@ -97,4 +98,7 @@ read_tss_limit_success:
 
 _kernel_stop:
     jmp $
+
+_kernel_idle:
     hlt
+    jmp _kernel_idle

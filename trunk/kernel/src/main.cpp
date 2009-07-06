@@ -9,6 +9,8 @@
 
 #include <critical.h>
 
+extern "C" void kernel_idle();
+
 extern "C" void eve_main()
 {
     CppRuntime::init();
@@ -116,5 +118,5 @@ extern "C" void eve_main()
     }
     */
 
-    kernel_stop();
+    kernel_idle();
 }
