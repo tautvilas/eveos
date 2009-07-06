@@ -4,13 +4,15 @@
 
 Interrupts and exceptions are closely related in Intel architecture and their handling is very similar.
 
-There are two types of interrupts:
-  * Maskable
-  * Unmaskable
+The difference between interrupts and exceptions is that *interrupts are used to handle asynchronous events* external to the processor, but *exceptions handle conditions detected by the processor itself* in the course of executing instructions. 
 
-There are two types of exceptions:
-  * Processor detected (They can also be classified into faults, traps and aborts)
-  * Programmed (The exceptions can be trigerred by INT 0, INT 2, INT n commands)
+There are two sources of *interrupts*:
+  # *Maskable* interrupts, which are signalled via the INTR pin.
+  # *Nonmaskable* interrupts, which are signalled via the NMI (Non-Maskable Interrupt) pin.
+
+There are two sources of *exceptions*:
+  # Processor *detected* (They can also be classified into faults, traps and aborts)
+  # *Programmed* (The exceptions can be trigerred by INT 0, INT 2, INT n commands)
 
 There are three types of exceptions:
   # *Faults* are exceptions that are reported *"before" the instruction* causing the exception. *Permits restart* of the instruction.
