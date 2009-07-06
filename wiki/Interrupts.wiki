@@ -12,6 +12,12 @@ There are two types of exceptions:
   * Processor detected (They can also be classified into faults, traps and aborts)
   * Programmed (The exceptions can be trigerred by INT 0, INT 2, INT n commands)
 
+There are three types of exceptions:
+  # *Faults* are exceptions that are reported *"before" the instruction* causing the exception. *Permits restart* of the instruction.
+  # *Traps* are exceptions that are reported immediately *after the instruction* in which the exception was detected.
+  # *Aborts* are exceptions that permits *neither precise location nor restart* of the program that caused the exception. Aborts are used to report severe errors, such as hardware errors and inconsistent or illegal values in system tables.
+
+
 ==Terminology ==
 
 ISR - Interrupt Service Routine: The code that is executed when interrupt happens.
