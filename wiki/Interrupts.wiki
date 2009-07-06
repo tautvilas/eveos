@@ -9,16 +9,16 @@ There are two types of interrupts:
   * Unmaskable
 
 There are two types of exceptions:
-  * Processor detected. (They can also be classified into faults, traps and aborts)
-  * Programmed. (The exceptions can be trigerred by INT 0, INT 2, INT n commands)
+  * Processor detected (They can also be classified into faults, traps and aborts)
+  * Programmed (The exceptions can be trigerred by INT 0, INT 2, INT n commands)
 
 ==Terminology ==
 
 ISR - Interrupt Service Routine: The code that is executed when interrupt happens.
 
-IRQ - Interrupt request: The hardware interrupt, controlled by PIC
+IRQ - Interrupt request: The hardware interrupt, controlled by PIC.
 
-PIC - Programmable interrupt controller: It is a chip that manages IRQs. Also it can be programmed to assign IRQs the Interrupt numbers the user wants
+PIC - Programmable interrupt controller: It is a chip that manages IRQs. Also it can be programmed to assign IRQs the Interrupt numbers the user wants.
 
 NMI - Non maskable interrupt
 
@@ -75,6 +75,7 @@ The structure of an interrupt gate descriptor:
   |             SELECTOR              |           OFFSET 15..0            |0
   +-----------------+-----------------+-----------------+-----------------+
 }}}
+
 P - is the entry present?
 
 DPL - execution ring
