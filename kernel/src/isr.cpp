@@ -39,7 +39,7 @@ namespace {
 
     struct IdtPtr
     {
-        Word limit;
+        Word size;
         DWord base;
     } __attribute__ ((packed));
 
@@ -59,8 +59,8 @@ namespace {
 
     enum
     {
-        IRQ_FIRST_INDEX = 32,
-        IRQ_LAST_INDEX = 46,
+        IRQ_BEGIN = 32,
+        IRQ_END = 46,
         // entry is present, ring 3
         ISR_FLAGS = 0xEE,
         PIC1 = 0x20,
@@ -149,14 +149,14 @@ namespace {
         UInt intNum = regs.intNum;
         // DBG(intNum);
         // handler = mIsrHandlers[intNum];
-        if (intNum < IRQ_FIRST_INDEX)
+        if (intNum < IRQ_BEGIN)
         {
             Out::err() << mExceptionNames[intNum];
             Out::err() << " Exception caught\n";
             // kernel_panic();
         }
         // IRQ
-        else if (intNum >= IRQ_FIRST_INDEX && intNum <= IRQ_LAST_INDEX)
+        else if (intNum >= IRQ_BEGIN && intNum <= IRQ_END)
         {
             // If the IDT entry that was invoked was greater than 40
             // (meaning IRQ8 - 15), then we need to send an EOI to
@@ -219,7 +219,7 @@ namespace {
 void KERNEL_CALL
 init()
 {
-    gIdtPtr.limit = (Word) sizeof(IdtGate) * 256 - 1;
+    gIdtPtr.size = (Word) sizeof(IdtGate) * 256 - 1;
     gIdtPtr.base = (DWord) &mIdt;
 
     irqRemap();
