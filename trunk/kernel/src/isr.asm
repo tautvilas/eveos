@@ -60,6 +60,9 @@ global _irq13
 global _irq14
 global _irq15
 
+; ISRs handler
+extern _isrCommonHandler
+
 ; Kernel service interrupt
 
 global _sys69
@@ -67,6 +70,36 @@ global _sys69
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Implementation                                        ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+isr_common:
+    pusha
+    push ds
+    push es
+    push fs
+    push gs
+
+    mov eax, esp
+    push eax        ; pointer to regs struct
+
+    ;mov ax, DATA_SEL
+    ;mov ds, ax
+    ;mov fs, ax
+    ;mov es, ax
+    ;mov gs, ax
+
+    mov eax, _isrCommonHandler
+    call eax    ; a special call, preserves 'eip' register
+    ;pop eax
+
+    pop gs
+    pop fs
+    pop es
+    pop ds
+    popa
+    add esp, 8  ; cleans up pushed error code and ISR number
+    ; next command does the sti and
+    ; pops cs, eip, eflags (+ss and esp if interrupt was called at privilege lvl 3)
+    iret
 
 ; ISRS
 

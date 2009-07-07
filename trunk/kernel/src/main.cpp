@@ -106,8 +106,8 @@ extern "C" void eve_main()
     }
     */
 
-    /*
     // Interrupt tests
+    /*
     {
         __asm__ ("int $0");
         __asm__ ("int $1");
