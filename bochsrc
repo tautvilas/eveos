@@ -14,7 +14,7 @@ panic: action=ask
 error: action=report
 info: action=report
 debug: action=ignore
-debugger_log: /dev/stdout
+debugger_log: bochsdbg.log
 # com1: enabled=1, dev=/dev/ttyS0
 # parport1: enabled=1, file="/dev/lp0"
 # sb16: midimode=1, midi=/dev/midi00, wavemode=1, wave=/dev/dsp, loglevel=2, log=/dev/stdout, dmatimer=600000

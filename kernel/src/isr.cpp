@@ -5,7 +5,7 @@
 #include <isr.h>
 
 extern "C" void enable_int();
-extern "C" Byte kernel_cs_sel;
+extern "C" Byte gKernelCsSel;
 extern "C" void exc0(), exc1(), exc2(), exc3(), exc4(), exc5(), exc6(), exc7(), exc8(),
                 exc9(), exc10(), exc11(), exc12(), exc13(), exc14(), exc15(), exc16(),
                 exc17(), exc18(), exc19(), exc20(), exc21(), exc22(), exc23(), exc24(),
@@ -21,27 +21,29 @@ namespace Isr {
 
 namespace {
 
-    typedef struct Regs Regs;
-    typedef struct IdtPtr IdtPtr;
+    struct Regs;
+    struct IdtPtr;
 
-    extern "C" void KERNEL_CALL isrCommonHandler(Regs*);
+    extern "C" void KERNEL_CALL isrCommonHandler(Regs&);
     extern "C" void load_idt(IdtPtr*);
 
-    typedef struct Regs
+    typedef void(*Routine)();
+
+    struct Regs
     {
         DWord gs, fs, es, ds;
         DWord edi, esi, ebp, esp, ebx, edx, ecx, eax;
-        DWord intNo, errCode;
+        DWord intNum, errCode;
         DWord eip, cs, eflags, useresp, ss;
     };
 
-    typedef struct IdtPtr
+    struct IdtPtr
     {
         Word limit;
         DWord base;
     } __attribute__ ((packed));
 
-    typedef struct
+    struct IdtGate
     {
         // ISR address low word
         Word baseLow;
@@ -53,7 +55,7 @@ namespace {
         Byte flags;
         // ISR address high word
         Word baseHigh;
-    } __attribute__ ((packed)) IdtGate;
+    } __attribute__ ((packed));
 
     enum
     {
@@ -109,7 +111,7 @@ namespace {
         "Reserved 31"
     };
 
-    void(*isrs[])() = {
+    Routine isrs[] = {
         exc0, exc1, exc2, exc3, exc4, exc5, exc6, exc7, exc8,
         exc9, exc10, exc11, exc12, exc13, exc14, exc15, exc16,
         exc17, exc18, exc19, exc20, exc21, exc22, exc23, exc24,
@@ -128,7 +130,7 @@ namespace {
     // void* mIsrHandlers[70];
 
     void KERNEL_CALL
-    setIdtGate(Byte num, void (*routine)(), Word sel, Byte flags)
+    setIdtGate(Byte num, Routine routine, Word sel, Byte flags)
     {
         DWord base = reinterpret_cast<Addr>(routine);
         mIdt[num].baseLow = base & 0xFFFF;
@@ -140,26 +142,26 @@ namespace {
     }
 
     void KERNEL_CALL
-    isrCommonHandler(Regs* regs)
+    isrCommonHandler(Regs& regs)
     {
         // void (*handler)(Regs *regs);
 
-        UInt intNo = regs->intNo;
-        // if (intNo != 32) DBG(intNo);
-        // handler = mIsrHandlers[intNo];
-        if (intNo < IRQ_FIRST_INDEX)
+        UInt intNum = regs.intNum;
+        // DBG(intNum);
+        // handler = mIsrHandlers[intNum];
+        if (intNum < IRQ_FIRST_INDEX)
         {
-            Out::err() << mExceptionNames[intNo];
+            Out::err() << mExceptionNames[intNum];
             Out::err() << " Exception caught\n";
             // kernel_panic();
         }
         // IRQ
-        else if (intNo >= IRQ_FIRST_INDEX && intNo <= IRQ_LAST_INDEX)
+        else if (intNum >= IRQ_FIRST_INDEX && intNum <= IRQ_LAST_INDEX)
         {
             // If the IDT entry that was invoked was greater than 40
             // (meaning IRQ8 - 15), then we need to send an EOI to
             // the slave controller
-            if (intNo >= 40)
+            if (intNum >= 40)
             {
                 mPic2Command.writeByte(PIC_EOI);
             }
@@ -170,7 +172,7 @@ namespace {
         }
         else
         {
-            Out::warn() << "Unhandled interrupt caught - " << intNo;
+            Out::warn() << "Unhandled interrupt caught - " << intNum;
         }
         return;
     }
@@ -224,10 +226,10 @@ init()
 
     unsigned int i;
     for (i = 0; i < sizeof(isrs) / sizeof(void*); i++) {
-        setIdtGate(i, isrs[i], kernel_cs_sel, ISR_FLAGS);
+        setIdtGate(i, isrs[i], gKernelCsSel, ISR_FLAGS);
     }
 
-    setIdtGate(69, sys69, kernel_cs_sel, ISR_FLAGS);
+    setIdtGate(69, sys69, gKernelCsSel, ISR_FLAGS);
 
     load_idt(&gIdtPtr);
     enable_int();

@@ -16,7 +16,7 @@ global _start               ; entry symbol for linker
 
 global _gGdt
 
-global _kernel_cs_sel     ; gdt kernel cs selector
+global _gKernelCsSel     ; gdt kernel cs selector
 global _gGdtKernelDataSel   ; gdt kernel data selector
 global _gGdtUserCsSel       ; gdt user cs selector
 global _gGdtUserDataSel     ; gdt user data selector
@@ -37,7 +37,6 @@ extern _eve_main              ; OS main C function
 ; extern _gKernelCr3          ; kernel page dir
 
 ; extern _gTss                ; pointer to tss segment
-extern _isrCommonHandler      ; ISRs handler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Code                                                  ;
@@ -163,7 +162,7 @@ flush:
 paging_enabled:
 
     mov eax, CODE_SEL
-    mov [_kernel_cs_sel], eax
+    mov [_gKernelCsSel], eax
     mov eax, DATA_SEL
     mov [_gGdtKernelDataSel], eax
     mov eax, USER_CODE_SEL
@@ -226,35 +225,6 @@ bits 32
 ; ISRs and IRQs function stubs
 %include "isr.asm"
 
-isr_common:
-    pusha
-    push ds
-    push es
-    push fs
-    push gs
-
-    mov eax, esp
-    push eax        ; pointer to regs struct
-
-    ;mov ax, DATA_SEL
-    ;mov ds, ax
-    ;mov fs, ax
-    ;mov es, ax
-    ;mov gs, ax
-
-    mov eax, _isrCommonHandler
-    call eax    ; a special call, preserves 'eip' register
-    ;pop eax
-
-    pop gs
-    pop fs
-    pop es
-    pop ds
-    popa
-    add esp, 8  ; cleans up pushed error code and ISR number
-    sti
-    iret        ; pops cs, eip, eflags (+ss and esp if interrupt was called at privilege lvl 3)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Data                                                  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -266,7 +236,7 @@ a20_success_msg db  "A20 gate enabled", 13, 10, 0
 a20_failure_msg db  "Failded to enable A20 gate! Halting.", 13, 10, 0
 
 ; code selectors
-_kernel_cs_sel    dd 0
+_gKernelCsSel    dd 0
 _gGdtKernelDataSel  dd 0
 _gGdtUserCsSel      dd 0
 _gGdtUserDataSel    dd 0
