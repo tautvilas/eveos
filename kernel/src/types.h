@@ -2,6 +2,10 @@
 #define _TYPES_H_
 
 
+#include <maybe.h>
+
+#define EXTERN_CALL     __attribute__((stdcall))
+
 typedef unsigned char   Byte;
 typedef unsigned short  Word;
 typedef unsigned int    DWord;
@@ -14,14 +18,6 @@ typedef int             Int;        // always the same size as void*
 typedef unsigned int    UInt;       // always the same size as void*
 typedef bool            Bool;
 
-
-enum IntegerBase
-{
-    BIN     = 2,
-    OCT     = 8,
-    DEC     = 10,
-    HEX     = 16,
-};
 
 enum BitsPerByte
 {
@@ -36,6 +32,19 @@ enum MemoryMeasure
     GIGABYTE        = MEGABYTE * 1024,
 };
 
+
+inline Addr 
+addr(void* ptr)
+{
+    return reinterpret_cast<Addr>(ptr);
+}
+
+template<typename Ptr>
+inline Ptr 
+addr_cast(Addr addr)
+{
+    return reinterpret_cast<Ptr>(addr);
+}
 
 #endif
 

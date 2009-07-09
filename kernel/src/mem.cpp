@@ -47,24 +47,24 @@ namespace {
     static Addr mAddr       = 0;
     static Addr mUsedEnd    = 0;
 
-    void KERNEL_CALL flush()
+    void flush()
     {
         write_cr3(mAddr);
     }
 
-    Addr* KERNEL_CALL tblMem(Index i)
+    Addr* tblMem(Index i)
     {
         return addr_cast<Addr*>(-PAGE_SIZE * TABLE_SIZE + PAGE_SIZE * i);
     }
 
-    Addr* KERNEL_CALL tblNew(Index i, Addr tbl)
+    Addr* tblNew(Index i, Addr tbl)
     {
         addr_cast<Addr*>(-PAGE_SIZE)[i]  = tbl | SYS_RW;
         flush();
         return tblMem(i);
     }
     
-    Index KERNEL_CALL pageTbl(Index p)
+    Index pageTbl(Index p)
     {
         return p / TABLE_SIZE; 
     }
@@ -72,7 +72,7 @@ namespace {
 }
 
 
-void KERNEL_CALL
+void 
 init()
 {
     Physical::init();
@@ -87,7 +87,7 @@ init()
 }
 
 
-Maybe<void*> KERNEL_CALL
+Maybe<void*> 
 grow(Size size)
 {
     // :TODO: 2009-05-02 gx: unallocate memory when returning None()
@@ -103,14 +103,14 @@ grow(Size size)
         
         if (0 == p)
         {
-            if (Addr page = Physical::alloc().value())
-                tbl = tblNew(newPage / TABLE_SIZE, page);
+            if (Maybe<Addr> page = Physical::alloc())
+                tbl = tblNew(newPage / TABLE_SIZE, page.value());
             else
                 return None();
         }
         
-        if (Addr page = Physical::alloc().value())
-            tbl[p]  = page | SYS_RW;
+        if (Maybe<Addr> page = Physical::alloc())
+            tbl[p]  = page.value() | SYS_RW;
         else
             return None();
             
@@ -128,7 +128,7 @@ grow(Size size)
 }
 
 
-Size KERNEL_CALL
+Size 
 used()
 {
     return mUsedEnd - Kernel::BASE;

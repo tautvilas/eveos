@@ -44,14 +44,16 @@ define CPP_COMPILE
 		$(E)$(COMPILER) $(CPPFLAGS) -o $(OBJ)$(@F) $(addprefix $(SRC), $(filter %.cpp, $(^F)))
 endef
 
-kernel.bin: kentry.o global.o cpp_runtime.o main.o \
-        io_port.o \
+all: kernel.bin
+
+kernel.bin: kentry.o kernel.o cpp_runtime.o main.o \
         vga_caret_reg.o vga_caret.o vga.o \
-        stream.o out_stream.o out.o \
+        out_stream.o vga_stream.o out_str.o out_int.o out.o \
+        debug_str.o debug_int.o \
         mem_physical.o mem.o new.o \
         critical.o isr.o
 	@echo ~~~ Linking
-	$(E)ld $(LDFLAGS) -Map $(BIN)kernel.map -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F))
+	$(E)ld $(LDFLAGS) -Map $(BIN)kernel.map -o $(BIN)kernel.bin $(addprefix $(OBJ), $(^F)) 2>&1 | c++filt -_
 	$(E)cat $(BIN)kernel.map | c++filt -_ > $(BIN)kernel.readable.map
 
 kentry.o: kentry.asm isr.asm utils.asm
@@ -65,10 +67,13 @@ kentry.o: kentry.asm isr.asm utils.asm
 	$(CPP_COMPILE)
 
 
-.PHONY: clean vars
+.PHONY: clean build
 clean:
 	@echo ~~~ Cleaning kernel
 	$(E)rm -f $(OBJ)*.o > /dev/null
 	$(E)rm -f $(BIN)*.bin > /dev/null
 	$(E)rm -f $(BIN)*.map > /dev/null
+
+build: clean all
+
 

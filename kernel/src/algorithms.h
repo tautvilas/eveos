@@ -13,40 +13,40 @@ namespace Generic {
 ////// Declarations //////
 
 template <typename InputIterator, typename OutputIterator>
-OutputIterator KERNEL_CALL
+OutputIterator 
 copy(InputIterator first, InputIterator last, OutputIterator result);
 
 
 template <typename OutputIterator, typename Value>
-void KERNEL_CALL
+void 
 fill(OutputIterator first, OutputIterator last, const Value& value);
 
 
 template <typename InputIterator, typename Value>
-InputIterator KERNEL_CALL
+InputIterator 
 find(InputIterator first, InputIterator last, const Value& value);
 
 
 //template <typename TInteger>
-//TInteger KERNEL_CALL
+//TInteger 
 //DivUp(const TInteger& aValue, const TInteger& aDivisor);
 
-UInt KERNEL_CALL
+UInt 
 divUp(const UInt& value, const UInt& divisor);
 
 template <typename T, typename M>
-inline T KERNEL_CALL
+inline T 
 mask(const T& value, const M& mask);
 
-int KERNEL_CALL
+int 
 abs(int value);
 
 template <typename T>
-const T& KERNEL_CALL
+const T& 
 max(const T& value1, const T& value2);
 
 template <typename T>
-const T& KERNEL_CALL
+const T& 
 min(const T& value1, const T& value2);
 
 
@@ -54,7 +54,7 @@ min(const T& value1, const T& value2);
 ////// Templates implementation //////
 
 template <typename InputIterator, typename OutputIterator>
-OutputIterator KERNEL_CALL
+OutputIterator 
 copy(InputIterator first, InputIterator last, OutputIterator result)
 {
     for (; first != last; ++first, ++result)
@@ -64,7 +64,7 @@ copy(InputIterator first, InputIterator last, OutputIterator result)
 
 
 template <typename OutputIterator, typename Value>
-void KERNEL_CALL
+void 
 fill(OutputIterator first, OutputIterator last, const Value& value)
 {
     for (; first != last; ++first)
@@ -73,7 +73,7 @@ fill(OutputIterator first, OutputIterator last, const Value& value)
 
 
 template <typename InputIterator, typename Value>
-InputIterator KERNEL_CALL
+InputIterator 
 find(InputIterator first, InputIterator last, const Value& value)
 {
     for (; first != last; ++first)
@@ -85,7 +85,7 @@ find(InputIterator first, InputIterator last, const Value& value)
 
 
 //template <typename TInteger>
-//TInteger KERNEL_CALL
+//TInteger 
 //DivUp(const TInteger& aValue, const TInteger& aDivisor)
 //{
 //    TInteger result = aValue / aDivisor;
@@ -95,7 +95,7 @@ find(InputIterator first, InputIterator last, const Value& value)
 //}
 
 
-inline UInt KERNEL_CALL
+inline UInt 
 divUp(const UInt& value, const UInt& divisor)
 {
     UInt result = value / divisor;
@@ -105,7 +105,7 @@ divUp(const UInt& value, const UInt& divisor)
 }
 
 
-inline int KERNEL_CALL
+inline int 
 abs(int value)
 {
     if (value < 0)
@@ -116,7 +116,7 @@ abs(int value)
 
 
 template <typename T>
-inline const T& KERNEL_CALL
+inline const T& 
 max(const T& value1, const T& value2)
 {
     return (value2 < value1) ? value1 : value2;
@@ -124,7 +124,7 @@ max(const T& value1, const T& value2)
 
 
 template <typename T>
-inline const T& KERNEL_CALL
+inline const T& 
 min(const T& value1, const T& value2)
 {
     return (value2 < value1) ? value2 : value1;
@@ -132,7 +132,7 @@ min(const T& value1, const T& value2)
 
 
 template <typename T, typename M>
-inline T KERNEL_CALL
+inline T 
 maskBits(const T& value, const M& mask)
 {
     return (T)((M)value & mask);
@@ -140,7 +140,7 @@ maskBits(const T& value, const M& mask)
 
 
 template <typename T, typename M>
-inline T KERNEL_CALL
+inline T 
 setBits(const T& value, const M& mask)
 {
     return (T)((M)value | mask);
@@ -148,7 +148,7 @@ setBits(const T& value, const M& mask)
 
 
 template <typename T, typename M>
-inline T KERNEL_CALL
+inline T 
 shiftLeft(const T& value, const M& mask)
 {
     return (T)((M)value << mask);
@@ -156,7 +156,7 @@ shiftLeft(const T& value, const M& mask)
 
 
 template <typename T, typename M>
-inline T KERNEL_CALL
+inline T 
 shiftRight(const T& value, const M& mask)
 {
     return (T)((M)value >> mask);

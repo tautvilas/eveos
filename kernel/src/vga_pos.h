@@ -9,37 +9,37 @@ class Vga::Pos
 {
 public:
 
-    KERNEL_CALL
+    
     Pos();
 
-    KERNEL_CALL
+    
     Pos(Index col, Index row);
 
-    KERNEL_CALL
+    
     Pos(const Pos& pos);
 
-    const Index KERNEL_CALL
+    const Index 
     col() const;
 
-    const void KERNEL_CALL
+    const void 
     col(Index col);
 
-    const Index KERNEL_CALL
+    const Index 
     row() const;
 
-    const void KERNEL_CALL
+    const void 
     row(Index row);
 
-    bool KERNEL_CALL
+    bool 
     isValid() const;
 
-    Pos& KERNEL_CALL
+    Pos& 
     operator ++();              // prefix
 
-    Pos KERNEL_CALL
+    Pos 
     operator ++(int);           // postfix
 
-    Pos& KERNEL_CALL
+    Pos& 
     operator =(const Pos& pos);
 
     // :TODO: gx 7/28/2007: other operators
@@ -50,13 +50,13 @@ private:
     Size mCol;
     Size mRow;
 
-    KERNEL_CALL
+    
     Pos(Word index);
 
-    //TSize KERNEL_CALL
+    //TSize 
     //ToIndex() const;
 
-    KERNEL_CALL
+    
     operator Index() const;
 
     friend class Vga;
@@ -68,49 +68,49 @@ private:
 
 ////// Vga::Pos inlines //////
 
-inline KERNEL_CALL
+inline 
 Vga::Pos::Pos()
         : mCol(0), mRow(0)
 {
 }
 
 
-inline KERNEL_CALL
+inline 
 Vga::Pos::Pos(Size col, Size row)
         : mCol(col), mRow(row)
 {
 }
 
 
-inline KERNEL_CALL
+inline 
 Vga::Pos::Pos(const Pos& pos)
         : mCol(pos.mCol), mRow(pos.mRow)
 {
 }
 
 
-inline KERNEL_CALL
+inline 
 Vga::Pos::Pos(Word index)
         : mCol(index % COLS), mRow(index / COLS)
 {
 }
 
 
-inline bool KERNEL_CALL
+inline bool 
 Vga::Pos::isValid() const
 {
     return mCol < COLS && mRow < ROWS;
 }
 
 
-/*inline TSize KERNEL_CALL
+/*inline TSize 
 Vga::TPos::ToIndex() const
 {
     return mRow * COLS + mCol;
 }*/
 
 
-inline Vga::Pos& KERNEL_CALL
+inline Vga::Pos& 
 Vga::Pos::operator ++()
 {
     ++mCol;
@@ -123,7 +123,7 @@ Vga::Pos::operator ++()
 }
 
 
-inline Vga::Pos KERNEL_CALL
+inline Vga::Pos 
 Vga::Pos::operator ++(int)
 {
     Pos pos = *this;
@@ -132,7 +132,7 @@ Vga::Pos::operator ++(int)
 }
 
 
-inline Vga::Pos& KERNEL_CALL
+inline Vga::Pos& 
 Vga::Pos::operator =(const Pos& pos)
 {
     mCol    = pos.mCol;
@@ -141,7 +141,7 @@ Vga::Pos::operator =(const Pos& pos)
 }
 
 
-inline KERNEL_CALL
+inline 
 Vga::Pos::operator Index() const
 {
     return mRow * COLS + mCol;

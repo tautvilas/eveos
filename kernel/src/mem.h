@@ -6,13 +6,13 @@
 namespace Mem {    
     
 
-void KERNEL_CALL
+void 
 init();
 
-Maybe<void*> KERNEL_CALL
+Maybe<void*> 
 grow(Size size);
 
-Size KERNEL_CALL
+Size 
 used();
 
 

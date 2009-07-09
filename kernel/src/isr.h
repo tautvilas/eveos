@@ -6,7 +6,7 @@
 namespace Isr {
 
 
-void KERNEL_CALL
+void 
 init();
 
 

@@ -28,7 +28,7 @@ public:
      *
      *  @param  regIndex    VGA caret register index.
      */
-    KERNEL_CALL
+    
     Reg(RegIndex regIndex);
 
     /**
@@ -36,7 +36,7 @@ public:
      *
      *  @return Byte of data from register.
      */
-    Byte KERNEL_CALL
+    Byte 
     read();
 
     /**
@@ -44,7 +44,7 @@ public:
      *
      *  @param  data    Data to write to register.
      */
-    void KERNEL_CALL
+    void 
     write(Byte data);
 
 private:
@@ -66,14 +66,14 @@ private:
 
 ////// Vga::Caret::Reg inlines //////
 
-inline KERNEL_CALL
+inline 
 Vga::Caret::Reg::Reg(RegIndex regIndex)
         : mRegIndex(regIndex)
 {
 }
 
 
-inline void KERNEL_CALL
+inline void 
 Vga::Caret::Reg::write(Byte data)
 {
     msAddrPort.writeByte(mRegIndex);
@@ -81,7 +81,7 @@ Vga::Caret::Reg::write(Byte data)
 }
 
 
-inline Byte KERNEL_CALL
+inline Byte 
 Vga::Caret::Reg::read()
 {
     msAddrPort.writeByte(mRegIndex);

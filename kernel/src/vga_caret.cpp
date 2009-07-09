@@ -4,14 +4,14 @@
 
 ////// Vga::Caret methods //////
 
-/*static*/ bool KERNEL_CALL
+/*static*/ bool 
 Vga::Caret::visible()
 {
     return Reg(Reg::VISIBILITY).read() & HIDE_MASK;
 }
 
 
-/*static*/ void KERNEL_CALL
+/*static*/ void 
 Vga::Caret::visible(Bool visible)
 {
     Reg reg(Reg::VISIBILITY);
@@ -22,7 +22,7 @@ Vga::Caret::visible(Bool visible)
 }
 
 
-/*static*/ Vga::Pos KERNEL_CALL
+/*static*/ Vga::Pos 
 Vga::Caret::pos()
 {
     Word    pos = 0 | Reg(Reg::POS_HI).read();
@@ -31,7 +31,7 @@ Vga::Caret::pos()
 }
 
 
-/*static*/ void KERNEL_CALL
+/*static*/ void 
 Vga::Caret::pos(const Pos& pos)
 {
     if (!pos.isValid())

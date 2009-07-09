@@ -1,7 +1,7 @@
 #ifndef _CRITICAL_H_
 #define _CRITICAL_H_
 
-#include <global.h>
+#include <types.h>
 
 
 #define CRITICAL_SECTION    _critical_ ## __LINE__ ## _
@@ -13,13 +13,13 @@ class Critical
 {
 public:
 
-    static bool KERNEL_CALL
+    static bool 
     begin();
     
-    static bool KERNEL_CALL
+    static bool 
     end();
     
-    static Size KERNEL_CALL
+    static Size 
     depth();
     
     

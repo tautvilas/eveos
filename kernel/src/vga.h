@@ -1,7 +1,7 @@
 #ifndef _VGA_H_
 #define _VGA_H_
 
-#include <global.h>
+#include <types.h>
 
 
 class Vga
@@ -36,47 +36,47 @@ public:
     class Caret;
 
 
-    static void KERNEL_CALL
+    static void 
     put(char c, const Pos& pos, Color fg, Color bg);
 
-    static void KERNEL_CALL
+    static void 
     put(char aChar, const Pos& aPos);
 
 
-    static void KERNEL_CALL
+    static void 
     put(const char* str, const Pos& pos, Color fg, Color bg);
 
-    static void KERNEL_CALL
+    static void 
     put(const char* str, const Pos& pos);
 
 
 
-    static void KERNEL_CALL
+    static void 
     print(char c, Color fg, Color bg);
 
-    static void KERNEL_CALL
+    static void 
     print(const char c);
 
 
-    static void KERNEL_CALL
+    static void 
     print(const char* str, Color fg, Color bg);
 
-    static void KERNEL_CALL
+    static void 
     print(const char* str);
 
 
 
-    static const Color KERNEL_CALL
+    static const Color 
     foreground();
 
-    static const void KERNEL_CALL
+    static const void 
     foreground(Color fg);
 
 
-    static const Color KERNEL_CALL
+    static const Color 
     background();
 
-    static const void KERNEL_CALL
+    static const void 
     background(Color bg);
 
 
@@ -96,21 +96,21 @@ private:
     static Color        msBgColor;
     static Color        msFgColor;
 
-    KERNEL_CALL
+    
     Vga();
 
-    static Chr KERNEL_CALL
+    static Chr 
     chr(char c, Color fg, Color bg);
 
-    static void KERNEL_CALL
+    static void 
     scrollUp(Size aLines = 1);
 
-    static char* KERNEL_CALL
+    /*static char* 
     intToStr(int i, IntegerBase base);
 
-    static char* KERNEL_CALL
+    static char* 
     uintToStr(unsigned int ui, IntegerBase base, Bool negative);
-
+*/
     //friend Pos;
 };
 
@@ -125,67 +125,67 @@ private:
 ////// Vga inlines //////
 
 
-/*static*/ inline void KERNEL_CALL
+/*static*/ inline void 
 Vga::put(char c, const Pos& pos)
 {
     put(c, pos, msFgColor, msBgColor);
 }
 
 
-/*static*/ inline void KERNEL_CALL
+/*static*/ inline void 
 Vga::put(const char* str, const Pos& pos)
 {
     put(str, pos, msFgColor, msBgColor);
 }
 
 
-/*static*/ inline void KERNEL_CALL
+/*static*/ inline void 
 Vga::print(const char c)
 {
     print(c, msFgColor, msBgColor);
 }
 
 
-/*static*/ inline void KERNEL_CALL
+/*static*/ inline void 
 Vga::print(const char* str)
 {
     print(str, msFgColor, msBgColor);
 }
 
 
-/*static*/ inline const Vga::Color KERNEL_CALL
+/*static*/ inline const Vga::Color 
 Vga::foreground()
 {
     return msFgColor;
 }
 
 
-/*static*/ inline const void KERNEL_CALL
+/*static*/ inline const void 
 Vga::foreground(Color color)
 {
     msFgColor   = color;
 }
 
 
-/*static*/ inline const Vga::Color KERNEL_CALL
+/*static*/ inline const Vga::Color 
 Vga::background()
 {
     return msBgColor;
 }
 
 
-/*static*/ inline const void KERNEL_CALL
+/*static*/ inline const void 
 Vga::background(Color color)
 {
     msBgColor   = color;
 }
 
 
-/*static*/ inline Vga::Chr KERNEL_CALL
+/*static*/ inline Vga::Chr 
 Vga::chr(char c, Color fg, Color bg)
 {
     return static_cast<Chr>(c) | fg << 8 | bg << 12;
 }
-
+
 
 #endif  // _VGA_H_

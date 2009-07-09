@@ -9,7 +9,7 @@ Physical::PageStack Physical::mFreePages;
 
 namespace {
 
-    Addr KERNEL_CALL
+    Addr 
     page(Addr addr)
     {
         return addr - (addr % Physical::PAGE_SIZE);
@@ -18,7 +18,7 @@ namespace {
 }
 
 
-/*static*/ void KERNEL_CALL
+/*static*/ void 
 Physical::init()
 {
     Addr    SYS_LO_MEM  = Kernel::BASE + MEGABYTE;
@@ -42,7 +42,7 @@ Physical::init()
 }
 
 
-/*static*/ Maybe<Addr> KERNEL_CALL
+/*static*/ Maybe<Addr> 
 Physical::alloc()
 {
     if (!mFreePages.empty())
@@ -52,7 +52,7 @@ Physical::alloc()
 }
 
 
-/*static*/ Bool KERNEL_CALL
+/*static*/ Bool 
 Physical::dealloc(Addr pg)
 {
     Addr        p       = page(pg);
@@ -72,21 +72,21 @@ Physical::dealloc(Addr pg)
 }
 
 
-/*static*/ Size KERNEL_CALL
+/*static*/ Size 
 Physical::free()
 {
     return mFreePages.size() * PAGE_SIZE;
 }
 
 
-/*static*/ Size KERNEL_CALL
+/*static*/ Size 
 Physical::used()
 {
     return size() - free();
 }
 
 
-/*static*/ Size KERNEL_CALL
+/*static*/ Size 
 Physical::size()
 {
     // :TODO: gd 2008-11-24: get real RAM size from BIOS

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+play='vmplayer vmware/eveos.vmx'
+
+if [ "$1" = '--verbose' ]; then
+    $play
+else
+    $play > /dev/null 2>&1
+fi
+
