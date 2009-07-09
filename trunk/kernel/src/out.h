@@ -2,30 +2,35 @@
 #define _OUT_H_
 
 #include <out_stream.h>
+#include <out_str.h>
+#include <out_int.h>
 
 class Out
 {
 
 public:
 
-    static OutStream& KERNEL_CALL
+    static OutStream& 
     dbg();
 
-    static OutStream& KERNEL_CALL
+    static OutStream& 
     info();
 
-    static OutStream& KERNEL_CALL
+    static OutStream& 
     err();
 
-    static OutStream& KERNEL_CALL
+    static OutStream& 
     warn();
 
 
 private:
 
-    static OutStream    msInfo;
+    static OutStream&    msDbg;
+    static OutStream&    msInfo;
+    static OutStream&    msErr;
+    static OutStream&    msWarn;
 
-    KERNEL_CALL
+    
     Out();
 
 };
@@ -34,31 +39,31 @@ private:
 
 ////// Out inlines //////
 
-/*static*/ inline OutStream& KERNEL_CALL
+/*static*/ inline OutStream& 
 Out::dbg()
 {
-    return msInfo;
+    return msDbg;
 }
 
 
-/*static*/ inline OutStream& KERNEL_CALL
+/*static*/ inline OutStream& 
 Out::info()
 {
     return msInfo;
 }
 
 
-/*static*/ inline OutStream& KERNEL_CALL
+/*static*/ inline OutStream& 
 Out::err()
 {
-    return msInfo;
+    return msErr;
 }
 
 
-/*static*/ inline OutStream& KERNEL_CALL
+/*static*/ inline OutStream& 
 Out::warn()
 {
-    return msInfo;
+    return msWarn;
 }
 
 

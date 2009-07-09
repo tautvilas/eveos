@@ -1,5 +1,4 @@
-#include <global.h>
-
+#include <kernel.h>
 
 extern "C" Byte gKernelBase;
 extern "C" Byte gKernelOffset;

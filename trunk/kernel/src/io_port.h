@@ -1,7 +1,7 @@
 #ifndef _IO_PORT_H_
 #define _IO_PORT_H_
 
-#include <global.h>
+#include <types.h>
 
 /**
  *  Class for I/O ports manipulation.
@@ -27,13 +27,13 @@ class IoPort
 
 public:
 
-    KERNEL_CALL
+    
     IoPort(Word port);
 
-    void KERNEL_CALL
+    void 
     writeByte(Byte data);
 
-    Byte KERNEL_CALL
+    Byte 
     readByte();
 
     // :TODO: gx 8/18/2007: mothods for other data types when needed.
@@ -48,21 +48,21 @@ private:
 
 ////// TIoPort inlines //////
 
-inline KERNEL_CALL
+inline 
 IoPort::IoPort(Word port)
         : mPort(port)
 {
 }
 
 
-inline void KERNEL_CALL
+inline void 
 IoPort::writeByte(Byte data)
 {
     __asm__ __volatile__ ("outb %1, %0" : : "dN"(mPort), "a"(data));
 }
 
 
-inline Byte KERNEL_CALL
+inline Byte 
 IoPort::readByte()
 {
     Byte data;

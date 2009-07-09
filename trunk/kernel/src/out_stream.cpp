@@ -1,2 +1,5 @@
-#include "out_stream.h"
+#include <out_stream.h>
+
+OutStream::~OutStream()
+{}
 

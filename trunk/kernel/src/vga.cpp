@@ -1,4 +1,5 @@
 #include <vga.h>
+#include <kernel.h>
 #include <algorithms.h>
 
 
@@ -23,7 +24,7 @@ Vga::Color  Vga::msFgColor  = Vga::DEFAULT_FG;
 
 ////// Vga methods //////
 
-/*static*/ void KERNEL_CALL
+/*static*/ void 
 Vga::print(char c, Color fg, Color bg)
 {
     Pos pos = Caret::pos();
@@ -68,7 +69,7 @@ Vga::print(char c, Color fg, Color bg)
 }
 
 
-/*static*/ void KERNEL_CALL
+/*static*/ void 
 Vga::print(const char* str, Color fg, Color bg)
 {
     if (!str)
@@ -79,7 +80,7 @@ Vga::print(const char* str, Color fg, Color bg)
 }
 
 
-/*static*/ void KERNEL_CALL
+/*static*/ void 
 Vga::put(char c, const Pos& pos, Color fg, Color bg)
 {
     if (!pos.isValid())
@@ -92,7 +93,7 @@ Vga::put(char c, const Pos& pos, Color fg, Color bg)
 
 
 
-/*static*/ void KERNEL_CALL
+/*static*/ void 
 Vga::put(const char* str, const Pos& pos, Color fg, Color bg)
 {
     if (!str)
@@ -104,7 +105,7 @@ Vga::put(const char* str, const Pos& pos, Color fg, Color bg)
 
 
 
-/*static*/ void KERNEL_CALL
+/*static*/ void 
 Vga::scrollUp(Size rows)
 {
     using Generic::copy;

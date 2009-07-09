@@ -17,19 +17,19 @@ public:
         PAGE_SIZE   = 4 * KILOBYTE,
     };
 
-    static Maybe<Addr> KERNEL_CALL
+    static Maybe<Addr> 
     alloc();
 
-    static Bool KERNEL_CALL
+    static Bool 
     dealloc(Addr);
 
-    static Size KERNEL_CALL
+    static Size 
     size();
 
-    static Size KERNEL_CALL
+    static Size 
     free();
 
-    static Size KERNEL_CALL
+    static Size 
     used();
 
 private:
@@ -40,7 +40,7 @@ private:
 
     Physical();
 
-    static void KERNEL_CALL
+    static void 
     init();
     
     friend void Mem::init();

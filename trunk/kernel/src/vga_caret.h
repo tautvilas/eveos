@@ -17,7 +17,7 @@ public:
      *
      *  @return true if caret visible, false otherwise.
      */
-    static Bool KERNEL_CALL
+    static Bool 
     visible();
 
     /**
@@ -25,7 +25,7 @@ public:
      *
      *  @param  aVisible    true to male caret visible, false to hide caret.
      */
-    static void KERNEL_CALL
+    static void 
     visible(Bool visible);
 
     /**
@@ -33,7 +33,7 @@ public:
      *
      *  @return Caret position.
      */
-    static Pos KERNEL_CALL
+    static Pos 
     pos();
 
     /**
@@ -41,7 +41,7 @@ public:
      *
      *  @param  aPos    New caret position.
      */
-    static void KERNEL_CALL
+    static void 
     pos(const Pos& pos);
 
 
@@ -55,7 +55,7 @@ private:
     };
 
 
-    KERNEL_CALL
+    
     Caret();
 };
 

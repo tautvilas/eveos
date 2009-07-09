@@ -4,7 +4,7 @@
 Size    Critical::mDepth    = 0;
 
 
-/*static*/ bool KERNEL_CALL
+/*static*/ bool 
 Critical::begin()
 {
     if (0 == mDepth)
@@ -16,7 +16,7 @@ Critical::begin()
 }
 
 
-/*static*/ bool KERNEL_CALL
+/*static*/ bool 
 Critical::end()
 {
     if (mDepth)
@@ -29,7 +29,7 @@ Critical::end()
 }
 
 
-/*static*/ Size KERNEL_CALL
+/*static*/ Size 
 Critical::depth()
 {
     return mDepth;

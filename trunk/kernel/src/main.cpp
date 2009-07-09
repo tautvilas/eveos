@@ -17,8 +17,60 @@ extern "C" void eve_main()
     Mem::init();
     Isr::init();
 
+    // new OutStream tests
+    /*
+    {
+        Out::dbg()  << "hi\n";
+        Out::info() << "hi\n";
+        Out::err()  << "hi\n";
+        Out::warn() << "hi\n";
+        Out::dbg()  << 'a' << "\nb";
+        Out::dbg() 
+                << '\n' << OutStr("hi").align(RIGHT) // NOP -- no width
+                << '\n' << OutStr("hi").width(5).fill('.').align(LEFT)
+                << '\n' << OutStr("hi").width(5).fill('-').align(CENTER)
+                << '\n' << OutStr("hi!").width(5).fill('-').align(CENTER)
+                << '\n';
+                
+        DBG("hi");
+        char s[] = "hi again";
+        DBG(s);
+        DBG('a');
+        char c = 'b';
+        DBG(c);
+        DBG(123);
+        UInt u = 0xdeadbeef;
+        DBG(u);
+        Int i = -123;
+        DBG(i);
+        typedef void* vp;
+        vp p = vp(5);
+        DBG(p);
+        void* p2 = p;
+        p = p2;
+        DBG(p);
+    }//*/
+    
+    // Maybe tests
+    /*
+    {
+        Maybe<char> m;
+        ASSERT(!m);
+        if (m)
+            ASSERT(false);
+        ASSERT(false == m);
+        m = 0;
+        ASSERT(m);
+        ASSERT(false == !m);
+        if (!m)
+            ASSERT(false);
+        
+        //void* p = m;
+        //int i = m;
+    }//*/
+    
     // Vga tests
-    if (true)
+    /*if (true)
     {
         // screen corners
         Vga::put('\\', Vga::Pos(0, 0), Vga::BLACK, Vga::WHITE);
@@ -39,7 +91,7 @@ extern "C" void eve_main()
         // scroll and color printing test
         //Vga::Caret::pos(Vga::Pos(0, 24));
         //Vga::print("Vga::Print()\n", Vga::BLACK, Vga::GREEN);
-    }
+    }*/
 
     // Out tests
     /*{
@@ -55,7 +107,15 @@ extern "C" void eve_main()
                                             // on all output after it
                 << DEC << 0xdeadbeef
                 << "\n";
-    }*/
+        Out::info() << "Zeros: "
+                << BIN << 0 << ' ' 
+                << OCT << 0 << ' '
+                << HEX << 0 << ' '
+                << DEC << 0 << ' '
+                << "\n";
+                
+        DBG(0);
+    }//*/
 
     // Kernel virtual memory tests
     /*{
@@ -77,7 +137,7 @@ extern "C" void eve_main()
         Byte* p3 = p2 + 4 * KILOBYTE;
         DBG(p3);
         //DBG(p3[0]);     // accessing *actually* unallocated memory (fault)
-    }*/
+    }//*/
 
 
     // operator new tests
@@ -94,17 +154,24 @@ extern "C" void eve_main()
         delete [] p2;
     }*/
 
+    // CRITICAL tests
     /*
+    const int wait = 200;
+    for (int i = wait; --i;) DBG(i);
     CRITICAL
     {
         Out::info() << "critical " << Critical::depth() << "\n";
+        for (int crit = wait; --crit;) DBG(crit);
         CRITICAL
         {
             Out::info() << "critical " << Critical::depth() << "\n";
+            for (int critical = wait; --critical;) DBG(critical);
         }
         Out::info() << "critical " << Critical::depth() << "\n";
+        for (int crit = wait*3; --crit;) DBG(crit);
     }
-    */
+    for (int i = wait; --i;) DBG(i);
+    //*/
 
     // Interrupt tests
     /*

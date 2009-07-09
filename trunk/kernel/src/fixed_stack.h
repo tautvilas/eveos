@@ -1,8 +1,7 @@
 #ifndef _FIXED_STACK_
 #define _FIXED_STACK_
 
-#include "global.h"
-#include "debug.h"
+#include <types.h>
 
 
 namespace Generic {
@@ -20,43 +19,43 @@ public:
      *
      *  Stack grows from end down to first in range [first; end).
      */
-    KERNEL_CALL
+    
     FixedStack(BidirectionalIterator first, BidirectionalIterator end);
     
-    KERNEL_CALL
+    
     FixedStack(BidirectionalIterator first, Size size);
     
-    KERNEL_CALL
+    
     FixedStack();
 
-    void KERNEL_CALL
+    void 
     push(const T& value);
 
-    T KERNEL_CALL
+    T 
     pop();
 
-    T& KERNEL_CALL
+    T& 
     top();
 
-    const T& KERNEL_CALL
+    const T& 
     top() const;
 
-    BidirectionalIterator KERNEL_CALL
+    BidirectionalIterator 
     begin();
 
-    const BidirectionalIterator KERNEL_CALL
+    const BidirectionalIterator 
     begin() const;
 
-    BidirectionalIterator KERNEL_CALL
+    BidirectionalIterator 
     end();
 
-    const BidirectionalIterator KERNEL_CALL
+    const BidirectionalIterator 
     end() const;
 
-    Size KERNEL_CALL
+    Size 
     size() const;
     
-    Bool KERNEL_CALL
+    Bool 
     empty() const;
     
 
@@ -71,7 +70,7 @@ private:
 #ifdef _OUT_STREAM_H_
 
 template <typename T, typename I>
-inline OutStream& KERNEL_CALL
+inline OutStream& 
 operator << (OutStream& stream, const FixedStack<T, I>& stack)
 {
     I last = stack.end();
@@ -93,7 +92,7 @@ operator << (OutStream& stream, const FixedStack<T, I>& stack)
 
 
 template <typename T, typename I>
-inline KERNEL_CALL
+inline 
 FixedStack<T, I>::FixedStack(I first, I end)
         : mFirst(first), mEnd(end), mCurr(end)
 {
@@ -102,7 +101,7 @@ FixedStack<T, I>::FixedStack(I first, I end)
 
 
 template <typename T, typename I>
-inline KERNEL_CALL
+inline 
 FixedStack<T, I>::FixedStack(I first, Size size)
         : mFirst(first), mEnd(first + size), mCurr(first + size)
 {
@@ -111,14 +110,14 @@ FixedStack<T, I>::FixedStack(I first, Size size)
 
 
 template <typename T, typename I>
-inline KERNEL_CALL
+inline 
 FixedStack<T, I>::FixedStack()
         : mFirst(0), mEnd(0), mCurr(0)
 {}
 
 
 template <typename T, typename I>
-inline void KERNEL_CALL
+inline void 
 FixedStack<T, I>::push(const T& value)
 {
     ASSERT(mCurr > mFirst && mCurr <= mEnd);
@@ -128,7 +127,7 @@ FixedStack<T, I>::push(const T& value)
 
 
 template <typename T, typename I>
-inline T KERNEL_CALL
+inline T 
 FixedStack<T, I>::pop()
 {
     ASSERT(mCurr >= mFirst && mCurr < mEnd);
@@ -138,7 +137,7 @@ FixedStack<T, I>::pop()
 
 
 template <typename T, typename I>
-inline T& KERNEL_CALL
+inline T& 
 FixedStack<T, I>::top()
 {
     ASSERT(mCurr >= mFirst && mCurr < mEnd);
@@ -148,7 +147,7 @@ FixedStack<T, I>::top()
 
 
 template <typename T, typename I>
-inline const T& KERNEL_CALL
+inline const T& 
 FixedStack<T, I>::top() const
 {
     ASSERT(mCurr <= mFirst && mCurr > mEnd);
@@ -158,7 +157,7 @@ FixedStack<T, I>::top() const
 
 
 template <typename T, typename I>
-inline I KERNEL_CALL
+inline I 
 FixedStack<T, I>::begin()
 {
     return mCurr;
@@ -166,7 +165,7 @@ FixedStack<T, I>::begin()
 
 
 template <typename T, typename I>
-inline const I KERNEL_CALL
+inline const I 
 FixedStack<T, I>::begin() const
 {
     return mCurr;
@@ -174,7 +173,7 @@ FixedStack<T, I>::begin() const
 
 
 template <typename T, typename I>
-inline I KERNEL_CALL
+inline I 
 FixedStack<T, I>::end()
 {
     return mEnd;
@@ -182,7 +181,7 @@ FixedStack<T, I>::end()
 
 
 template <typename T, typename I>
-inline const I KERNEL_CALL
+inline const I 
 FixedStack<T, I>::end() const
 {
     return mEnd;
@@ -190,7 +189,7 @@ FixedStack<T, I>::end() const
 
 
 template <typename T, typename I>
-inline Size KERNEL_CALL
+inline Size 
 FixedStack<T, I>::size() const
 {
     return end() - begin();
@@ -198,7 +197,7 @@ FixedStack<T, I>::size() const
 
 
 template <typename T, typename I>
-inline Bool KERNEL_CALL
+inline Bool 
 FixedStack<T, I>::empty() const
 {
     return end() == begin();

@@ -24,7 +24,7 @@ namespace {
     struct Regs;
     struct IdtPtr;
 
-    extern "C" void KERNEL_CALL isrCommonHandler(Regs&);
+    //extern "C" void KERNEL_CALL isrCommonHandler(Regs&);
     extern "C" void load_idt(IdtPtr*);
 
     typedef void(*Routine)();
@@ -129,7 +129,7 @@ namespace {
     IdtPtr gIdtPtr;
     // void* mIsrHandlers[70];
 
-    void KERNEL_CALL
+    void 
     setIdtGate(Byte num, Routine routine, Word sel, Byte flags)
     {
         DWord base = reinterpret_cast<Addr>(routine);
@@ -141,7 +141,7 @@ namespace {
         return;
     }
 
-    void KERNEL_CALL
+    extern "C" void EXTERN_CALL
     isrCommonHandler(Regs& regs)
     {
         // void (*handler)(Regs *regs);
@@ -178,7 +178,7 @@ namespace {
     }
 
     /*
-    static void KERNEL_CALL
+    static void 
     installisrHandler(int exceptionId, void (*handler)(Regs *r))
     {
         mIsrHandlers[exceptionId] = reinterpret_cast<void*>(handler);
@@ -186,7 +186,7 @@ namespace {
     */
 
     /*
-    static void KERNEL_CALL
+    static void 
     irq_install_handler(int aIrq, void (*handler)(regs_t *apR))
     {
         gpIsrRoutines[aIrq + 32] = handler;
@@ -194,7 +194,7 @@ namespace {
 
     // IRQs 0-7 are by default mapped to entries 8-15
     // This conflicts with ISRs so we should remap all IRQs to 32-47
-    void KERNEL_CALL
+    void 
     irqRemap(void)
     {
         // start sequence
@@ -216,7 +216,7 @@ namespace {
 
 }
 
-void KERNEL_CALL
+void 
 init()
 {
     gIdtPtr.size = (Word) sizeof(IdtGate) * 256 - 1;
