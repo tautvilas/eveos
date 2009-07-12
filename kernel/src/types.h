@@ -34,7 +34,7 @@ enum MemoryMeasure
 
 
 inline Addr 
-addr(void* ptr)
+addr(const void* ptr)
 {
     return reinterpret_cast<Addr>(ptr);
 }

@@ -17,6 +17,13 @@ extern "C" void eve_main()
     Mem::init();
     Isr::init();
 
+    // DUMP test
+    //*
+    {
+        char* str = "hello world!";
+        DUMP(str - 53, 111);
+    }//*/
+
     // new OutStream tests
     /*
     {

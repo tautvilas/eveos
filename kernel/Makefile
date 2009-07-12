@@ -49,7 +49,7 @@ all: kernel.bin
 kernel.bin: kentry.o kernel.o cpp_runtime.o main.o \
         vga_caret_reg.o vga_caret.o vga.o \
         out_stream.o vga_stream.o out_str.o out_int.o out.o \
-        debug_str.o debug_int.o \
+        debug_str.o debug_int.o debug_mem.o \
         mem_physical.o mem.o new.o \
         critical.o isr.o
 	@echo ~~~ Linking
